@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.4
+  version: 0.2.5
   description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
@@ -44,10 +44,45 @@ paths:
                   products:
                     type: array
                     items: {$ref: '#/components/schemas/Product'}
+  /venues/{venueId}/quotes:
+    post:
+      summary: Validate a basket against the published catalogue and issue a server-priced quote
+      operationId: createBasketQuote
+      description: Planned server endpoint. Client price snapshots are advisory only; server resolves authoritative product versions, prices, taxes and permissions. No real payments.
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/BasketQuoteRequest'}
+      responses:
+        '200':
+          description: Authoritative quote with unchanged prices or review conflicts
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BasketQuote'}
+        '409': {description: Unavailable product, stale catalogue or invalid area policy}
+  /venues/{venueId}/quotes/{quoteId}/accept-prices:
+    post:
+      summary: Explicitly accept a revised server-priced quote
+      operationId: acceptBasketQuotePrices
+      description: Planned endpoint. Must revalidate availability and versions, record acceptance and increment quote revision. Never accept client-supplied prices as authority.
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: quoteId, in: path, required: true, schema: {type: string}}
+        - {name: If-Match, in: header, required: true, schema: {type: string}, description: Expected current quote revision}
+      responses:
+        '200':
+          description: Newly accepted server quote
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/BasketQuote'}
+        '409': {description: Stale quote, changed catalogue or unavailable item}
   /venues/{venueId}/orders:
     post:
       summary: Submit validated multi-vendor order once
-      description: Future transactional endpoint. Idempotency key and stock reservation required.
+      description: Planned transactional endpoint. Server must verify an accepted, unexpired authoritative quote, atomically reserve stock, enforce Idempotency-Key and confirm payment through a separate trusted adapter. No live payment integration exists.
       operationId: submitOrder
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
@@ -58,23 +93,14 @@ paths:
           application/json:
             schema:
               type: object
-              required: [areaId, lines]
+              required: [areaId, quoteId, quoteRevision]
               properties:
                 areaId: {type: string}
-                lines:
-                  type: array
-                  minItems: 1
-                  items:
-                    type: object
-                    required: [productId, quantity]
-                    properties:
-                      productId: {type: string}
-                      quantity: {type: integer, minimum: 1}
+                quoteId: {type: string}
+                quoteRevision: {type: integer, minimum: 1}
       responses:
-        '202':
-          description: Order accepted pending payment confirmation
-        '409':
-          description: Stock, menu-version or idempotency conflict
+        '202': {description: Order accepted pending payment confirmation}
+        '409': {description: Expired quote, stock, catalogue or idempotency conflict}
   /venues/{venueId}/areas/{areaId}/keyboard:
     get:
       summary: Fetch the published keyboard profile for a selling area
@@ -325,6 +351,56 @@ components:
       scheme: bearer
       description: Planned server-side manager authentication, NOT implemented in prototype.
   schemas:
+    BasketQuoteRequest:
+      type: object
+      required: [areaId, lines]
+      properties:
+        areaId: {type: string}
+        lines:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [productId, quantity, productVersion, unitPriceMinor]
+            properties:
+              productId: {type: string}
+              quantity: {type: integer, minimum: 1}
+              productVersion: {type: integer, minimum: 1}
+              unitPriceMinor: {type: integer, minimum: 0, description: Client-displayed GBP pence; server must not trust this price}
+    BasketQuote:
+      type: object
+      required: [quoteId, revision, currency, lines, subtotalMinor, conflicts]
+      properties:
+        quoteId: {type: string}
+        revision: {type: integer, minimum: 1}
+        currency: {type: string, enum: [GBP]}
+        subtotalMinor: {type: integer, minimum: 0, description: Server-authoritative subtotal in pence, excluding separately calculated taxes and adjustments}
+        lines:
+          type: array
+          items: {$ref: '#/components/schemas/BasketLineSnapshot'}
+        conflicts:
+          type: array
+          items: {$ref: '#/components/schemas/BasketConflict'}
+    BasketLineSnapshot:
+      type: object
+      required: [productId, productVersion, vendorId, name, unitPriceMinor, quantity]
+      properties:
+        productId: {type: string}
+        productVersion: {type: integer, minimum: 1}
+        vendorId: {type: string}
+        name: {type: string}
+        unitPriceMinor: {type: integer, minimum: 0}
+        quantity: {type: integer, minimum: 1}
+    BasketConflict:
+      type: object
+      required: [productId, code]
+      properties:
+        productId: {type: string}
+        code: {type: string, enum: [CATALOGUE_CHANGED, PRODUCT_UNAVAILABLE, PRODUCT_REMOVED]}
+        fromVersion: {type: integer, minimum: 1}
+        toVersion: {type: integer, minimum: 1}
+        fromPriceMinor: {type: integer, minimum: 0}
+        toPriceMinor: {type: integer, minimum: 0}
     KeyboardDraftInput:
       type: object
       required: [kind, vendors]

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.7
+  version: 0.2.8
   description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
@@ -163,6 +163,77 @@ paths:
               schema: {$ref: '#/components/schemas/InventoryPreflight'}
         '403': {description: Authenticated user cannot inspect venue stock}
         '409': {description: Quote stale or no longer accepted}
+  /venues/{venueId}/inventory/reservations:
+    post:
+      summary: Reserve recipe stock for an accepted authoritative quote
+      operationId: reserveInventoryForQuote
+      description: Planned server transaction. Server derives ingredients from accepted quote and published recipes, never client-supplied demands. Lock stock rows, check active holds, persist reservation and idempotency atomically. Browser demo is NOT a multi-device lock.
+      security: [{checkoutAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 128}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ReserveQuoteStock'}
+      responses:
+        '201':
+          description: Held stock with server-assigned expiry
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReservationRecord'}
+        '200': {description: Idempotent replay without an additional hold}
+        '403': {description: Checkout session cannot access venue or quote}
+        '409': {description: Stale quote, shortage or conflicting idempotency key}
+  /venues/{venueId}/inventory/reservations/{reservationId}:
+    get:
+      summary: Check reservation for the authenticated checkout session
+      operationId: getInventoryReservation
+      security: [{checkoutAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: reservationId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Current reservation state
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReservationRecord'}
+        '403': {description: Checkout session not authorised}
+        '404': {description: Unknown reservation}
+    delete:
+      summary: Release uncommitted stock hold
+      operationId: releaseInventoryReservation
+      security: [{checkoutAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: reservationId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Released or already released
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReservationRecord'}
+        '403': {description: Checkout session not authorised}
+        '409': {description: Already committed}
+  /venues/{venueId}/inventory/reservations/{reservationId}/commit:
+    post:
+      summary: Internal trusted order transition consumes reserved stock once
+      operationId: commitInventoryReservation
+      description: Service-to-service only. Real system must commit stock movements, order state and idempotency atomically, coordinated with verified payment state. No Dojo connection.
+      security: [{serviceAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: reservationId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Committed or replay of prior commit
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ReservationRecord'}
+        '403': {description: Trusted service authentication required}
+        '409': {description: Expired, released or conflicted reservation}
   /venues/{venueId}/orders:
     post:
       summary: Submit validated multi-vendor order once
@@ -434,7 +505,32 @@ components:
       type: http
       scheme: bearer
       description: Planned server-side manager authentication, NOT implemented in prototype.
+    checkoutAuth:
+      type: http
+      scheme: bearer
+      description: Proposed server-issued checkout session. Not implemented in demo.
+    serviceAuth:
+      type: http
+      scheme: bearer
+      description: Proposed trusted internal service identity. Never expose to browsers.
   schemas:
+    ReserveQuoteStock:
+      type: object
+      required: [quoteId, quoteRevision]
+      additionalProperties: false
+      description: No client-supplied ingredient demand, stock count or TTL.
+      properties:
+        quoteId: {type: string}
+        quoteRevision: {type: integer, minimum: 1}
+    ReservationRecord:
+      type: object
+      required: [reservationId, quoteId, status, expiresAt]
+      properties:
+        reservationId: {type: string}
+        quoteId: {type: string}
+        status: {type: string, enum: [held, committed, released, expired, conflicted]}
+        expiresAt: {type: string, format: date-time}
+        committedAt: {type: string, format: date-time}
     VirtualStockroom:
       type: object
       required: [id, name, ingredients]

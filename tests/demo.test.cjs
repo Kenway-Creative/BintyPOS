@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
 test('demo loads shared catalogue before application script', () => {
-  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script src="\.\/src\/inventory\.js"><\/script>\s*<script src="\.\/src\/stockrooms\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script src="\.\/src\/inventory\.js"><\/script>\s*<script src="\.\/src\/stockrooms\.js"><\/script>\s*<script src="\.\/src\/reservations\.js"><\/script>\s*<script>/);
 });
 test('application JavaScript parses', () => {
   const parts = html.split('<script>\nconst seed=');
@@ -23,7 +23,7 @@ test('both staff and QR use the shared catalogue projection', () => {
 });
 
 test('demo loads keyboard profiles before application script', () => {
-  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script src="\.\/src\/inventory\.js"><\/script>\s*<script src="\.\/src\/stockrooms\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script src="\.\/src\/inventory\.js"><\/script>\s*<script src="\.\/src\/stockrooms\.js"><\/script>\s*<script src="\.\/src\/reservations\.js"><\/script>\s*<script>/);
 });
 test('till and QR use only published keyboard profiles', () => {
   assert.match(html, /BintyKeyboards\.areaMode\(keyboardStore\.published\(areaId\)\)/);
@@ -33,7 +33,7 @@ test('till and QR use only published keyboard profiles', () => {
 });
 
 test('speed shortcut module loads before inline app', () => {
-  assert.match(html, /<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script src="\.\/src\/inventory\.js"><\/script>\s*<script src="\.\/src\/stockrooms\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script src="\.\/src\/inventory\.js"><\/script>\s*<script src="\.\/src\/stockrooms\.js"><\/script>\s*<script src="\.\/src\/reservations\.js"><\/script>\s*<script>/);
   assert.match(html, /BintyShortcuts\.createStore\(/);
   assert.match(html, /BintyShortcuts\.visible\(products,liveAreaMode\(area\)/);
 });
@@ -74,6 +74,14 @@ test('inventory preflight is wired into add and simulated checkout',()=>{
 test('stockroom module is loaded and demo checkout depletes physical counts',()=>{
  assert.match(html,/src\/stockrooms\.js/);
  assert.match(html,/BintyStockrooms\.createStore\(/);
- assert.match(html,/stockroomStore\.consume\(stockChange\.demands\)/);
+ assert.match(html,/reservationStore\.commit\(reservation\.key\)/);
  assert.match(html,/function adjustCount\(/);
+});
+
+test('reservation module is loaded and checkout uses a hold before physical stock deduction',()=>{
+ assert.match(html,/src\/reservations\.js/);
+ assert.match(html,/BintyReservations\.createStore\(/);
+ assert.match(html,/reservationStore\.reserve\(/);
+ assert.match(html,/reservationStore\.commit\(/);
+ assert.match(html,/reservationStore\.available\(\)/);
 });

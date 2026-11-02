@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const spec=fs.readFileSync(path.join(__dirname,'..','openapi.yaml'),'utf8');
 test('quote API documents server-priced validation and explicit acceptance',()=>{
-  assert.match(spec,/version: 0\.2\.7/);
+  assert.match(spec,/version: 0\.2\.8/);
   assert.match(spec,/\/venues\/\{venueId\}\/quotes:/);
   assert.match(spec,/operationId: createBasketQuote/);
   assert.match(spec,/\/venues\/\{venueId\}\/quotes\/\{quoteId\}\/accept-prices:/);
@@ -36,4 +36,13 @@ test('virtual stockroom API separates logical category from physical counting lo
  assert.match(spec,/operationId: reassignIngredientStockroom/);
  assert.match(spec,/PhysicalCountInput:/);
  assert.match(spec,/locationId: \{type: string, description: Real physical counting location/);
+});
+
+test('reservation API uses accepted quotes, idempotency and service-only commit',()=>{
+ assert.match(spec,/operationId: reserveInventoryForQuote/);
+ assert.match(spec,/operationId: getInventoryReservation/);
+ assert.match(spec,/operationId: releaseInventoryReservation/);
+ assert.match(spec,/operationId: commitInventoryReservation/);
+ assert.match(spec,/ReservationRecord:/);
+ assert.match(spec,/security: \[\{serviceAuth: \[\]\}\]/);
 });

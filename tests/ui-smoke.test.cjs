@@ -11,6 +11,7 @@ const offerings = require('../src/offerings.js');
 const basket = require('../src/basket.js');
 const inventory = require('../src/inventory.js');
 const stockrooms = require('../src/stockrooms.js');
+const reservations = require('../src/reservations.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const inline = 'const seed=' + html.split('<script>\nconst seed=')[1].split('</script>')[0];
 
@@ -26,7 +27,8 @@ function boot() {
     BintyOfferings: offerings,
     BintyBasket: basket,
     BintyInventory: inventory,
-    BintyStockrooms: stockrooms
+    BintyStockrooms: stockrooms,
+    BintyReservations: reservations
   };
   vm.createContext(context);
   vm.runInContext(inline, context, { timeout: 1000 });
@@ -209,4 +211,27 @@ test('physical count adjustment changes availability on staff and QR',()=>{
  run('setTab("qr")');
  assert.match(nodes.app.innerHTML,/Cherry On Top Cake/);
  assert.equal(run('canAdd(products.find(p=>p.id==="cake"))'),false);
+});
+
+test('pending hold reduces what till can add without physical deduction',()=>{
+ const {run}=boot();
+ run('reservationStore.reserve({key:"other",demands:{corona:23}});add("corona");add("corona")');
+ assert.equal(run('cart.corona'),1);
+ assert.equal(run('stock.corona'),24);
+ assert.equal(run('reservationStore.available().corona'),1);
+});
+test('checkout commits its own hold and consumes exactly its share',()=>{
+ const {run}=boot();
+ run('reservationStore.reserve({key:"other",demands:{corona:23}});add("corona");checkout()');
+ assert.equal(run('orders.length'),1);
+ assert.equal(run('stock.corona'),23);
+ assert.equal(run('reservationStore.status("other").status'),'held');
+ assert.equal(run('reservationStore.available().corona'),0);
+});
+test('physical count drop invalidates a hold without deducting stock',()=>{
+ const {run}=boot();
+ run('reservationStore.reserve({key:"other",demands:{corona:5}});demoSetStock("corona",3)');
+ assert.throws(()=>run('reservationStore.commit("other")'),/RESERVATION_STOCK_CONFLICT/);
+ assert.equal(run('reservationStore.status("other").status'),'conflicted');
+ assert.equal(run('stock.corona'),3);
 });

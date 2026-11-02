@@ -1,4 +1,4 @@
-# BintyPOS architecture | prototype v0.2.7
+# BintyPOS architecture | prototype v0.2.8
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
@@ -64,3 +64,8 @@ The user's `Hot Water Comedy Club x Access: Binty's ideal world` brief (stock re
 `src/stockrooms.js` models logical stockrooms as **categories** rather than physical locations. Each ingredient has exactly one logical room and independent integer counts in zero or more real locations. Counts are summed once per ingredient; the shared `src/inventory.js` preflight uses these logical totals. After a successful simulated checkout, a deterministic location-ID allocation reduces the physical counts and therefore the logical total. `moveRoom` changes category without changing counts or ingredient identity. No data is persisted or authenticated.
 
 The current allocation is intentionally **not a physical picking/fulfilment strategy**. A real inventory service must separately model movement, receipts, counting sessions, variance approval, unit conversions, waste, permissions, optimistic revisions and atomic multi-client reservations. Never derive vendor ownership, menu visibility or a stockroom permission from a physical count location.
+
+## Implemented reservation boundary (v0.2.8)
+`src/reservations.js` is a synchronous, in-memory hold/commit/release state machine with injected stock adapters. Active holds reduce reservable quantities; `consumeStock()` is invoked only on commit. Idempotency keys prevent duplicate holds/commits within one store. Expired, released or conflicted holds cannot commit. Staff and QR use the same checkout boundary.
+
+**Not a distributed lock, secure payment or durable transaction.** Separate browsers still oversell. Production requires authenticated venue/checkout scope, accepted quote revision checks, row locks and atomic DB transactions, durable idempotency, expiry processing, immutable movements and payment-state reconciliation. Public reserve API accepts a quote reference, not ingredient demands. Commit is internal service-only.

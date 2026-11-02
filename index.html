@@ -56,7 +56,7 @@ select,input{background:#24231f;border-color:#58513d}
 .warn{background:#422722;border-left-color:#f46b40}
 @media(max-width:700px){.market-logo{width:63px;height:47px}.brand{font-size:17px;gap:9px}.brand .tag{font-size:8px}}
 .speed-key{background:#3a310f;border:2px solid #e4bc19;min-height:52px;font-weight:850}.category-key{border-color:#b69a31;min-height:46px}.speed-key:disabled{opacity:.4}
-</style></head><body><header><div class="brand"><img class="market-logo" src="https://blackstockmarket-images.s3.amazonaws.com/blog/IMG_1944.jpg" alt="Blackstock Market"><div class="brand-copy"><div class="brand-word">BLACKSTOCK <span class="brand-pos">POS</span></div><div class="tag">BINTYPOS v0.2.1 · VENUE-WIDE DEMO · SIMULATED PAYMENTS</div></div></div><div class="venue-name">FOOD MARKET · BARS · THEATRES · LIVERPOOL</div></header><main><nav id="tabs"></nav><div id="app"></div><div class="footer">Prototype v0.2.3 only: in-browser state, fictional prices, simulated payments and vouchers. No Dojo, Spektrix, stock system, multi-user backend or live services connected. Reload resets demo.</div></main>
+</style></head><body><header><div class="brand"><img class="market-logo" src="https://blackstockmarket-images.s3.amazonaws.com/blog/IMG_1944.jpg" alt="Blackstock Market"><div class="brand-copy"><div class="brand-word">BLACKSTOCK <span class="brand-pos">POS</span></div><div class="tag">BINTYPOS v0.2.8 · VENUE-WIDE DEMO · SIMULATED PAYMENTS</div></div></div><div class="venue-name">FOOD MARKET · BARS · THEATRES · LIVERPOOL</div></header><main><nav id="tabs"></nav><div id="app"></div><div class="footer">Prototype v0.2.8: in-browser state, fictional prices, simulated payments, stock and temporary holds. No multi-device lock, real stock reservations, Dojo, Spektrix or secure backend. Reload resets demo.</div></main>
 <script src="./src/catalog.js"></script>
 <script src="./src/keyboards.js"></script>
 <script src="./src/shortcuts.js"></script>
@@ -64,6 +64,7 @@ select,input{background:#24231f;border-color:#58513d}
 <script src="./src/basket.js"></script>
 <script src="./src/inventory.js"></script>
 <script src="./src/stockrooms.js"></script>
+<script src="./src/reservations.js"></script>
 <script>
 const seed=[
 {id:'corona',name:'Corona',vendor:'Lily’s Lounge',category:'Packaged',price:5.5,recipe:{corona:1}},
@@ -94,6 +95,8 @@ let products=structuredClone(seed),stock=stockroomStore.totals(),cart={},orders=
 const vendors=[...new Set(seed.map(x=>x.vendor))],areas=Object.keys(config),money=n=>'£'+n.toFixed(2),el=x=>document.getElementById(x),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const offeringStore=BintyOfferings.createStore(products);
 const basketStore=BintyBasket.createStore();
+const reservationStore=BintyReservations.createStore({readStock:()=>stockroomStore.totals(),consumeStock:demands=>stockroomStore.consume(demands)});
+let demoOrderSequence=0;
 products=offeringStore.published();
 const keyboardStore=BintyKeyboards.createStore(config,{vendors});
 const shortcutStore=BintyShortcuts.createStore({
@@ -209,8 +212,9 @@ function discardOffering(id){
 }
 function available(p){
  try{
-   const current=BintyInventory.preflight(basketStore.snapshot().lines,products,stock);
-   return Math.max(0,Math.min(...Object.entries(p.recipe).map(([id,units])=>Math.floor(((stock[id]??0)-(current.demands[id]??0))/units)).concat([999])));
+   const reservable=reservationStore.available();
+   const current=BintyInventory.preflight(basketStore.snapshot().lines,products,reservable);
+   return Math.max(0,Math.min(...Object.entries(p.recipe).map(([id,units])=>Math.floor(((reservable[id]??0)-(current.demands[id]??0))/units)).concat([999])));
  }catch(e){return 0}
 }
 function inCart(id){return cart[id]||0}
@@ -250,8 +254,16 @@ function checkout(){
    return {p:{...live,name:line.name,vendor:line.vendor,price:line.unitPriceMinor/100,version:line.productVersion},qty:line.quantity};
  });
  const sum=quote.subtotalMinor/100,redeemed=activeVoucher?Math.min(voucher,sum):0;
- stockroomStore.consume(stockChange.demands); // Logical pools are depleted across count locations.
- stock=stockroomStore.totals(); // Browser-only, NOT a transactional reservation.
+ let reservation;
+ try{
+   reservation=reservationStore.reserve({key:'demo-order-'+(++demoOrderSequence),demands:stockChange.demands});
+   reservationStore.commit(reservation.key); // In-memory simulation, NOT a multi-device transaction.
+ }catch(e){
+   if(reservation&&reservationStore.status(reservation.key)?.status==='held')reservationStore.release(reservation.key);
+   const detail=e.shortages?.map(x=>x.ingredientId+' needs '+x.required+' (reservable '+x.available+')').join(', ');
+   receipt='Checkout blocked: '+(detail||e.message);render();return;
+ }
+ stock=stockroomStore.totals(); // Physical counts deducted only after demo commit.
  orders.unshift({id:orders.length+1001,time:new Date().toLocaleTimeString('en-GB'),area,lines,total:sum,redeemed,card:sum-redeemed});
  voucher-=redeemed;basketStore.clear();cart={};activeVoucher=false;
  receipt='SIMULATED PAYMENT ACCEPTED · '+money(sum)+' · Voucher '+money(redeemed)+' · Card '+money(sum-redeemed);

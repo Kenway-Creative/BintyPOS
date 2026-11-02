@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.7** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.8** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -43,11 +43,24 @@ Simulated checkout uses the existing aggregate recipe preflight and then deducts
 
 **Verification:** 125/125 committed tests passed in a V8 Node-compatibility harness; application JS parsed. Native Node CI, real browser and live Pages status remain unverified.
 
+
+## Shared stock reservation boundary (v0.2.8)
+
+The staff till and guest QR simulated checkout now hold stock before consuming it. `src/reservations.js` injects `readStock()` and all-or-none `consumeStock()`, exposing `reserve({key,demands,ttlMs})`, `commit(key)`, `release(key)`, `status(key)`, `available()` and `activeCount()`.
+
+Within **one browser**, active holds reduce reservable stock, idempotency prevents duplicate consumption, holds expire or release, and physical count changes can invalidate a hold. The default hold is two minutes; the demo commits immediately at simulated checkout, with no card authorisation.
+
+**Not a distributed stock lock.** Two browsers can oversell. Production requires server-derived ingredient demand from accepted quotes, authenticated checkout sessions, transactional database stock reservation, durable idempotency and expiry, immutable movements, payment reconciliation and crash recovery. The proposed REST reservation endpoints are **not running**; internal commit must never be callable by a browser.
+
+Run `node --test tests/reservations.test.cjs` (16 native Node tests) or `node --test tests/*.test.cjs` (whole suite). Native Node passed 16 new unit tests in an isolated local copy; CI must verify this release.
+
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
 - `src/basket.js` — immutable per-line price snapshots, explicit review and integer-pence subtotals.
 - `src/inventory.js` — pure aggregate recipe demand, shortage detection and all-or-none local consumption.
+- `src/reservations.js` — temporary idempotent holds, expiry, conflicts and injected commit adapter; demo-only.
+- `tests/reservations.test.cjs` — 16 reservation unit tests.
 - `src/stockrooms.js` — logical virtual stockroom categories, independent physical count locations, deterministic local depletion and safe reclassification.
 - `tests/stockrooms.test.cjs` — 12 unit cases for virtual pools, physical locations, category moves, defensive snapshots and no-partial-consumption.
 - `tests/inventory.test.cjs` — 10 unit tests for shared ingredient demand, validation and no-partial-deduction behaviour.
@@ -66,7 +79,7 @@ Simulated checkout uses the existing aggregate recipe preflight and then deducts
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
 
 ## Test locally
-Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 125 committed test cases. **125/125 passed in a V8 Node-test compatibility harness**, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. v0.2.8 adds 21 tests to the 125-case v0.2.7 suite; verify full CI. **125/125 passed for v0.2.7** in a V8 Node-test compatibility harness, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
 
 ## Offering proposal contract
 `BintyOfferings.createStore(products)` owns in-memory published products and pending per-product proposals. An outlet manager may propose name, availability or price changes only for their outlet. Only the venue-admin role may approve/publish or reject. Published products increment versions; stale versions fail closed and events are recorded in a defensive-copy audit log. In the future API, prices are represented as integer GBP pence (`priceMinor`), whereas the browser demo currently uses pound-number prices. The conversion and rounding must occur in a validated server adapter. Proposed API endpoints are in `openapi.yaml`, not running.

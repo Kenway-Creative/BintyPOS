@@ -12,9 +12,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.5 immutable GBP-pence basket snapshots, explicit catalogue-change review, checkout blocking and proposed server quote API.
 - 0.2.6 shared recipe ingredient aggregation, basket-wide preflight and all-or-none browser stock consumption.
 - 0.2.7 virtual stockroom categories, independent physical count locations, category reclassification, deterministic local consumption and stock tab demonstration.
+- 0.2.8 idempotent in-memory stock holds, expiry/release, conflict detection and demo checkout integration.
 
 ## Prioritised releases
-- **0.2.8 next:** design a server-side inventory reservation boundary (adapter, idempotency and expiry tests); no claims of durable atomic transactions until backed by a real database.
+- **0.2.9 next:** transactional persistence proof-of-concept for reservations with competing-client tests and durable idempotency. Keep static demo separate.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
@@ -48,3 +49,8 @@ Square Inventory API models inventory changes and atomic batches, but its docume
 
 ## Source-of-truth brief (reviewed 2026-11-02)
 The attached `Hot Water Comedy Club x Access: Binty's ideal world` specifies virtual stockrooms that are *not physical rooms*, shared ingredients such as vodka, Prosecco, sugar and potatoes, and product recipes that deduct stock regardless of which selling area sold them. The scoping-call transcript confirms shared communal stock can be physically distributed throughout the building. Model logical pools independently of physical count locations; do not equate business/vendor or till with stock location.
+
+## Benchmark v0.2.8
+Square Inventory API documents atomic batched changes and an idempotency key (API version 2026-09-16). BintyPOS models recipe-based cross-vendor holds in one browser, **not** equivalent server guarantees. Checked 2026-11-02:
+- https://developer.squareup.com/docs/inventory-api/how-it-works
+- https://developer.squareup.com/reference/square/inventory-api/batch-change-inventory

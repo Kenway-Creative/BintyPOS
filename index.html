@@ -78,6 +78,7 @@ const initialStock={corona:24,vodka:32,prosecco:15,whisky:24,lager:50,cake:4};
 let products=structuredClone(seed),stock={...initialStock},cart={},orders=[],receipt='',tab='till',area='Main Bar',filter='All',role='Venue admin',voucher=50,activeVoucher=false,config={'Main Bar':'All','Lily’s Lounge':'Lily’s Lounge','Whisky & Water':'Whisky & Water','Blackstock Roof Garden':'Blackstock Roof Garden','Pattersons':'Pattersons','Cherry On Top':'Cherry On Top','Theatre 1':'Short Menu'},search='',qrv=false,outletFolder='All',backOfficeUnlocked=false,backOfficeRole='Venue admin',keyboardNotice='',offeringNotice='';
 const vendors=[...new Set(seed.map(x=>x.vendor))],areas=Object.keys(config),money=n=>'£'+n.toFixed(2),el=x=>document.getElementById(x),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const offeringStore=BintyOfferings.createStore(products);
+products=offeringStore.published();
 const keyboardStore=BintyKeyboards.createStore(config,{vendors});
 const shortcutStore=BintyShortcuts.createStore({
   'Main Bar': {productIds:['corona','burger','potato'],categories:['Food','Packaged','Cocktails']},

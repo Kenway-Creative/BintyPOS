@@ -25,6 +25,7 @@
    if(!item||!goodId(item.id)||itemIds.has(item.id)||!roomIds.has(item.roomId)||!item.counts||typeof item.counts!=='object'||Array.isArray(item.counts))throw Error('INVALID_STOCKROOM_ITEM');
    itemIds.add(item.id);
    for(const [locationId,quantity] of Object.entries(item.counts))if(!locationIds.has(locationId)||!count(quantity))throw Error('INVALID_LOCATION_COUNT');
+   total(item);
   }
   function itemFor(id){const item=items.find(x=>x.id===id);if(!item)throw Error('UNKNOWN_INGREDIENT');return item}
   function total(item){

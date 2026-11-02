@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.5] — 2026-11-02
+**Feature:** Immutable basket price snapshots with explicit review before simulated checkout.
+- Added `src/basket.js`: defensive line snapshots containing product/version, vendor, name, unit price in GBP pence and quantity; minor-unit totals; changed/unavailable/deleted catalogue conflict detection; explicit repricing; validated order snapshot.
+- Staff till and guest QR share the same locked basket. Approving a new outlet price no longer silently recalculates an in-progress basket; checkout blocks until staff/guest explicitly accepts current published prices. Unavailable products must be removed.
+- Simulated orders retain accepted price/vendor snapshots for historical reporting. Existing stock checks and voucher demonstration remain browser-only.
+- Proposed server-authoritative quote, quote acceptance and quote-referenced order contracts in `openapi.yaml`; **no API server or Dojo connection**.
+- Added 12 basket unit tests, four UI smoke tests, one static wiring test and three API contract checks. **93/93 committed tests passed in a V8 compatibility harness**. Inline app syntax and five direct mocked-DOM flows passed. Native Node CI, real browsers and Pages publication **not independently verified**.
+- Benchmark: Square's order line items record base price money per unit (https://developer.squareup.com/reference/square/objects/orderlineitem); Toast recommends validating/pricing before order submission (https://doc.toasttab.com/doc/devguide/apiOrdersFirstOrder.html). BintyPOS adds explicit acceptance of changed published prices, but has no real server-side pricing or tax engine.
+- Rollback baseline: `2f0ec0182ce49d6f83e88775d47fa26df6c4b656` (v0.2.4 checkpoint). No tag or release created.
+
 ## [0.2.4] — 2026-11-02
 **Feature:** Outlet-managed offering proposals with venue-controlled publication.
 - Added `src/offerings.js`: versioned published product snapshots, outlet-scoped draft proposals, central approve/reject, stale-version protection, defensive snapshots and an append-only in-memory event sequence.

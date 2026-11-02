@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.9
-  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. The SQLite v0.2.9 proof-of-concept is an internal Python adapter with no HTTP listener, no authenticated quote validation, and no payment integration.
+  version: 0.2.10
+  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. The SQLite v0.2.10 trusted quote adapter derives prices and recipe stock demand from persisted published-product snapshots, validates explicit acceptance and atomically holds stock; it has NO HTTP listener, verified identity, tax/payment logic or live integration.
 servers:
   - url: /api/v1
 paths:
@@ -48,7 +48,7 @@ paths:
     post:
       summary: Validate a basket against the published catalogue and issue a server-priced quote
       operationId: createBasketQuote
-      description: Planned server endpoint. Client price snapshots are advisory only; server resolves authoritative product versions, prices, taxes and permissions. No real payments.
+      description: Planned server endpoint. v0.2.10 internal Python create_quote() accepts ONLY productId and quantity, calculates GBP-pence subtotal and ingredient demand from persisted product versions and recipes; taxes, area permissions, authenticated sessions and HTTP endpoint are NOT implemented. Browser quote fields remain advisory only.
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
       requestBody:
@@ -67,7 +67,7 @@ paths:
     post:
       summary: Explicitly accept a revised server-priced quote
       operationId: acceptBasketQuotePrices
-      description: Planned endpoint. Must revalidate availability and versions, record acceptance and increment quote revision. Never accept client-supplied prices as authority.
+      description: Planned endpoint. v0.2.10 internal accept_quote() checks checkout session fixture, expected server total, expiry and published product versions, and persists accepted state. No HTTP endpoint, verified identity, revision increment, VAT or payment processing yet.
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
         - {name: quoteId, in: path, required: true, schema: {type: string}}
@@ -167,7 +167,7 @@ paths:
     post:
       summary: Reserve recipe stock for an accepted authoritative quote
       operationId: reserveInventoryForQuote
-      description: Planned authenticated server transaction. The isolated SQLite 0.2.9 adapter demonstrates durable locks and idempotency but accepts trusted direct ingredient demand for tests; it does NOT implement this HTTP endpoint. A real service must derive demand from an accepted quote and published recipes, never client-supplied demands. Browser demo is NOT a multi-device lock.
+      description: Planned authenticated server transaction. The internal SQLite v0.2.10 TrustedQuoteReservations.reserve_accepted_quote() atomically checks accepted quote, session fixture, expiry and current product versions, derives demands from the persisted quote, and creates an idempotent stock hold. NO HTTP endpoint, real authentication, order ledger or payment coordination. The older direct-demand SQLiteReservations.reserve() remains trusted test-only. Browser demo is NOT a multi-device lock.
       security: [{checkoutAuth: []}]
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
@@ -518,7 +518,7 @@ components:
       type: object
       required: [quoteId, quoteRevision]
       additionalProperties: false
-      description: No client-supplied ingredient demand, stock count or TTL.
+      description: No client-supplied ingredient demand, stock count or TTL. The v0.2.10 Python adapter takes quoteId and a trusted session fixture; HTTP quoteRevision and authenticated identity are future contract features.
       properties:
         quoteId: {type: string}
         quoteRevision: {type: integer, minimum: 1}

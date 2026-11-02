@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.10] — 2026-11-02 — Trusted quote-bound durable stock holds
+- Added `src/trusted_checkout.py` with versioned published-product fixtures, immutable GBP-pence quote snapshots, aggregated recipe demand and explicit acceptance.
+- Durable holds are derived exclusively from stored accepted quotes inside a single SQLite `BEGIN IMMEDIATE` transaction. Rejected stale price/recipe revisions, expired quotes, wrong checkout session fixture and reused idempotency keys.
+- Added 14 Python regression tests including competing independent connections, restart persistence, invalid client-supplied prices, no partial holds and replay safety.
+- Local verification: 14/14 new Python tests passed on Python 3.13.5; source and test Git blob hashes match committed GitHub content. Native Node CI, all Python tests in GitHub Actions, and Pages outcome pending confirmation.
+- OpenAPI contract updated to 0.2.10 but is **not** implemented as an HTTP API. Checkout session strings and product publishing are trusted fixtures, not authenticated endpoints.
+- No payment processing, VAT/tax engine, durable order ledger, real server auth or connection to static till/QR. Do not expose direct-demand reservation methods to browsers.
+- Square Inventory API benchmark: atomic batches, idempotency and event-based stock accounting. BintyPOS differs by deriving ingredient demand from accepted multi-vendor quotes, but is not operationally equivalent.
+- Rollback baseline: v0.2.9 checkpoint `11f7def96b633c7573b06dde306de00373355a84`. Implementation `f3afc3163bf53f2fe62620d4fa77c7b834a9753d`, tests `5144b8d4e9d153ed003cad956da2eac3564e2f01`. No release tag.
+
+
 ## [0.2.9] — 2026-11-02 — SQLite transactional reservation proof-of-concept
 - Added `src/persistent_reservations.py`: SQLite file-backed, transactionally serialised stock holds, expiry, release, durable idempotency and one-time ingredient movements.
 - Added 13 Python standard-library regression tests, including two competing connections, restart/replay, venue isolation and no partial deduction.

@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.8
-  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
+  version: 0.2.9
+  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. The SQLite v0.2.9 proof-of-concept is an internal Python adapter with no HTTP listener, no authenticated quote validation, and no payment integration.
 servers:
   - url: /api/v1
 paths:
@@ -167,7 +167,7 @@ paths:
     post:
       summary: Reserve recipe stock for an accepted authoritative quote
       operationId: reserveInventoryForQuote
-      description: Planned server transaction. Server derives ingredients from accepted quote and published recipes, never client-supplied demands. Lock stock rows, check active holds, persist reservation and idempotency atomically. Browser demo is NOT a multi-device lock.
+      description: Planned authenticated server transaction. The isolated SQLite 0.2.9 adapter demonstrates durable locks and idempotency but accepts trusted direct ingredient demand for tests; it does NOT implement this HTTP endpoint. A real service must derive demand from an accepted quote and published recipes, never client-supplied demands. Browser demo is NOT a multi-device lock.
       security: [{checkoutAuth: []}]
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}

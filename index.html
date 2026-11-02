@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BintyPOS — Hot Water prototype</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Blackstock POS — BintyPOS venue prototype</title>
 <style>
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#f4f2ef;background:#111318}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 13px;background:#292e37;color:#fff}button:hover{filter:brightness(1.15)}button.active,.primary{background:#f04c52;color:white}button:disabled{opacity:.45;cursor:not-allowed}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;border-bottom:1px solid #30343b;flex-wrap:wrap}.brand{font-weight:850;font-size:23px;letter-spacing:-.7px}.brand span{color:#f04c52}.tag{font-size:11px;background:#5e3f21;color:#ffe0a5;padding:5px 9px;border-radius:20px;margin-left:10px}small,.muted{color:#a1a6af}main{padding:20px;max-width:1480px;margin:auto}nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.panel{border:1px solid #303740;background:#1b1e25;border-radius:14px;padding:18px}.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.item{text-align:left;min-height:125px;background:#282d35;border:1px solid #3a404b;display:flex;flex-direction:column;justify-content:space-between}.item b{font-size:17px}.item .price{color:#85d9b7}.pill{background:#353b45;border-radius:16px;padding:4px 8px;font-size:11px;color:#c9cdd4}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}select,input{background:#252a33;color:#fff;border:1px solid #454c57;border-radius:8px;padding:9px;max-width:100%}h1,h2,h3{margin:0 0 14px}h2{font-size:22px}h3{font-size:16px}.line{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #363b43;padding:12px 0}.line:last-child{border:0}.line button{padding:5px 9px}.money{font-variant-numeric:tabular-nums;font-weight:700}.total{font-size:24px;color:#85d9b7}.bottom{border-top:1px solid #343a43;margin-top:12px;padding-top:14px}.hint{background:#273944;border-left:3px solid #74bfda;padding:12px;border-radius:7px;margin:12px 0;color:#cde9f7}.warn{background:#493431;border-left:3px solid #ef8b70;padding:12px;border-radius:7px;margin:12px 0;color:#ffdfd0}.success{color:#85d9b7}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.metric{padding:18px;background:#252a33;border-radius:10px}.metric strong{display:block;font-size:26px;margin-top:8px}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:12px 9px;text-align:left;border-bottom:1px solid #353b44}.table th{color:#aab0b9;font-size:12px}.stack{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.section{margin-bottom:15px}.badge{color:#8fd0ab;background:#234635;padding:4px 8px;border-radius:8px;font-size:12px}.right{text-align:right}.hidden{display:none}.footer{font-size:12px;color:#a2aab5;margin-top:22px} @media(max-width:850px){.grid,.two,.three{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:12px}}
 
@@ -29,7 +29,33 @@ select,input{background:#242327;border-color:#555051}
 .footer{color:#96918c}
 .bottom{border-top-color:#4a403b}
 @media(max-width:700px){.hw-logo{width:48px;height:48px}.brand{font-size:18px;gap:8px}.brand .tag{font-size:8px}header{padding:12px}.venue-name{display:none}}
-</style></head><body><header><div class="brand"><img class="hw-logo" src="https://content.airshipm2.co.uk/img/3/181223/rif.jpeg" alt="Hot Water Comedy Club logo"><div><span class="brand-word">HOT WATER</span> <span class="brand-pos">POS</span><div class="tag">BINTYPOS · CONCEPT DEMO · NO REAL PAYMENTS</div></div></div><div class="venue-name">BLACKSTOCK MARKET · LIVERPOOL</div></header><main><nav id="tabs"></nav><div id="app"></div><div class="footer">Prototype only: in-browser state, fictional prices, simulated payments and vouchers. No Dojo, Spektrix, stock system, multi-user backend or live services connected. Reload resets demo.</div></main>
+
+/* Blackstock Market venue branding — dark industrial surfaces, signature yellow */
+:root{color:#faf7eb;background:#0b0b0a}
+body{background:radial-gradient(circle at 90% 0%,rgba(255,205,18,.10),transparent 32%),#0b0b0b;color:#faf7eb}
+header{background:#080808;border-bottom:3px solid #f5c91b}
+.brand{font-size:25px;gap:15px}
+.market-logo{width:96px;height:60px;object-fit:cover;border:1px solid #e3ca5c;border-radius:5px;flex-shrink:0}
+.brand .brand-word{font-weight:900;letter-spacing:.035em;color:#f7cb18}
+.brand .brand-pos{color:#fff}
+.brand .tag{display:inline-block;margin:5px 0 0;padding:4px 9px;color:#f6dfa0;border-color:#5f512c;background:#241e0d;font-size:9px;font-weight:700}
+.venue-name{font-size:11px;letter-spacing:.11em;color:#e2c86b}
+nav{background:#131313;border:1px solid #383530}
+button{background:#282824;border-color:#4a4534}
+button.active,.primary{background:#f3c817;color:#16130a;border-color:#f3c817;font-weight:850}
+button:hover:not(:disabled){border-color:#ffdc4d}
+.panel{background:#181818;border-color:#403d32}
+.item{background:linear-gradient(155deg,#2b2a25,#1b1b1b);border-color:#454236;border-left:3px solid #e9c21b}
+.item:hover:not(:disabled){background:#363020}
+.item .price,.total,.success{color:#ffe05d}
+.pill{background:#353020;color:#f3df96}
+.badge{background:#463c19;color:#ffe16d}
+select,input{background:#24231f;border-color:#58513d}
+.metric{background:#25231d;border-left-color:#f2cb20}
+.hint{background:#2f2a19;border-left-color:#f1cb22;color:#f9e7af}
+.warn{background:#422722;border-left-color:#f46b40}
+@media(max-width:700px){.market-logo{width:63px;height:47px}.brand{font-size:17px;gap:9px}.brand .tag{font-size:8px}}
+</style></head><body><header><div class="brand"><img class="market-logo" src="https://blackstockmarket-images.s3.amazonaws.com/blog/IMG_1944.jpg" alt="Blackstock Market"><div class="brand-copy"><div class="brand-word">BLACKSTOCK <span class="brand-pos">POS</span></div><div class="tag">BINTYPOS · VENUE-WIDE CONCEPT · SIMULATED PAYMENTS</div></div></div><div class="venue-name">FOOD MARKET · BARS · THEATRES · LIVERPOOL</div></header><main><nav id="tabs"></nav><div id="app"></div><div class="footer">Prototype only: in-browser state, fictional prices, simulated payments and vouchers. No Dojo, Spektrix, stock system, multi-user backend or live services connected. Reload resets demo.</div></main>
 <script>
 const seed=[
 {id:'corona',name:'Corona',vendor:'Lily’s Lounge',category:'Packaged',price:5.5,recipe:{corona:1}},

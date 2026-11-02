@@ -1,39 +1,32 @@
 # BintyPOS status
 
-Version: **0.2.6** — combined recipe ingredient preflight
+Version: **0.2.7** — virtual stockrooms and physical count locations
 Date: 2026-11-02
 Canonical: Kenway-Creative/BintyPOS · main
-Rollback baseline (v0.2.5): `0c37d28cba14fbf9db24cd4d516abeb3d50389c8`
+Rollback baseline (v0.2.6): `a6f46b32345fd874a56442d8e2c9676b8f9c3f8c`
 
 ## Completed this release
-- Pure `src/inventory.js` validates integer stock/recipe counts, aggregates demands across the full multi-vendor basket, reports shortages and returns all-or-none stock snapshots.
-- Staff till and guest QR now use the same basket-wide stock guard. The remaining count for an item considers ingredient demand already in the basket, including other product recipes.
-- Simulated checkout validates the accepted price snapshot and current inventory together. If one ingredient is short, no order is recorded and no stock is decremented. If all fit, one new stock snapshot replaces the old one.
-- Proposed advisory inventory preflight API and shortage schema added to OpenAPI v0.2.6. No running endpoint.
+- `src/stockrooms.js`: one logical category per ingredient, separate per-location physical quantities, venue-wide totals, reclassification without losing counts, deterministic local consumption and no partial depletion on shortage.
+- The Stock tab groups by virtual room, shows physical location counts and permits illustrative +/- changes.
+- Staff and QR checkout still preflight the full basket using shared recipe demand, then decrement physical locations in the same browser state. The selling area does not determine which stock pool is depleted.
+- OpenAPI v0.2.7 adds proposed logical room listing, physical count and category-reassignment routes. These are **not operational endpoints**.
 
-## Verification performed
-- **108/108 committed regression cases passed in a V8 Node-test compatibility harness** across nine test files (including ten new inventory tests, three UI smoke scenarios, one static wiring check and one API contract check).
-- **10/10 inventory unit tests passed in native Node 22** using an isolated local copy of the inventory module/test; not a full native repository CI run.
-- Inline application JavaScript parsed in V8. Five additional direct V8 checks passed: syntax, aggregate demand, oversell add guard, stock-reduction checkout block and successful checkout.
-- Native GitHub Actions, real browser/device, GitHub Pages deployment and multi-client concurrency **not independently verified**.
+## Verification
+- **125/125 committed test cases passed in a V8 Node-compatibility harness** across 10 test files; inline application JavaScript parsed.
+- 12 stockroom unit tests, 3 new UI smoke scenarios, 1 static wiring check and 1 new API contract check included in total.
+- Native Node GitHub Actions, live Pages deployment, real browser/hardware and concurrent multi-device stock operations **not independently verified**.
+- Stockroom module commit: `f2f72f65d9eccadb3d8b703a0d9d7d09f1f818df`; validation fix `27c926b68142a2cd90d905453ed9140a7443559d`.
+- Demo wiring: `095bfa78b6eb961208a2ce5bfc8d17010dfe832d`.
+- Regression test correction: `c46aca2d5291222fa733196dc875e691edac6af9`.
+- OpenAPI contract: `e6b3e85e3ee6f26616451329a6fe83aad781a3ec`.
 
-## Implementation commits
-- Inventory module: `1ebf4cdae0022f04ed7763cfada2e9c60b90ea5b`
-- Unit tests: `5575b4e922481b7574a3e6b813914195229329b2`
-- Staff/QR wiring: `8c7e69d956da8effbffb52ff007c4f6c44b9e1d3`
-- Static and UI tests: `6878a3eb365c7a51baef0e4e0a059355eedf2166`, `f880818bed252878341c8f45f5bf45f9d012a18c`
-- API contract and test: `7a0c8b516b7c125e029f9bdd323e39d95332d292`, `2ce9bddb36cadf5383598ee23cc6ca53cb490969`
-
-## Known limitations
-- Client PINs, inventory, prices, orders and audit remain browser-controlled and ephemeral. No secure login, persistent server, transactional reservation or Dojo integration.
-- Integer stock units are only suitable for this demo. Production requires units of measure, yield/waste, recipe versions, per-location pools, physical counts and stock movement history.
-- This local all-or-none update is not concurrency safe across devices. Real checkout must reserve ingredients atomically and coordinate idempotent payment confirmation/refunds. Do not treat advisory preflight as a stock guarantee.
-- GitHub Pages and native GitHub Actions outcomes remain unconfirmed.
+## Limitations
+- All counts, PINs, orders and audit are browser memory only. Physical count controls have no secure permissions or stocktake approval. Quantities are illustrative integer units.
+- Physical location depletion is alphabetical and **not** a fulfilment/picking rule. The stockroom model does not reserve stock or reconcile real-world variances.
+- A real system requires server-authenticated staff, durable stock movements, UOM/yield/waste, stocktake sessions, revision checks, transactional reservations, idempotency and Dojo sandbox integration before trading.
 
 ## Next bounded feature
-**0.2.7 — Virtual stockrooms**: logical communal/outlet stock pools, independent physical count locations and recipe ingredient mappings. Preserve current basket-wide preflight. Follow with server reservation/idempotency contracts in 0.2.8.
+**0.2.8 — inventory reservation boundary:** isolate a server-style atomic reservation interface with idempotency keys, expiry and conflict tests, while clearly separating a pure simulator from real database transactions.
 
 ## Market comparison
-Square's Inventory API documents batched atomic adjustments and physical-count reconciliation, while noting that its standard Inventory API does not directly track ingredients/subcomponents. BintyPOS v0.2.6 aggregates ingredients across independently owned vendors in a single venue basket, but remains a browser simulation.
-- https://developer.squareup.com/docs/inventory-api/how-it-works
-- https://developer.squareup.com/docs/inventory-api/what-it-does
+Square's location-aware physical count and adjustment model informs this feature; BintyPOS adds a logical venue-wide counting category separate from physical locations to match Binty's explicit scoping requirements. https://developer.squareup.com/docs/inventory-api/how-it-works

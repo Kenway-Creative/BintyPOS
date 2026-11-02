@@ -1,8 +1,14 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.10** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.11** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## SQLite mock order lifecycle (v0.2.11)
+
+The isolated Python module `src/order_lifecycle.py` extends trusted quote-bound stock holds with a durable **simulation-only** order state machine: `awaiting_payment → authorised → confirmed`, plus `failed`, `released`, `expired` and `needs_reconciliation`. The only accepted payment implementation is `MockPaymentAdapter`, which performs **no network I/O, card authorisation, capture or money movement**. A simulated completion and ingredient movement are committed in one SQLite transaction, with idempotent confirmed-order replay. Mock declines and cancellations release holds; ambiguous simulated capture/void and stock conflicts fail closed for reconciliation. Session strings are **not authenticated identities**.
+
+Example internal fixture: `SQLiteMockOrders(db)` → `bootstrap_stock` / `publish_product` → `create_quote` → `accept_quote` → `create_order(venue,session,quoteId,key)` → `authorise_mock(venue,session,orderId)` → `complete_mock(...)`. Run `python -m unittest discover -s tests -p 'test_*.py' -v`. **No HTTP endpoint or live till/QR connection exists.** Direct inherited `commit` remains an internal, payment-unchecked method and MUST NOT be exposed. Crash between hold and order insertion can leave a time-limited orphan hold. Before any real payment integration: implement verified identities, server permissions, a transactional order/outbox and reconciliation, tax/VAT, payment adapter contracts, Dojo sandbox validation and cross-device tests.
 
 ## Run the demo
 Open `index.html` using a local HTTP server (for example `python3 -m http.server 8000`) and visit `http://localhost:8000/`. GitHub Pages deploys through the GitHub Actions workflow in `.github/workflows/deploy.yml`, not branch-source publishing. A successful Pages deployment has not been independently verified.

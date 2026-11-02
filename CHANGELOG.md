@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.11] — 2026-11-02 — Durable mock order lifecycle and CI contract repair
+- Added SQLite-only `src/order_lifecycle.py`: accepted-quote stock hold → awaiting mock payment → mock authorisation → simulated confirmation, plus decline, cancellation, expiry and reconciliation states.
+- Confirmed simulated orders atomically persist inventory movements and order state, with idempotent replay; no real payment provider is accepted.
+- Added 12 Python lifecycle regression tests for replay, restart, scope fixture, expiration, failure, stock conflict, void uncertainty and no premature completion.
+- Fixed stale `tests/api-contract.test.cjs` hardcoded 0.2.8 version assertion, which caused the 0.2.10 GitHub Actions run 41541876510 to fail (145/146 Node tests passed); now tests current 0.2.11 contract version.
+- API documents proposed order lifecycle read and mock-only state boundaries, **not running endpoints**. Browser demo unchanged. No real payments, authenticated identities, HTTP service or Dojo integration.
+- Square Orders/Payments API separates payment authorisation and order completion; BintyPOS follows state separation for local simulation, not Square-equivalent settlement or real capture. https://developer.squareup.com/docs/orders-api/pay-for-orders
+- Rollback baseline: `3394a2f0ad6650fa201406efd1e73faa7eee6601`. No tag unless explicitly verified.
+
+
 ## [0.2.10] — 2026-11-02 — Trusted quote-bound durable stock holds
 - Added `src/trusted_checkout.py` with versioned published-product fixtures, immutable GBP-pence quote snapshots, aggregated recipe demand and explicit acceptance.
 - Durable holds are derived exclusively from stored accepted quotes inside a single SQLite `BEGIN IMMEDIATE` transaction. Rejected stale price/recipe revisions, expired quotes, wrong checkout session fixture and reused idempotency keys.

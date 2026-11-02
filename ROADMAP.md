@@ -15,9 +15,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.8 idempotent in-memory stock holds, expiry/release, conflict detection and demo checkout integration.
 - 0.2.9 standalone SQLite transaction proof-of-concept with durable holds, idempotency, movements and competing-client tests (no HTTP API).
 - 0.2.10 trusted SQLite quote snapshots, explicit acceptance, product/recipe version invalidation, and atomic recipe-derived holds (no authenticated HTTP).
+- 0.2.11 SQLite mock-only order state machine with persistent state, simulated authorisation/confirmation/cancellation, stock movements and reconciliation hold states; repaired stale OpenAPI CI assertion.
 
 ## Prioritised releases
-- **0.2.11 next:** verified checkout identity/venue scope and persistent order state machine with payment-provider adapter interface; separate payment authorisation, reservation expiry, capture/confirmation and reconciliation. No real payments or unprotected HTTP routes.
+- **0.2.12 next:** verified server-issued checkout identity and venue/area authorisation; transactional order creation/outbox recovery and safe reconciliation for unknown payment outcomes. No real payments or unprotected HTTP routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.10
-  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. The SQLite v0.2.10 trusted quote adapter derives prices and recipe stock demand from persisted published-product snapshots, validates explicit acceptance and atomically holds stock; it has NO HTTP listener, verified identity, tax/payment logic or live integration.
+  version: 0.2.11
+  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. The SQLite v0.2.11 mock order lifecycle extends the trusted quote adapter and derives prices and recipe stock demand from persisted published-product snapshots, validates explicit acceptance and atomically holds stock; it has NO HTTP listener, verified identity, tax/payment logic or live integration.
 servers:
   - url: /api/v1
 paths:
@@ -499,6 +499,24 @@ paths:
         '204': {description: Rejected and audited}
         '403': {description: Venue approval permission required}
         '404': {description: No pending proposal}
+  /venues/{venueId}/orders/{orderId}/lifecycle:
+    get:
+      summary: Proposed server-authorised order lifecycle view (not implemented)
+      operationId: getOrderLifecycle
+      description: Python v0.2.11 is SQLite internal mock-only. Future server MUST derive session identity and venue scope from verified credentials; no mock payment methods are HTTP endpoints.
+      security: [{checkoutAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: orderId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Future durable order status
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/OrderLifecycle'}
+        '401': {description: Missing verified checkout identity}
+        '403': {description: Venue or order scope denied}
+        '404': {description: Unknown order}
 components:
   securitySchemes:
     managerAuth:
@@ -514,6 +532,16 @@ components:
       scheme: bearer
       description: Proposed trusted internal service identity. Never expose to browsers.
   schemas:
+    OrderLifecycle:
+      type: object
+      description: Proposed read-only server view; no payment operation is implemented. State authorised in Python means MOCK authorisation only.
+      required: [orderId, quoteId, status, totalMinor]
+      properties:
+        orderId: {type: string}
+        quoteId: {type: string}
+        totalMinor: {type: integer, minimum: 0, description: GBP pence; no VAT/tax/discount engine}
+        status: {type: string, enum: [awaiting_payment, authorised, confirmed, failed, released, expired, needs_reconciliation]}
+        reason: {type: string, nullable: true}
     ReserveQuoteStock:
       type: object
       required: [quoteId, quoteRevision]

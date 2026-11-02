@@ -4,7 +4,7 @@
 **Feature:** In-memory stock reservation boundary.
 - Added `src/reservations.js` with idempotent holds/commit/release, TTL expiry, conflict checks and stock adapters.
 - Staff and QR simulated checkout now reserve then commit shared ingredient stock; active holds reduce availability.
-- Added 16 native Node tests, 3 UI smoke tests, 1 static wiring test and 1 API contract test. Full CI pending this release.
+- Added 16 native Node tests, 3 UI smoke tests, 1 static wiring test and 1 API contract test. Native Node 22 GitHub Actions passed **146/146** regression tests and Pages deployment step succeeded for commit `9770d6d87cd2dde63856133972a5e28e92c2d28c` (run 41526203697); public live-browser behaviour not independently inspected.
 - OpenAPI v0.2.8 specifies quote-derived reservation, status/release and trusted service-only commit. No running API or payment integration.
 - Benchmark: Square atomic inventory batches and idempotency; this demo is not a distributed transaction.
 - Rollback: `30aa731662bc9ba97ec7611762700e5077b5801c` (v0.2.7). No release tag.

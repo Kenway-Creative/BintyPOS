@@ -11,9 +11,10 @@ Rollback baseline (v0.2.7): `30aa731662bc9ba97ec7611762700e5077b5801c`
 - OpenAPI v0.2.8 proposes authenticated quote-derived reservations and service-only commit; **no running API**.
 
 ## Verification
-- 16/16 reservation unit tests passed under native Node in an isolated local copy.
-- Application JS parsed; three mocked-DOM V8 integration scenarios passed before commit.
-- Full GitHub Actions and Pages deployment of v0.2.8 pending verification. Prior v0.2.7 Pages workflow at `30aa731...` succeeded on 2026-11-02.
+- **146/146 full regression tests passed** under native Node 22 in GitHub Actions on 2026-11-02 at 21:12 UTC (run 41526203697). This includes 16 reservation unit tests, 3 new UI smoke tests, 1 static integration test and 1 API contract test.
+- Application JavaScript parsed; three mocked-DOM V8 integration scenarios also passed before commit.
+- GitHub Pages **Deploy Pages step succeeded** for v0.2.8 commit `9770d6d87cd2dde63856133972a5e28e92c2d28c`. Public live-browser inspection and real hardware tests remain unverified.
+- CI: https://github.com/Kenway-Creative/BintyPOS/actions/runs/41526203697
 
 ## Limitations
 - Browser-only state: separate tills can oversell. The demo commits immediately without card authorisation.

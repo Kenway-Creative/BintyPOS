@@ -52,7 +52,7 @@ Within **one browser**, active holds reduce reservable stock, idempotency preven
 
 **Not a distributed stock lock.** Two browsers can oversell. Production requires server-derived ingredient demand from accepted quotes, authenticated checkout sessions, transactional database stock reservation, durable idempotency and expiry, immutable movements, payment reconciliation and crash recovery. The proposed REST reservation endpoints are **not running**; internal commit must never be callable by a browser.
 
-Run `node --test tests/reservations.test.cjs` (16 native Node tests) or `node --test tests/*.test.cjs` (whole suite). Native Node passed 16 new unit tests in an isolated local copy; CI must verify this release.
+Run `node --test tests/reservations.test.cjs` (16 native Node tests) or `node --test tests/*.test.cjs` (whole suite). The full 146-test native Node 22 GitHub Actions run passed; the demo's real multi-device behaviour is still unverified.
 
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
@@ -79,7 +79,7 @@ Run `node --test tests/reservations.test.cjs` (16 native Node tests) or `node --
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
 
 ## Test locally
-Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. v0.2.8 adds 21 tests to the 125-case v0.2.7 suite; verify full CI. **125/125 passed for v0.2.7** in a V8 Node-test compatibility harness, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. v0.2.8 includes **146 tests; all 146 passed in native Node 22 GitHub Actions** (run 41526203697, 2026-11-02). The Pages deploy step also succeeded; real-browser/hardware testing remains outstanding. **125/125 passed for v0.2.7** in a V8 Node-test compatibility harness, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
 
 ## Offering proposal contract
 `BintyOfferings.createStore(products)` owns in-memory published products and pending per-product proposals. An outlet manager may propose name, availability or price changes only for their outlet. Only the venue-admin role may approve/publish or reject. Published products increment versions; stale versions fail closed and events are recorded in a defensive-copy audit log. In the future API, prices are represented as integer GBP pence (`priceMinor`), whereas the browser demo currently uses pound-number prices. The conversion and rounding must occur in a validated server adapter. Proposed API endpoints are in `openapi.yaml`, not running.

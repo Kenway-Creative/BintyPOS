@@ -63,6 +63,7 @@ select,input{background:#24231f;border-color:#58513d}
 <script src="./src/offerings.js"></script>
 <script src="./src/basket.js"></script>
 <script src="./src/inventory.js"></script>
+<script src="./src/stockrooms.js"></script>
 <script>
 const seed=[
 {id:'corona',name:'Corona',vendor:'Lily’s Lounge',category:'Packaged',price:5.5,recipe:{corona:1}},
@@ -77,7 +78,19 @@ const seed=[
 {id:'potato',name:'Spuddy Hell Loaded Spud',vendor:'Spuddy Hell',category:'Food',price:9,recipe:{}}
 ];
 const initialStock={corona:24,vodka:32,prosecco:15,whisky:24,lager:50,cake:4};
-let products=structuredClone(seed),stock={...initialStock},cart={},orders=[],receipt='',tab='till',area='Main Bar',filter='All',role='Venue admin',voucher=50,activeVoucher=false,config={'Main Bar':'All','Lily’s Lounge':'Lily’s Lounge','Whisky & Water':'Whisky & Water','Blackstock Roof Garden':'Blackstock Roof Garden','Pattersons':'Pattersons','Cherry On Top':'Cherry On Top','Theatre 1':'Short Menu'},search='',qrv=false,outletFolder='All',backOfficeUnlocked=false,backOfficeRole='Venue admin',keyboardNotice='',offeringNotice='';
+const stockroomStore=BintyStockrooms.createStore({
+ rooms:[{id:'communal-spirits',name:'Communal spirits (virtual)'},{id:'packaged',name:'Packaged drinks (virtual)'},{id:'cellar',name:'Cellar draught'},{id:'desserts',name:'Desserts'}],
+ locations:[{id:'main-bar',name:'Main Bar'},{id:'lounge',name:'Lily’s Lounge'},{id:'cellar',name:'Cellar'},{id:'kitchen',name:'Kitchen'}],
+ items:[
+  {id:'corona',roomId:'packaged',counts:{'main-bar':12,lounge:12}},
+  {id:'vodka',roomId:'communal-spirits',counts:{'main-bar':16,lounge:16}},
+  {id:'prosecco',roomId:'communal-spirits',counts:{'main-bar':15}},
+  {id:'whisky',roomId:'communal-spirits',counts:{lounge:24}},
+  {id:'lager',roomId:'cellar',counts:{cellar:50}},
+  {id:'cake',roomId:'desserts',counts:{kitchen:4}}
+ ]
+});
+let products=structuredClone(seed),stock=stockroomStore.totals(),cart={},orders=[],receipt='',tab='till',area='Main Bar',filter='All',role='Venue admin',voucher=50,activeVoucher=false,config={'Main Bar':'All','Lily’s Lounge':'Lily’s Lounge','Whisky & Water':'Whisky & Water','Blackstock Roof Garden':'Blackstock Roof Garden','Pattersons':'Pattersons','Cherry On Top':'Cherry On Top','Theatre 1':'Short Menu'},search='',qrv=false,outletFolder='All',backOfficeUnlocked=false,backOfficeRole='Venue admin',keyboardNotice='',offeringNotice='';
 const vendors=[...new Set(seed.map(x=>x.vendor))],areas=Object.keys(config),money=n=>'£'+n.toFixed(2),el=x=>document.getElementById(x),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const offeringStore=BintyOfferings.createStore(products);
 const basketStore=BintyBasket.createStore();
@@ -237,7 +250,8 @@ function checkout(){
    return {p:{...live,name:line.name,vendor:line.vendor,price:line.unitPriceMinor/100,version:line.productVersion},qty:line.quantity};
  });
  const sum=quote.subtotalMinor/100,redeemed=activeVoucher?Math.min(voucher,sum):0;
- stock=stockChange.stock; // All-or-none local demo update; NOT a server reservation.
+ stockroomStore.consume(stockChange.demands); // Logical pools are depleted across count locations.
+ stock=stockroomStore.totals(); // Browser-only, NOT a transactional reservation.
  orders.unshift({id:orders.length+1001,time:new Date().toLocaleTimeString('en-GB'),area,lines,total:sum,redeemed,card:sum-redeemed});
  voucher-=redeemed;basketStore.clear();cart={};activeVoucher=false;
  receipt='SIMULATED PAYMENT ACCEPTED · '+money(sum)+' · Voucher '+money(redeemed)+' · Card '+money(sum-redeemed);
@@ -273,7 +287,13 @@ a+='<div class="grid"><section class="panel"><div class="toolbar"><input placeho
     '<p>Remove unavailable items to continue.</p>')+'</div>':'')+'<label class="stack"><input type="checkbox" '+(activeVoucher?'checked':'')+' onchange="activeVoucher=this.checked;render()">Use demo voucher ('+money(voucher)+' balance)</label><div class="line"><span>Voucher applied</span><b>'+money(activeVoucher?Math.min(voucher,total()):0)+'</b></div><button class="primary" style="width:100%;margin-top:12px" onclick="checkout()">Simulate one payment</button>'+(receipt?'<div class="'+(receipt.startsWith('SIMULATED')?'hint':'warn')+'">'+escape(receipt)+'</div>':'')+'</div></aside></div>';
 }
 if(tab==='kitchen'){a='<h2>Vendor fulfilment</h2><div class="hint">Each vendor sees only its own items from combined orders. Click an order line to mark it prepared (demo state only).</div><div class="toolbar">View '+selectHTML(vendors,role.startsWith('Vendor: ')?role.substring(8):vendors[0],"role='Vendor: '+this.value;render()")+'</div><div class="panel">'+(saleRows().filter(r=>r.p.vendor===(role.startsWith('Vendor: ')?role.substring(8):vendors[0])).map(r=>'<div class="line"><div><b>'+r.qty+' × '+escape(r.p.name)+'</b><div class="muted">Order #'+r.order+' · '+escape(r.area)+'</div></div><button onclick="this.textContent=\'Prepared ✓\';this.disabled=true">Mark ready</button></div>').join('')||'<p class="muted">No orders for this vendor yet. Place a simulated order from the till or QR.</p>')+'</div>'}
-if(tab==='stock'){a='<h2>Shared inventory</h2><div class="hint">Recipe-linked deductions are demonstrated: a Corona bucket uses five bottles, and a Pornstar Martini uses one measure of vodka and one Prosecco unit. This prototype does not implement audited stocktakes or concurrency-safe reservations.</div><div class="panel"><table class="table"><thead><tr><th>Ingredient / pool</th><th>Available</th><th>Adjust demo stock</th></tr></thead><tbody>'+Object.entries(stock).map(([id,n])=>'<tr><td>'+escape(id[0].toUpperCase()+id.slice(1))+'</td><td><b>'+n+'</b></td><td><button onclick="adjust(\''+id+'\',-1)">−</button> <button onclick="adjust(\''+id+'\',1)">+</button></td></tr>'.replace('','')).join('')+'</tbody></table></div>'}
+if(tab==='stock'){
+ a='<h2>Virtual stockrooms</h2><div class="hint">A virtual stockroom is a counting category, not a physical room. Ingredients can be counted across multiple locations but belong to exactly one logical pool. Simulated sales deduct across physical locations deterministically. Demo only: no audited stocktake or multi-device reservation.</div>'+
+ stockroomStore.rooms().map(room=>'<section class="panel section"><h3>'+escape(room.name)+'</h3><table class="table"><thead><tr><th>Ingredient</th><th>Venue total</th><th>Physical count locations · demo +/-</th></tr></thead><tbody>'+
+ stockroomStore.countSheet(room.id).map(row=>'<tr><td>'+escape(row.ingredientId)+'</td><td><b>'+row.total+'</b></td><td>'+
+ row.locations.map(loc=>'<span class="pill" style="display:inline-block;margin:3px">'+escape(loc.name)+': '+loc.quantity+' <button aria-label="Decrease '+escape(row.ingredientId)+' at '+escape(loc.name)+'" onclick="adjustCount('+JSON.stringify(row.ingredientId)+','+JSON.stringify(loc.id)+',-1)">−</button> <button aria-label="Increase '+escape(row.ingredientId)+' at '+escape(loc.name)+'" onclick="adjustCount('+JSON.stringify(row.ingredientId)+','+JSON.stringify(loc.id)+',1)">+</button></span>').join('')+
+ '</td></tr>').join('')+'</tbody></table></section>').join('');
+}
 if(tab==='reports'){let rows=saleRows(),sum=rows.reduce((a,r)=>a+r.total,0);a='<h2>Financial overview</h2><div class="three"><div class="metric">Combined sales<strong>'+money(sum)+'</strong></div><div class="metric">Orders<strong>'+orders.length+'</strong></div><div class="metric">Voucher balance<strong>'+money(voucher)+'</strong></div></div><div class="panel" style="margin-top:16px"><div class="toolbar">Report visibility '+selectHTML(['Venue admin',...vendors.map(x=>'Vendor: '+x)],role,"role=this.value;render()")+'</div><table class="table"><thead><tr><th>Business</th><th>Items sold</th><th>Gross sales</th></tr></thead><tbody>'+vendors.filter(v=>role==='Venue admin'||role==='Vendor: '+v).map(v=>{let r=rows.filter(x=>x.p.vendor===v);return '<tr><td>'+escape(v)+'</td><td>'+r.reduce((a,x)=>a+x.qty,0)+'</td><td>'+money(r.reduce((a,x)=>a+x.total,0))+'</td></tr>'}).join('')+'</tbody></table><p class="muted">Presentation-only report filter; production access controls must be enforced server-side.</p></div>'}
 if(tab==='backoffice'&&!backOfficeUnlocked){a='<div class="panel" style="max-width:520px;margin:auto"><h2>Manager access</h2><p>PIN-gated demonstration of separate management consoles. This is not secure authentication.</p><input id="demoPin" type="password" inputmode="numeric" placeholder="Manager PIN"><button class="primary" onclick="unlockDemo()">Open console</button><p id="pinError" class="warn"></p><div class="hint">Demo PINs: Venue administrator 2468 · Pattersons 1357 · Spuddy Hell 8642 · Cherry On Top 9753</div></div>'}
 if(tab==='backoffice'&&backOfficeUnlocked){
@@ -342,7 +362,20 @@ if(tab==='backoffice'&&backOfficeUnlocked){
 }
 el('app').innerHTML=a;
 }
-function adjust(k,d){stock[k]=Math.max(0,stock[k]+d);render()}
+function adjustCount(itemId,locationId,delta){
+ const row=stockroomStore.snapshot().items.find(x=>x.id===itemId);
+ if(!row)return;
+ stockroomStore.setCount(itemId,locationId,Math.max(0,(row.counts[locationId]||0)+delta));
+ stock=stockroomStore.totals();render();
+}
+function demoSetStock(itemId,quantity){
+ const row=stockroomStore.snapshot().items.find(x=>x.id===itemId);
+ if(!row||!Number.isSafeInteger(quantity)||quantity<0)throw Error('INVALID_DEMO_STOCK');
+ const ids=Object.keys(row.counts).sort();
+ if(!ids.length)throw Error('NO_COUNT_LOCATION');
+ ids.forEach((id,i)=>stockroomStore.setCount(itemId,id,i===0?quantity:0));
+ stock=stockroomStore.totals();render();
+}
 
 render();
 </script></body></html>

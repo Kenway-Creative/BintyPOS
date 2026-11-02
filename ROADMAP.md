@@ -9,9 +9,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.2 versioned keyboard profiles, selected-vendor drafts, explicit publish/discard and V8 regression checks.\n- 0.2.3 per-area staff speed keys, category jumps, staged publish/discard and visibility intersection.
 
 - 0.2.4 scoped outlet offering proposals, central price approval, version checks and demo audit history.
+- 0.2.5 immutable GBP-pence basket snapshots, explicit catalogue-change review, checkout blocking and proposed server quote API.
 
 ## Prioritised releases
-- **0.2.5 next:** immutable basket line-price snapshots and checkout revalidation, so catalogue price changes cannot silently reprice orders already in progress. Add regression tests and future API contracts.
+- **0.2.6 next:** extract inventory preflight and stock-reservation intent into a pure, tested module. Validate ingredient recipe demand for a multi-vendor basket before simulated checkout, with no negative stock; clearly distinguish browser-only preflight from atomic server reservations.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
@@ -29,3 +30,8 @@ Who is merchant of record, settlements, VAT and discount allocation; exact Dojo 
 
 ## Benchmark for v0.2.3\nToast Retail recommends speed screens or manageable menu groups for fast access to non-scannable products (https://support.toasttab.com/en/article/Toast-for-Restaurant-Retail-Ordering-of-POS-Buttons). BintyPOS offers per-area speed keys that are filtered through the published multi-vendor keyboard and are not exposed to guest QR. No device timing measurements yet.\n\n## Market benchmark
 Toast separates saved edits from publishing to POS and online ordering (https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End). Square's typed catalogue separates item variations and categories (https://developer.squareup.com/docs/catalog-api/design-a-catalog). BintyPOS additionally models *outlet ownership* independently from *area visibility*, so a bar till can sell a mix of vendor menus without copying their products.
+
+## Benchmark for v0.2.5
+Square's Orders API uses a per-line `base_price_money` and quantity, and Toast recommends pricing/validating an order before submission through its `/orders/v2/prices` endpoint. BintyPOS v0.2.5 records the price shown when a line is added, blocks stale checkout and requires explicit acceptance before using a new published price. It is **not** a Square/Toast-compatible order engine and does not yet calculate VAT, discounts, stock reservations or live payment status.
+- https://developer.squareup.com/reference/square/objects/orderlineitem
+- https://doc.toasttab.com/doc/devguide/apiOrdersFirstOrder.html

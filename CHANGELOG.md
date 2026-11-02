@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.6] — 2026-11-02
+**Feature:** Combined recipe ingredient preflight for the whole staff/QR basket.
+- Added pure `src/inventory.js` to aggregate demand across different products and vendors; missing stock is zero, invalid counts/recipes are rejected and shortages are returned with required/available quantities.
+- Staff till and QR additions now consider ingredients already allocated to the current basket. Checkout revalidates the entire basket against current stock and uses a new stock snapshot only on success, with no partial deductions or negative stock.
+- Added 10 Node unit tests, three UI smoke tests, one static wiring test and one API contract test. **108/108 committed regression cases passed in a V8 Node-test compatibility harness**. The 10 standalone inventory tests also passed under native Node 22 in an isolated local copy. Inline application JavaScript parsed and four inventory-specific UI scenarios plus one aggregate module check passed in V8.
+- OpenAPI v0.2.6 specifies an advisory inventory preflight endpoint and shortage schema. **No running API, server-side reservations or live Dojo payments.**
+- Square Inventory API uses atomic batches and stock adjustment history; its documentation notes ingredient/subcomponent tracking limitations. This prototype's shared-ingredient basket guard is not a transactional inventory ledger. References: https://developer.squareup.com/docs/inventory-api/how-it-works and https://developer.squareup.com/docs/inventory-api/what-it-does .
+- Native GitHub Actions status, GitHub Pages deployment, real browser/device and concurrent multi-till behaviour **not independently verified**.
+- Rollback baseline: `0c37d28cba14fbf9db24cd4d516abeb3d50389c8` (v0.2.5). No tag or release created.
+
 ## [0.2.5] — 2026-11-02
 **Feature:** Immutable basket price snapshots with explicit review before simulated checkout.
 - Added `src/basket.js`: defensive line snapshots containing product/version, vendor, name, unit price in GBP pence and quantity; minor-unit totals; changed/unavailable/deleted catalogue conflict detection; explicit repricing; validated order snapshot.

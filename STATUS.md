@@ -31,7 +31,7 @@ Rollback baseline (v0.2.5): `0c37d28cba14fbf9db24cd4d516abeb3d50389c8`
 - GitHub Pages and native GitHub Actions outcomes remain unconfirmed.
 
 ## Next bounded feature
-**0.2.7 — Inventory reservation contract and adapter boundary**: explicit stock pool, recipe revision, reservation expiry and idempotency states; test transitions and failures without pretending the demo has a transactional backend.
+**0.2.7 — Virtual stockrooms**: logical communal/outlet stock pools, independent physical count locations and recipe ingredient mappings. Preserve current basket-wide preflight. Follow with server reservation/idempotency contracts in 0.2.8.
 
 ## Market comparison
 Square's Inventory API documents batched atomic adjustments and physical-count reconciliation, while noting that its standard Inventory API does not directly track ingredients/subcomponents. BintyPOS v0.2.6 aggregates ingredients across independently owned vendors in a single venue basket, but remains a browser simulation.

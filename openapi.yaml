@@ -1,0 +1,78 @@
+openapi: 3.0.3
+info:
+  title: BintyPOS API
+  version: 0.2.0
+  description: Proposed open API contract, not an operational endpoint. Prototype data only.
+servers:
+  - url: /api/v1
+paths:
+  /health:
+    get:
+      summary: API health probe
+      operationId: health
+      responses:
+        '200':
+          description: Available
+  /venues/{venueId}/catalog:
+    get:
+      summary: Published catalogue projected for a sales area
+      operationId: listCatalog
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: query, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Catalogue version and products
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [version, products]
+                properties:
+                  version: {type: string}
+                  products:
+                    type: array
+                    items: {$ref: '#/components/schemas/Product'}
+  /venues/{venueId}/orders:
+    post:
+      summary: Submit validated multi-vendor order once
+      description: Future transactional endpoint. Idempotency key and stock reservation required.
+      operationId: submitOrder
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [areaId, lines]
+              properties:
+                areaId: {type: string}
+                lines:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [productId, quantity]
+                    properties:
+                      productId: {type: string}
+                      quantity: {type: integer, minimum: 1}
+      responses:
+        '202':
+          description: Order accepted pending payment confirmation
+        '409':
+          description: Stock, menu-version or idempotency conflict
+components:
+  schemas:
+    Product:
+      type: object
+      required: [id, businessId, name, priceMinor]
+      properties:
+        id: {type: string}
+        businessId: {type: string}
+        name: {type: string}
+        categoryId: {type: string}
+        priceMinor: {type: integer, minimum: 0, description: GBP pence}
+        available: {type: boolean}

@@ -12,9 +12,11 @@ Try: Main Bar → Pattersons folder → add Burger → Spuddy Hell folder → ad
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
-- `src/shortcuts.js` — pure per-area staff speed-key store with staged/published versions, validation and visibility intersection.\n- `src/keyboards.js` — pure versioned keyboard store with independent draft/published snapshots, selected-vendor profiles, validation and conflict checks. Exposes `BintyCatalog` in browsers and CommonJS for Node.
+- `src/shortcuts.js` — pure per-area staff speed-key store with staged/published versions, validation and visibility intersection.
+- `src/keyboards.js` — pure versioned keyboard store with independent draft/published snapshots, selected-vendor profiles, validation and conflict checks. Exposes `BintyKeyboards` in browsers and CommonJS for Node.
 - `tests/catalog.test.cjs` — 12 catalogue regression tests.
-- `tests/keyboards.test.cjs` — 11 keyboard draft/publish, validation and isolation tests.\n- `tests/shortcuts.test.cjs` — 14 speed shortcut tests: versioning, validation, visibility, immutability and area isolation.
+- `tests/keyboards.test.cjs` — 11 keyboard draft/publish, validation and isolation tests.
+- `tests/shortcuts.test.cjs` — 14 speed shortcut tests: versioning, validation, visibility, immutability and area isolation.
 - `tests/demo.test.cjs` — 8 static demo wiring and syntax checks.
 - `openapi.yaml` — proposed REST v1 contract; no API server exists.
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
@@ -35,5 +37,6 @@ For agent contributions: read STATUS and ROADMAP first, pick one bounded feature
 
 ## Market reference
 Toast separates saved menu edits from publishing to POS and online channels, and supports publish permissions; Square has a typed catalogue for items, variations, categories and modifiers. BintyPOS applies this pattern to configurable **venue areas** with independently managed vendor menus. BintyPOS adds separate outlet ownership and flexible area visibility within one shared venue:
-- https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End\n- https://support.toasttab.com/en/article/Toast-for-Restaurant-Retail-Ordering-of-POS-Buttons (Toast recommends a speed screen or manageable category for non-scannable items)
+- https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End
+- https://support.toasttab.com/en/article/Toast-for-Restaurant-Retail-Ordering-of-POS-Buttons (Toast recommends a speed screen or manageable category for non-scannable items)
 - https://developer.squareup.com/docs/catalog-api/design-a-catalog

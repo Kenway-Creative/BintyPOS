@@ -11,10 +11,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.4 scoped outlet offering proposals, central price approval, version checks and demo audit history.
 - 0.2.5 immutable GBP-pence basket snapshots, explicit catalogue-change review, checkout blocking and proposed server quote API.
 - 0.2.6 shared recipe ingredient aggregation, basket-wide preflight and all-or-none browser stock consumption.
+- 0.2.7 virtual stockroom categories, independent physical count locations, category reclassification, deterministic local consumption and stock tab demonstration.
 
 ## Prioritised releases
-- **0.2.7 next:** virtual stockrooms: map each ingredient to a logical shared or outlet-specific stock pool, separately from physical count locations. Verify a sale from any till depletes the correct logical pool, with deterministic tests. This is a browser model, not concurrent inventory.
-- **0.2.8 after:** design a server-side inventory reservation boundary (adapter, idempotency and expiry tests); no claims of durable atomic transactions until backed by a real database.
+- **0.2.8 next:** design a server-side inventory reservation boundary (adapter, idempotency and expiry tests); no claims of durable atomic transactions until backed by a real database.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
@@ -26,6 +26,9 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 ## Benchmark for v0.2.4
 Toast's menu manager separates edit and publish permissions; its Local Menu Edit role can be limited to local objects, while publishing requires a separate permission. Official reference (checked 2026-11-02): https://doc.toasttab.com/doc/platformguide/platformMenuManagerPermissions.html . BintyPOS prototype deliberately requires venue approval for *all* outlet proposals, including price; this stricter workflow reflects the central price-control brief but needs Binty/Mike sign-off.
+
+## Benchmark for v0.2.7
+Square's inventory API supports physical counts and stock adjustments associated with locations; its UK support documentation describes variance reporting and count reconciliation. BintyPOS additionally models a venue-wide virtual counting category that can aggregate quantities across physical positions, as required by Binty's scoping call. This is not a claim of Square-equivalent transactional or accounting capability. https://developer.squareup.com/docs/inventory-api/how-it-works and https://api.squareup.com/help/gb/en/article/8251-view-and-export-inventory-variance-report-with-square-for-retail
 
 ## Open decisions
 Who is merchant of record, settlements, VAT and discount allocation; exact Dojo models; server/offline architecture; outlet roles and price-change approvals; stockroom mapping; day-one Spektrix requirements; actual peak transaction profile.

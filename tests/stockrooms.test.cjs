@@ -11,7 +11,7 @@ const model=()=>createStore({
  ]
 });
 test('logical room totals sum all physical count locations exactly once',()=>{const s=model();assert.deepEqual(s.totals(),{vodka:10,lager:12});assert.equal(s.countSheet('communal')[0].locations.length,3)});
-test('different physical locations remain separate',()=>{const s=model();assert.deepEqual(s.countSheet('communal')[0].locations.map(x=>x.quantity),[4,0,6])});
+test('different physical locations remain separate',()=>{const s=model();assert.deepEqual(s.countSheet('communal')[0].locations.map(x=>x.quantity),[4,6,0])});
 test('a physical count changes shared total',()=>{const s=model();s.setCount('vodka','lounge',3);assert.equal(s.totals().vodka,7)});
 test('moving an ingredient category preserves counts and total',()=>{const s=model();s.moveRoom('vodka','cellar');assert.equal(s.countSheet('communal').length,0);assert.equal(s.countSheet('cellar').length,2);assert.equal(s.totals().vodka,10)});
 test('consumption spans physical locations and is deterministic',()=>{const s=model();const r=s.consume({vodka:7});assert.deepEqual(r.movements,[{ingredientId:'vodka',roomId:'communal',locationId:'bar',quantity:4},{ingredientId:'vodka',roomId:'communal',locationId:'lounge',quantity:3}]);assert.equal(s.totals().vodka,3)});

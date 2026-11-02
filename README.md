@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.5** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.6** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -23,10 +23,22 @@ To test: add Pattersons Burger (£12.50), use the Pattersons demo manager to pro
 
 **Server boundary:** Real price quotes must be calculated from the authoritative catalogue, with server-side identity, availability, VAT, promotions, atomic inventory reservation and expiry. The proposed `/api/v1/venues/{venueId}/quotes` and explicit accept-prices endpoints are **specification only**. Dojo remains the preferred future payment provider, not connected.
 
+## Combined recipe stock preflight (v0.2.6)
+
+Staff and guest QR now check **aggregate ingredient demand across the whole basket**, not just the quantity of each product separately. Example: four individual Coronas plus a five-Corona bucket require nine bottles; if stock is eight, the second addition is refused. If stock is reduced after items were added, checkout refuses the whole order without partially decrementing any ingredient.
+
+The shared `src/inventory.js` module exposes `preflight(lines, products, stock)` (pure, returns ingredient demand and shortages) and `consume(lines, products, stock)` (returns a new stock snapshot or throws; never mutates its input). Demo stock and recipes use **integer units**; a real kitchen inventory will need measured quantities, stock locations, yield/waste and recipe versioning. Empty recipes are treated as untracked items.
+
+**Important:** This is browser-only and does **not** reserve inventory. Multiple devices could still oversell the same stock. A production server must derive authoritative recipes and stock pools, atomically reserve all ingredients within a database transaction, use idempotent order/payment state transitions, and record durable stock movements. The proposed `POST /api/v1/venues/{venueId}/inventory/preflight` is an advisory API contract only, not a running service.
+
+Test locally with `node --test tests/*.test.cjs` on Node 20+. Ten new native Node unit tests were run against the standalone inventory module; the full committed suite of 108 tests was exercised in a V8 Node-compatibility harness. Native GitHub Actions and real-browser deployment are not independently confirmed.
+
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
 - `src/basket.js` — immutable per-line price snapshots, explicit review and integer-pence subtotals.
+- `src/inventory.js` — pure aggregate recipe demand, shortage detection and all-or-none local consumption.
+- `tests/inventory.test.cjs` — 10 unit tests for shared ingredient demand, validation and no-partial-deduction behaviour.
 - `tests/basket.test.cjs` — 12 price-snapshot, validation and conflict regression tests.
 - `tests/api-contract.test.cjs` — 3 proposed quote contract checks.
 - `src/offerings.js` — pure staged offering proposals, outlet scope checks, venue-only publication, optimistic versions and in-memory audit events.

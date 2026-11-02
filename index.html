@@ -292,6 +292,6 @@ if(tab==='backoffice'&&backOfficeUnlocked){
 el('app').innerHTML=a;
 }
 function adjust(k,d){stock[k]=Math.max(0,stock[k]+d);render()}
-function savePrice(id){if(backOfficeRole!=='Venue admin'&&products.find(x=>x.id===id)?.vendor!==backOfficeRole.substring(8))return;let v=Number(el('newPrice').value);if(Number.isFinite(v)&&v>=0){products.find(x=>x.id===id).price=Math.round(v*100)/100;render()}}
+
 render();
 </script></body></html>

@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.8** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.9** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -43,6 +43,14 @@ Simulated checkout uses the existing aggregate recipe preflight and then deducts
 
 **Verification:** 125/125 committed tests passed in a V8 Node-compatibility harness; application JS parsed. Native Node CI, real browser and live Pages status remain unverified.
 
+
+## SQLite transaction proof-of-concept (v0.2.9)
+
+The isolated Python standard-library adapter `src/persistent_reservations.py` is a **real SQLite-file-backed transaction prototype**, separate from the browser demo. It has no network listener or payment connection. `SQLiteReservations(path)` opens a new database connection for each operation, uses `BEGIN IMMEDIATE` to serialise competing writers, and persists holds, expiry, release, idempotency keys, stock and immutable per-ingredient movements. It provides `bootstrap_stock(venue, counts)` **for isolated test fixtures only**, plus `reserve(venue, key, demands, ttl_ms)`, `status(venue, key)`, `release(venue, key)`, `commit(venue, key)`, `available(venue)` and `movements(venue, key)`.
+
+Run independently with Python 3.11+ (no external packages): `python3 -m unittest discover -s tests -p 'test_*.py' -v`. The 13 new tests exercise concurrent connections to one file, restart persistence, duplicate commit protection, venue isolation, expiry, conflicting idempotency keys, no-partial-deduction and durable movement history. The existing browser demo and 146 Node regression tests are unchanged; CI now runs **both** suites before deploying Pages.
+
+**Security and operational boundary:** This is **not** a running `/api/v1` server and must never be exposed directly to browsers. Its direct `demands` argument is suitable for trusted fixture tests only. A production service must authenticate checkout sessions, derive demands from accepted server-priced quotes and versioned recipes, bind reservations to orders, verify payment state before consumption, handle payment failure/reconciliation, maintain backups/migrations, and prove contention/load and recovery. SQLite is a local concurrency demonstrator, not a selected production multi-host database. Browser holds still use `src/reservations.js` and are **not synchronised** with SQLite. No Dojo, Spektrix or real payments.
 
 ## Shared stock reservation boundary (v0.2.8)
 

@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
 test('demo loads shared catalogue before application script', () => {
-  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script>/);
 });
 test('application JavaScript parses', () => {
   const parts = html.split('<script>\nconst seed=');
@@ -23,7 +23,7 @@ test('both staff and QR use the shared catalogue projection', () => {
 });
 
 test('demo loads keyboard profiles before application script', () => {
-  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script>/);
 });
 test('till and QR use only published keyboard profiles', () => {
   assert.match(html, /BintyKeyboards\.areaMode\(keyboardStore\.published\(areaId\)\)/);
@@ -33,7 +33,7 @@ test('till and QR use only published keyboard profiles', () => {
 });
 
 test('speed shortcut module loads before inline app', () => {
-  assert.match(html, /<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/shortcuts\.js"><\/script>\s*<script src="\.\/src\/offerings\.js"><\/script>\s*<script src="\.\/src\/basket\.js"><\/script>\s*<script>/);
   assert.match(html, /BintyShortcuts\.createStore\(/);
   assert.match(html, /BintyShortcuts\.visible\(products,liveAreaMode\(area\)/);
 });
@@ -56,4 +56,11 @@ test('offering module loads before inline app and approval handlers exist',()=>{
   assert.match(html,/function stageOffering\(id\)/);
   assert.match(html,/function publishOffering\(id\)/);
   assert.doesNotMatch(html,/function savePrice\(id\)/);
+});
+
+test('basket snapshot module loads before inline app',()=>{
+  assert.match(html,/src\/basket\.js/);
+  assert.match(html,/BintyBasket\.createStore\(\)/);
+  assert.match(html,/basketStore\.validatedOrder\(products\)/);
+  assert.match(html,/function acceptBasketPrices\(\)/);
 });

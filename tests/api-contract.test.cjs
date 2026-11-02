@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const spec=fs.readFileSync(path.join(__dirname,'..','openapi.yaml'),'utf8');
 test('quote API documents server-priced validation and explicit acceptance',()=>{
-  assert.match(spec,/version: 0\.2\.5/);
+  assert.match(spec,/version: 0\.2\.6/);
   assert.match(spec,/\/venues\/\{venueId\}\/quotes:/);
   assert.match(spec,/operationId: createBasketQuote/);
   assert.match(spec,/\/venues\/\{venueId\}\/quotes\/\{quoteId\}\/accept-prices:/);
@@ -20,4 +20,12 @@ test('snapshot contract uses integer minor units and version checks',()=>{
   assert.match(spec,/unitPriceMinor: \{type: integer, minimum: 0/);
   assert.match(spec,/productVersion: \{type: integer, minimum: 1/);
   assert.match(spec,/CATALOGUE_CHANGED, PRODUCT_UNAVAILABLE, PRODUCT_REMOVED/);
+});
+
+test('advisory shared ingredient preflight is documented, not a stock reservation',()=>{
+  assert.match(spec,/\/venues\/\{venueId\}\/inventory\/preflight:/);
+  assert.match(spec,/operationId: preflightInventory/);
+  assert.match(spec,/InventoryPreflight:/);
+  assert.match(spec,/stockRevision:/);
+  assert.match(spec,/NOT a reservation/);
 });

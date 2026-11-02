@@ -200,7 +200,7 @@ test('simulated mixed checkout depletes physical counts but preserves one virtua
  assert.equal(run('orders.length'),1);
  assert.equal(run('stock.vodka'),31);
  assert.equal(run('stockroomStore.totals().vodka'),31);
- assert.equal(run('stockroomStore.snapshot().items.find(x=>x.id==="vodka").counts["main-bar"]'),15);
+ assert.equal(run('stockroomStore.snapshot().items.find(x=>x.id==="vodka").counts["lounge"]'),15);
 });
 test('physical count adjustment changes availability on staff and QR',()=>{
  const {run,nodes}=boot();

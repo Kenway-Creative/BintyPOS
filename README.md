@@ -18,11 +18,12 @@ Try: Main Bar → Pattersons folder → add Burger → Spuddy Hell folder → ad
 - `tests/keyboards.test.cjs` — 11 keyboard draft/publish, validation and isolation tests.
 - `tests/shortcuts.test.cjs` — 14 speed shortcut tests: versioning, validation, visibility, immutability and area isolation.
 - `tests/demo.test.cjs` — 8 static demo wiring and syntax checks.
+- `tests/ui-smoke.test.cjs` — 8 native Node VM integration scenarios (authored, CI execution not independently verified).
 - `openapi.yaml` — proposed REST v1 contract; no API server exists.
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
 
 ## Test locally
-Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 53 committed test cases; this release directly exercised 45 tests in a V8 compatibility harness plus 10 mocked-DOM assertions. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
 
 ## Catalogue contract
 `BintyCatalog.project(products, {areaMode, outlet, category, search, channel})` returns a non-mutating filtered view. `areaMode` can be `All`, `Short Menu`, a vendor name, or an array of allowed vendor names. `outlet` is a staff-only navigation filter: guest channel ignores it but still obeys the area policy. `categories` and `outlets` derive navigation from the same allowed products. These functions are **display filters**, not permissions. Server-side identity and access rules are required before real use.

@@ -1,10 +1,10 @@
-# BintyPOS architecture | prototype v0.2.0
+# BintyPOS architecture | prototype v0.2.1
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
 
 ## Current state
-The current index.html is a single-file browser simulation with illustrative products, local state and demo PINs. No production security or backend. The modular design below is a *proposal*, not implemented yet.
+The current static browser simulation uses index.html plus a pure, tested src/catalog.js module to project a shared catalogue into selling areas, staff outlet folders and QR views. Other state (cart, orders, stock and PINs) remains local and illustrative. No production security or backend. The other modules below are *proposals*, not implemented yet.
 
 ## Proposed modules
 - Catalog: stable products, versions, modifiers, prices, vendor ownership and visibility rules.
@@ -21,3 +21,8 @@ Contract-first REST versioned under /api/v1, documented in openapi.yaml. Design 
 
 ## Security and reliability gates
 Never expose Dojo secrets in browser clients. Demo PINs are public and insecure; replace with genuine identity and role policy before any operational deployment. Concurrent stock updates must be atomic. Receipts and refunds must be idempotent. Offline mode must restrict finite-stock checkout when disconnected unless a safe reservation allocation exists. Prove peak throughput with a measured Blackstock load profile.
+
+## Implemented catalogue boundary (v0.2.1)
+`src/catalog.js` has no DOM or persistence dependencies and can be exercised in Node. `project(products, {areaMode, outlet, category, search, channel})` filters products without mutating source data. Staff outlet navigation never grants access to products excluded by the sales-area policy. Guest views ignore the staff-only folder but still respect area visibility. Categories and outlet shortcuts derive from the same projection. Area modes currently support All, a demo Short Menu, one vendor, or an array of vendors.
+
+These are **presentation rules only**; they are not an authorisation implementation. Real API responses must be filtered server-side by authenticated venue/outlet scope and published menu version. Price, stock, and payment writes must not rely on browser projections.

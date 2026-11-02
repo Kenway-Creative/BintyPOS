@@ -1,4 +1,4 @@
-# BintyPOS architecture | prototype v0.2.6
+# BintyPOS architecture | prototype v0.2.7
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
@@ -58,3 +58,9 @@ Reference: Square Inventory API tracks state transitions and batch inventory cha
 
 ## Blackstock requirement: logical stockrooms versus physical count points
 The user's `Hot Water Comedy Club x Access: Binty's ideal world` brief (stock requirements r14–r16) and `HWCC - In depth scoping call` describe shared virtual stockrooms for communal spirits, wine/Prosecco, packaged beer, draught, shared food/dry goods and herbs; some items are outlet-specific. One ingredient may physically exist at several count points, while its *logical pool* is shared across many outlets. v0.2.6 currently uses a single demo stock map and does not yet model this distinction. Next version should introduce `stockPoolId` and `countLocationId` as independent identifiers before attempting persistent reservations or stock variance reporting.
+
+## Implemented virtual stockroom boundary (v0.2.7)
+
+`src/stockrooms.js` models logical stockrooms as **categories** rather than physical locations. Each ingredient has exactly one logical room and independent integer counts in zero or more real locations. Counts are summed once per ingredient; the shared `src/inventory.js` preflight uses these logical totals. After a successful simulated checkout, a deterministic location-ID allocation reduces the physical counts and therefore the logical total. `moveRoom` changes category without changing counts or ingredient identity. No data is persisted or authenticated.
+
+The current allocation is intentionally **not a physical picking/fulfilment strategy**. A real inventory service must separately model movement, receipts, counting sessions, variance approval, unit conversions, waste, permissions, optimistic revisions and atomic multi-client reservations. Never derive vendor ownership, menu visibility or a stockroom permission from a physical count location.

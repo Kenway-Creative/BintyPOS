@@ -1,28 +1,32 @@
 # BintyPOS status
 
-Version: **0.2.8** — in-memory shared-stock reservations
+Version: **0.2.9** — standalone SQLite transactional reservation proof-of-concept
 Date: 2026-11-02
 Canonical: Kenway-Creative/BintyPOS · main
-Rollback baseline (v0.2.7): `30aa731662bc9ba97ec7611762700e5077b5801c`
+Rollback baseline (v0.2.8): `2f861e4625930da917b6f111962a89c8b892810d`
+Implementation commit: `7375f8fb51e4398b021460083fce1ce46002021b`
 
 ## Implemented
-- `src/reservations.js` provides idempotent holds, expiry, release, conflict checks and adapter-based commit.
-- Both staff and QR simulated checkout use the hold/commit path; physical stock is consumed only after commit.
-- OpenAPI v0.2.8 proposes authenticated quote-derived reservations and service-only commit; **no running API**.
+- `src/persistent_reservations.py` is a standalone Python standard-library SQLite adapter. `BEGIN IMMEDIATE` serialises competing writers to one file. Holds, expiry, release, per-venue idempotency, stock consumption and ingredient movements are durable and atomic.
+- `tests/test_persistent_reservations.py` covers competing independent connections, reopen/restart, duplicate commit, shortages, expiry, release, isolation and failure safety.
+- CI workflow now runs Python 3.13 unittest discovery **as well as** the existing Node regression suite before Pages deployment.
+- OpenAPI 0.2.9 explicitly labels the HTTP routes proposed only; the SQLite adapter is not an API server.
 
 ## Verification
-- **146/146 full regression tests passed** under native Node 22 in GitHub Actions on 2026-11-02 at 21:12 UTC (run 41526203697). This includes 16 reservation unit tests, 3 new UI smoke tests, 1 static integration test and 1 API contract test.
-- Application JavaScript parsed; three mocked-DOM V8 integration scenarios also passed before commit.
-- GitHub Pages **Deploy Pages step succeeded** for v0.2.8 commit `9770d6d87cd2dde63856133972a5e28e92c2d28c`. Public live-browser inspection and real hardware tests remain unverified.
-- CI: https://github.com/Kenway-Creative/BintyPOS/actions/runs/41526203697
+- **13/13 Python tests passed** locally under Python 3.13.5 on 2026-11-02; Python bytecode compilation passed.
+- Git blob hashes of locally tested files exactly match the committed GitHub blobs: source `88d876f8386254c12b55a3b35edd233d53775bb6`, tests `9088ca7f783c384df701bc983dcb82efddb3bdcd`.
+- Existing v0.2.8 Node suite last verified **146/146** in GitHub Actions run 41526203697; unchanged in this release.
+- **New GitHub Actions run and Pages deployment not independently confirmed** for v0.2.9. No live browser/hardware tests.
 
 ## Limitations
-- Browser-only state: separate tills can oversell. The demo commits immediately without card authorisation.
-- Real service needs transactional DB locks, durable idempotency/expiry, stock movements, authenticated actors and payment reconciliation.
-- PINs remain insecure demonstrations. No Dojo, Spektrix or real card payments.
+- Existing browser demo still uses `src/reservations.js` and cannot share holds between tills; SQLite proof-of-concept is not wired to the UI.
+- Direct-demand Python adapter has no authenticated actor, accepted server quote, authoritative recipe binding, HTTP listener, order/payment state machine, Dojo connection, migrations/backups, or multi-host DB support. Never expose directly to browsers.
+- Demo PINs remain insecure. No real card payments or Spektrix integration.
 
 ## Next bounded feature
-**0.2.9 — transactional persistence proof-of-concept** for competing clients and durable idempotency, keeping the static demo separate.
+**0.2.10 — bind durable reservations to trusted, accepted, server-priced quote snapshots**, with recipe-version and idempotency checks. Prove server-side trust boundaries in tests before any public HTTP API.
 
 ## Market comparison
-Square documents atomic inventory batches and idempotency; BintyPOS demonstrates temporary recipe holds in local memory only. https://developer.squareup.com/docs/inventory-api/how-it-works
+Square Inventory API supports atomic batched stock adjustments and idempotency keys. BintyPOS now proves local transactional multi-ingredient holds; it is not production-equivalent to Square's inventory service.
+https://developer.squareup.com/docs/inventory-api/how-it-works
+https://developer.squareup.com/reference/square/inventory-api/BatchChangeInventory

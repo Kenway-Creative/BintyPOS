@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.6
+  version: 0.2.7
   description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
@@ -79,6 +79,64 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/BasketQuote'}
         '409': {description: Stale quote, changed catalogue or unavailable item}
+  /venues/{venueId}/inventory/stockrooms:
+    get:
+      summary: List logical virtual stockrooms and physical count breakdowns
+      operationId: listVirtualStockrooms
+      description: Planned read-only projection. Logical stockrooms are categories; physical count locations are independent. Authorise by verified venue scope.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Logical pools and ingredient counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: '#/components/schemas/VirtualStockroom'}
+        '403': {description: Stockroom access denied}
+  /venues/{venueId}/inventory/counts:
+    post:
+      summary: Submit a physical-location ingredient count for review
+      operationId: submitPhysicalStockCount
+      description: Future server-only operation. Validate verified actor and physical location; require revision match, durable audit and reconciliation workflow. Not implemented by demo +/- buttons.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: If-Match, in: header, required: true, schema: {type: string}, description: Expected inventory revision}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PhysicalCountInput'}
+      responses:
+        '202': {description: Physical count submitted for reconciliation}
+        '403': {description: Count permission denied}
+        '409': {description: Stale stock revision}
+  /venues/{venueId}/inventory/items/{ingredientId}/room:
+    put:
+      summary: Reclassify ingredient into another logical stockroom
+      operationId: reassignIngredientStockroom
+      description: Future admin-only reclassification preserving physical counts and item identity. Must be audited and revision-checked.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: ingredientId, in: path, required: true, schema: {type: string}}
+        - {name: If-Match, in: header, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roomId]
+              properties:
+                roomId: {type: string}
+      responses:
+        '200': {description: Ingredient reclassified; physical counts preserved}
+        '403': {description: Venue administrator required}
+        '409': {description: Stale revision}
   /venues/{venueId}/inventory/preflight:
     post:
       summary: Preview shared ingredient demand for an accepted server quote
@@ -377,6 +435,36 @@ components:
       scheme: bearer
       description: Planned server-side manager authentication, NOT implemented in prototype.
   schemas:
+    VirtualStockroom:
+      type: object
+      required: [id, name, ingredients]
+      properties:
+        id: {type: string, description: Logical category identifier, NOT a physical location}
+        name: {type: string}
+        ingredients:
+          type: array
+          items:
+            type: object
+            required: [ingredientId, total, physicalCounts]
+            properties:
+              ingredientId: {type: string}
+              total: {type: integer, minimum: 0}
+              physicalCounts:
+                type: array
+                items:
+                  type: object
+                  required: [locationId, quantity]
+                  properties:
+                    locationId: {type: string}
+                    quantity: {type: integer, minimum: 0}
+    PhysicalCountInput:
+      type: object
+      required: [ingredientId, locationId, countedQuantity]
+      properties:
+        ingredientId: {type: string}
+        locationId: {type: string, description: Real physical counting location, not logical room}
+        countedQuantity: {type: integer, minimum: 0, description: Demo integer units only; production requires UOM and timestamps}
+        note: {type: string, maxLength: 500}
     InventoryPreflight:
       type: object
       required: [ok, quoteId, quoteRevision, stockRevision, demands, shortages]

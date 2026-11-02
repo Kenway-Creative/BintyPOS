@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const catalog = require('../src/catalog.js');
 const keyboards = require('../src/keyboards.js');
 const shortcuts = require('../src/shortcuts.js');
+const offerings = require('../src/offerings.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const inline = 'const seed=' + html.split('<script>\nconst seed=')[1].split('</script>')[0];
 
@@ -18,7 +19,8 @@ function boot() {
     structuredClone,
     BintyCatalog: catalog,
     BintyKeyboards: keyboards,
-    BintyShortcuts: shortcuts
+    BintyShortcuts: shortcuts,
+    BintyOfferings: offerings
   };
   vm.createContext(context);
   vm.runInContext(inline, context, { timeout: 1000 });
@@ -80,4 +82,40 @@ test('out-of-stock speed key is disabled and cannot add more', () => {
   assert.match(nodes.app.innerHTML, /class="speed-key" disabled/);
   run('quickAdd("corona")');
   assert.equal(run('cart.corona'), undefined);
+});
+
+test('outlet proposal stays invisible until venue approval',()=>{
+ const {run,nodes}=boot();
+ run('setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'14.00'};nodes.offerAvailable={checked:true};
+ run('stageOffering("burger")');
+ assert.equal(run('offeringStore.pending().length'),1);
+ assert.equal(run('products.find(p=>p.id==="burger").price'),12.5);
+ run('setTab("qr")');assert.match(nodes.app.innerHTML,/£12\\.50/);
+});
+test('venue approval publishes to shared staff and QR catalogue',()=>{
+ const {run,nodes}=boot();
+ run('setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'14.00'};nodes.offerAvailable={checked:true};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo()');
+ assert.match(nodes.app.innerHTML,/Venue approval queue \\(1\\)/);
+ run('publishOffering("burger");setTab("qr")');
+ assert.equal(run('products.find(p=>p.id==="burger").price'),14);
+ assert.match(nodes.app.innerHTML,/£14\\.00/);
+});
+test('venue rejection keeps published offering and availability',()=>{
+ const {run,nodes}=boot();
+ run('setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'12.50'};nodes.offerAvailable={checked:false};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();rejectOffering("burger");setTab("till")');
+ assert.equal(run('products.find(p=>p.id==="burger").available'),true);
+ assert.equal(run('offeringStore.pending().length'),0);
+});
+test('approved unavailability blocks till and QR additions',()=>{
+ const {run,nodes}=boot();
+ run('setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'12.50'};nodes.offerAvailable={checked:false};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger")');
+ assert.equal(run('canAdd(products.find(p=>p.id==="burger"))'),false);
+ run('setTab("qr")');assert.match(nodes.app.innerHTML,/Pattersons Burger/);
 });

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.2
+  version: 0.2.3
   description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
@@ -155,6 +155,85 @@ paths:
               schema: {$ref: '#/components/schemas/KeyboardProfile'}
         '403': {description: Insufficient venue management scope}
         '409': {description: Version conflict or missing draft}
+  /venues/{venueId}/areas/{areaId}/shortcuts:
+    get:
+      summary: Fetch published staff-only speed shortcuts for a selling area
+      operationId: getPublishedShortcuts
+      description: Proposed endpoint. Return only published settings. Client must intersect shortcuts with published keyboard/catalogue visibility.
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Published shortcut configuration
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ShortcutProfile'}
+        '404': {description: Unknown area}
+  /venues/{venueId}/areas/{areaId}/shortcuts/draft:
+    get:
+      summary: Fetch unpublished speed shortcut draft
+      operationId: getShortcutDraft
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Unpublished shortcut draft
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ShortcutDraft'}
+        '403': {description: Venue-admin access required}
+        '404': {description: No draft}
+    put:
+      summary: Stage speed shortcut draft without changing live tills
+      operationId: saveShortcutDraft
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ShortcutDraftInput'}
+      responses:
+        '200':
+          description: Draft saved
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ShortcutDraft'}
+        '403': {description: Venue-admin access required}
+        '422': {description: Invalid, duplicate or excessive shortcut selection}
+    delete:
+      summary: Discard unpublished speed shortcut draft
+      operationId: discardShortcutDraft
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      responses:
+        '204': {description: Draft discarded}
+        '403': {description: Venue-admin access required}
+  /venues/{venueId}/areas/{areaId}/shortcuts/publish:
+    post:
+      summary: Publish shortcut draft with optimistic version check
+      operationId: publishShortcuts
+      description: Future server must enforce venue admin scope and atomically persist/audit a published version.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+        - {name: If-Match, in: header, required: true, schema: {type: string}, description: Expected shortcut version}
+      responses:
+        '200':
+          description: Newly published shortcut profile
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ShortcutProfile'}
+        '403': {description: Venue-admin access required}
+        '409': {description: Missing draft or version conflict}
 components:
   securitySchemes:
     managerAuth:
@@ -187,6 +266,36 @@ components:
           properties:
             version: {type: integer, minimum: 1}
 
+    ShortcutDraftInput:
+      type: object
+      required: [productIds, categories]
+      properties:
+        productIds:
+          type: array
+          maxItems: 8
+          uniqueItems: true
+          items: {type: string}
+          description: Ordered product IDs for staff-only one-tap favourites.
+        categories:
+          type: array
+          maxItems: 6
+          uniqueItems: true
+          items: {type: string}
+          description: Ordered staff-only category jump labels.
+    ShortcutDraft:
+      allOf:
+        - {$ref: '#/components/schemas/ShortcutDraftInput'}
+        - type: object
+          required: [baseVersion]
+          properties:
+            baseVersion: {type: integer, minimum: 1}
+    ShortcutProfile:
+      allOf:
+        - {$ref: '#/components/schemas/ShortcutDraftInput'}
+        - type: object
+          required: [version]
+          properties:
+            version: {type: integer, minimum: 1}
     Product:
       type: object
       required: [id, businessId, name, priceMinor]

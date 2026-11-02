@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.2] — 2026-11-02
+**Feature:** Versioned selling-area keyboards with staged drafts and explicit publishing.
+- Added pure `src/keyboards.js` store: all/short/selected-outlet profiles, defensive copies, draft/discard/publish, optimistic version checks, validation and history snapshots.
+- Venue-admin demo can select multiple outlets for a bar till, review unpublished changes and publish a new version. Till and guest QR continue reading the published version until publication; shared basket survives profile changes.
+- Added 11 keyboard tests and 2 new demo checks; adapted existing script-order test. 28 committed test functions passed in a V8 Node-test compatibility shim, plus 10 mocked-DOM smoke checks. **Not verified with native Node CI or a live browser.**
+- Added planned keyboard draft/publish REST endpoints and auth/If-Match contracts to `openapi.yaml` (no running server).
+- Market reference: Toast saved-versus-published configuration and publish permissions (https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End).
+- Rollback baseline: `d3add5043483d7560f6ef6dde48283e41a6e96b7` (v0.2.1). No tag or release claimed.
+
+
 ## [0.2.1] — 2026-11-02
 **Feature:** Shared catalogue projection for fast bar outlet folders and QR parity.
 - Extracted pure `src/catalog.js` module for sales-area policy, outlet shortcuts, category tabs, search and channel-aware filtering.

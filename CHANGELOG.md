@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.3] — 2026-11-02
+**Feature:** One-tap staff speed keys and category jumps, independently configurable per selling area.
+- Added pure `src/shortcuts.js` with ordered per-area favourite product IDs (max eight) and category jumps (max six), validated against known products/categories.
+- Added unpublished drafts, explicit publish/discard, version conflict checks, history snapshots and defensive copies. No draft affects staff till until published.
+- Staff till displays published favourites as direct-add buttons and category jumps; a category jump resets the outlet folder but keeps the shared basket. Guest QR has no staff shortcuts.
+- Published shortcut projection intersects with the published area keyboard; a restricted outlet cannot expose a favourite owned by an excluded vendor. Existing stock checks still apply.
+- Added 14 pure module tests, 3 demo wiring tests and 8 Node VM UI smoke tests. **45 existing + new non-VM tests passed in V8 compatibility harness; 10 mocked-DOM interaction assertions passed.** The 8 native Node VM tests were committed but CI execution has not been independently verified.
+- Added proposed versioned shortcut GET/draft/publish API contracts in `openapi.yaml`; no running API.
+- Benchmark: Toast Retail recommends a speed screen or manageable category for fast access to non-scannable products (https://support.toasttab.com/en/article/Toast-for-Restaurant-Retail-Ordering-of-POS-Buttons). BintyPOS adds independently published, area-specific shortcuts filtered through multi-vendor keyboard visibility.
+- Implementation commits: `461d2456eaf2574b3dbbc696db78258c8cb8b885` (module), `c6712e62cd132c5313dca109680a46720cb28d33` (UI), `deec17cf733817331cf1c4694eb0a2bc7a70a35f` (demo tests), `285366d8726a144dd8e6af9cc3935a1684b22b04` (VM smoke tests), `f0c8bfac851a808aa92797dc7fab9979e86150ed` (API).
+- Rollback baseline: `178b3a9257a50d31afb046f88bb47083185bc82d` (v0.2.2). No tag/release or live Pages success claimed.
+
+
 ## [0.2.2] — 2026-11-02
 **Feature:** Versioned selling-area keyboards with staged drafts and explicit publishing.
 - Added pure `src/keyboards.js` store: all/short/selected-outlet profiles, defensive copies, draft/discard/publish, optimistic version checks, validation and history snapshots.

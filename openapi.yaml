@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.1
+  version: 0.2.2
   description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
@@ -40,6 +40,7 @@ paths:
                 required: [version, products]
                 properties:
                   version: {type: string}
+                  keyboardVersion: {type: integer, minimum: 1, description: Published area keyboard version}
                   products:
                     type: array
                     items: {$ref: '#/components/schemas/Product'}
@@ -74,8 +75,118 @@ paths:
           description: Order accepted pending payment confirmation
         '409':
           description: Stock, menu-version or idempotency conflict
+  /venues/{venueId}/areas/{areaId}/keyboard:
+    get:
+      summary: Fetch the published keyboard profile for a selling area
+      operationId: getPublishedKeyboard
+      description: Planned endpoint. The published version is what tills and QR must consume.
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Published keyboard profile
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/KeyboardProfile'}
+        '404': {description: Area not found}
+  /venues/{venueId}/areas/{areaId}/keyboard/draft:
+    get:
+      summary: Fetch unpublished area keyboard draft
+      operationId: getKeyboardDraft
+      description: Future server-side permission required; demo PIN is not authorisation.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      responses:
+        '200':
+          description: Pending draft
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/KeyboardDraft'}
+        '403': {description: Insufficient venue management scope}
+        '404': {description: No pending draft}
+    put:
+      summary: Save draft without changing live keyboard
+      operationId: saveKeyboardDraft
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/KeyboardDraftInput'}
+      responses:
+        '200':
+          description: Draft saved, not published
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/KeyboardDraft'}
+        '403': {description: Insufficient venue management scope}
+        '422': {description: Invalid or unknown outlet selection}
+    delete:
+      summary: Discard unpublished area keyboard draft
+      operationId: discardKeyboardDraft
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+      responses:
+        '204': {description: Draft discarded}
+        '403': {description: Insufficient venue management scope}
+  /venues/{venueId}/areas/{areaId}/keyboard/publish:
+    post:
+      summary: Atomically publish a staged keyboard version
+      operationId: publishKeyboard
+      description: Future server operation. Must compare expected version and record publisher identity.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+        - {name: areaId, in: path, required: true, schema: {type: string}}
+        - {name: If-Match, in: header, required: true, schema: {type: string}, description: Expected current published version}
+      responses:
+        '200':
+          description: Newly published keyboard
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/KeyboardProfile'}
+        '403': {description: Insufficient venue management scope}
+        '409': {description: Version conflict or missing draft}
 components:
+  securitySchemes:
+    managerAuth:
+      type: http
+      scheme: bearer
+      description: Planned server-side manager authentication, NOT implemented in prototype.
   schemas:
+    KeyboardDraftInput:
+      type: object
+      required: [kind, vendors]
+      properties:
+        kind: {type: string, enum: [all, short, vendors]}
+        vendors:
+          type: array
+          uniqueItems: true
+          items: {type: string}
+          description: Required non-empty for kind vendors; empty otherwise.
+    KeyboardDraft:
+      allOf:
+        - {$ref: '#/components/schemas/KeyboardDraftInput'}
+        - type: object
+          required: [baseVersion]
+          properties:
+            baseVersion: {type: integer, minimum: 1}
+    KeyboardProfile:
+      allOf:
+        - {$ref: '#/components/schemas/KeyboardDraftInput'}
+        - type: object
+          required: [version]
+          properties:
+            version: {type: integer, minimum: 1}
+
     Product:
       type: object
       required: [id, businessId, name, priceMinor]

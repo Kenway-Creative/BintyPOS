@@ -1,4 +1,4 @@
-# BintyPOS architecture | prototype v0.2.5
+# BintyPOS architecture | prototype v0.2.6
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
@@ -46,3 +46,12 @@ The proposed API uses integer `priceMinor` (GBP pence), unlike demo pound-number
 `src/basket.js` stores one immutable price/name/vendor/version snapshot per product ID when first added, with mutable quantity and integer GBP-pence subtotal. Re-adding the same product does not silently update its price. `review(publishedProducts)` reports product version, price or ownership changes, withdrawal and removal; `validatedOrder()` fails closed when conflicts remain. The UI shows the original basket total and an explicit **Accept published prices** action for changed but still-available products. Simulated checkout snapshots the accepted prices into the order record. A catalogue change made after checkout cannot rewrite historical line totals.
 
 The browser still owns all state, so these checks are **not** a payment or pricing guarantee. A real API must create server-authoritative quotes with expiry, signed/versioned identity, tax/discount calculations, stock reservations and idempotency; never trust client-supplied prices or allow client-controlled PINs to grant authorisation. Proposed quote and acceptance endpoints are documented in `openapi.yaml`. In particular, acceptance must compare quote revisions, recheck catalogue/availability, and record who accepted a new price. For any real Dojo payment attempt, payment state must be coordinated with order/stock commits to avoid double charging and duplicate tickets.
+
+## Implemented aggregate inventory preflight (v0.2.6)
+`src/inventory.js` is a pure, dependency-free browser/CommonJS module. It validates integer recipe and stock units, aggregates demands for every order line across businesses, identifies all shortages, and returns a new stock snapshot on success. It never mutates the input stock and refuses any deduction if one ingredient is short. Both staff and guest QR use the same add and checkout paths. The product tile's remaining quantity now accounts for ingredients already committed to the current basket, including other products' recipes.
+
+This is a **single-browser synchronous demonstration** only. It is not safe for simultaneous devices, cannot prevent races, and does not represent a durable stock ledger or reservation. Real service requirements: authenticated tenant/stock-pool boundaries; recipe version snapshots; units of measure and yield; per-location physical counts; database transactions with row locks or equivalent atomic compare-and-reserve; idempotency; release on payment failure; immutable adjustments; offline reconciliation; inventory revision tracking and load tests. Never deduct stock based on client-provided ingredient counts. The proposed inventory preflight endpoint is advisory; successful preflight is not a reservation.
+
+Reference: Square Inventory API tracks state transitions and batch inventory changes atomically; its public documentation also notes limitations around ingredient/subcomponent tracking. BintyPOS's differentiator is combined ingredient demand across independently owned food and drink outlets sharing a single venue stock pool, not a claim of equivalent operational guarantees.
+- https://developer.squareup.com/docs/inventory-api/how-it-works
+- https://developer.squareup.com/docs/inventory-api/what-it-does

@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.9** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.10** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -44,6 +44,18 @@ Simulated checkout uses the existing aggregate recipe preflight and then deducts
 **Verification:** 125/125 committed tests passed in a V8 Node-compatibility harness; application JS parsed. Native Node CI, real browser and live Pages status remain unverified.
 
 
+## Trusted quote-bound SQLite holds (v0.2.10)
+
+The **internal-only** `src/trusted_checkout.py` extends the standalone SQLite reservation proof-of-concept. It persists a versioned published-product fixture catalogue (vendor, GBP-pence price, availability, recipe), issues a server-priced quote from **product IDs and quantities only**, stores its immutable line/recipe snapshot, requires explicit acceptance of the quoted total, then atomically reserves the persisted recipe demand under the same SQLite writer transaction. If a product or recipe is republished before acceptance/reservation, the old quote is rejected as stale. Each quote binds to one checkout-session **fixture** and at most one idempotency key; competing connections cannot double-reserve the same ingredient stock.
+
+**Trust boundary:** `publish_product()` is a trusted fixture/admin hook, **not** an authenticated back-office endpoint. The `session` string is a test identity, **not** a login or verified token. The inherited `SQLiteReservations.reserve(venue,key,demands)` remains a low-level trusted test method and must **never** be exposed to browsers. Real HTTP callers must never supply prices, recipes or stock demand. There is no HTTP listener, live server, persistent user authentication, VAT/tax/discount calculation, order ledger, Dojo connection or payment confirmation. The browser demo is still completely separate.
+
+Example internal test sequence: `publish_product(venue, product, business, price_minor, recipe)` → `create_quote(venue, session, [{"productId":"beer","quantity":2}])` → `accept_quote(venue, session, quoteId, expected_total_minor)` → `reserve_accepted_quote(venue, session, quoteId, idempotency_key)`. **Do not call `commit()` for a real sale**: the inherited commit method does not verify payment. For demonstration only, commit is exercised by unit tests.
+
+Run `python3 -m unittest discover -s tests -p 'test_*.py' -v` on Python 3.11+. Fourteen new quote-bound tests cover authoritative pricing, aggregated recipe demand, acceptance, expiry, stale versions, venue/session scope, idempotency, restart persistence and competing independent connections. Locally the 14 new tests passed under Python 3.11+; the existing 13 reservation tests and Node regression suite require the GitHub Actions gate for this commit.
+
+**Next:** implement verified server-side checkout identity, authorised area/catalogue publishing and order/payment state transitions, then connect an authenticated HTTP API. Dojo remains preferred and must be validated in sandbox before any live payment implementation.
+
 ## SQLite transaction proof-of-concept (v0.2.9)
 
 The isolated Python standard-library adapter `src/persistent_reservations.py` is a **real SQLite-file-backed transaction prototype**, separate from the browser demo. It has no network listener or payment connection. `SQLiteReservations(path)` opens a new database connection for each operation, uses `BEGIN IMMEDIATE` to serialise competing writers, and persists holds, expiry, release, idempotency keys, stock and immutable per-ingredient movements. It provides `bootstrap_stock(venue, counts)` **for isolated test fixtures only**, plus `reserve(venue, key, demands, ttl_ms)`, `status(venue, key)`, `release(venue, key)`, `commit(venue, key)`, `available(venue)` and `movements(venue, key)`.
@@ -67,6 +79,8 @@ Run `node --test tests/reservations.test.cjs` (16 native Node tests) or `node --
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
 - `src/basket.js` — immutable per-line price snapshots, explicit review and integer-pence subtotals.
 - `src/inventory.js` — pure aggregate recipe demand, shortage detection and all-or-none local consumption.
+- `src/trusted_checkout.py` — internal SQLite versioned product/quote snapshots, explicit acceptance and atomic recipe-derived holds (no HTTP/auth/payment).
+- `tests/test_trusted_checkout.py` — 14 trusted quote/stock contention regression cases.
 - `src/reservations.js` — temporary idempotent holds, expiry, conflicts and injected commit adapter; demo-only.
 - `tests/reservations.test.cjs` — 16 reservation unit tests.
 - `src/stockrooms.js` — logical virtual stockroom categories, independent physical count locations, deterministic local depletion and safe reclassification.

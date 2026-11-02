@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.4] — 2026-11-02
+**Feature:** Outlet-managed offering proposals with venue-controlled publication.
+- Added `src/offerings.js`: versioned published product snapshots, outlet-scoped draft proposals, central approve/reject, stale-version protection, defensive snapshots and an append-only in-memory event sequence.
+- Back office now stages name, availability and price changes without affecting staff or QR until a venue admin approves. Venue review queue lists pending proposals and supports approval/rejection. Removed immediate price mutation.
+- Shared staff/QR catalogue updates only after approval. Demo checkout blocks items whose published availability changed to unavailable.
+- Added 15 module tests, 4 UI smoke tests and 1 static wiring test; **73/73 tests passed in a V8 compatibility harness**. Native Node CI, real browser/device checks and live Pages deployment are not independently confirmed.
+- Proposed REST v1 offering proposal and approval endpoints in `openapi.yaml`; **no running API server**. API uses integer GBP pence while browser demo uses pound-number prices.
+- Benchmark: Toast menu edit/publish permissions (https://doc.toasttab.com/doc/platformguide/platformMenuManagerPermissions.html), reviewed 2026-11-02. BintyPOS demo requires explicit venue approval of every outlet proposal.
+- Limitations: public demo PINs, no server-enforced roles, browser-only audit, no durable state. Publishing a new price can reprice an existing basket; price snapshots are next.
+- Rollback baseline: `19315ca624cefd6bffcb75370e132617179fbdbd` (v0.2.3 checkpoint). No tag/release created.
+
+
 ## [0.2.3] — 2026-11-02
 **Feature:** One-tap staff speed keys and category jumps, independently configurable per selling area.
 - Added pure `src/shortcuts.js` with ordered per-area favourite product IDs (max eight) and category jumps (max six), validated against known products/categories.

@@ -197,7 +197,7 @@ function visible(p){return BintyCatalog.inArea(p,liveAreaMode(area))}
 function total(){return Object.entries(cart).reduce((a,[id,q])=>a+products.find(p=>p.id===id).price*q,0)}
 function add(id){let p=products.find(x=>x.id===id);if(canAdd(p)){cart[id]=(cart[id]||0)+1;receipt=''}else receipt='Not enough stock for '+p.name;render()}
 function remove(id){cart[id]--;if(cart[id]<=0)delete cart[id];render()}
-function checkout(){if(!Object.keys(cart).length)return;for(let [id,q] of Object.entries(cart)){let p=products.find(x=>x.id===id);if(q>available(p)){receipt='Checkout blocked: '+p.name+' stock changed';render();return}}
+function checkout(){if(!Object.keys(cart).length)return;for(let [id,q] of Object.entries(cart)){let p=products.find(x=>x.id===id);if(p.available===false){receipt='Checkout blocked: '+p.name+' is unavailable';render();return}if(q>available(p)){receipt='Checkout blocked: '+p.name+' stock changed';render();return}}
 let lines=Object.entries(cart).map(([id,qty])=>({p:products.find(x=>x.id===id),qty})),sum=total(),redeemed=activeVoucher?Math.min(voucher,sum):0;
 for(let {p,qty} of lines)for(let [ing,n] of Object.entries(p.recipe))stock[ing]-=n*qty;
 orders.unshift({id:orders.length+1001,time:new Date().toLocaleTimeString('en-GB'),area,lines,total:sum,redeemed,card:sum-redeemed});voucher-=redeemed;cart={};activeVoucher=false;receipt='SIMULATED PAYMENT ACCEPTED · '+money(sum)+' · Voucher '+money(redeemed)+' · Card '+money(sum-redeemed);render()}

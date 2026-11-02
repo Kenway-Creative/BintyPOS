@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.6** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.7** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -33,11 +33,23 @@ The shared `src/inventory.js` module exposes `preflight(lines, products, stock)`
 
 Test locally with `node --test tests/*.test.cjs` on Node 20+. Ten new native Node unit tests were run against the standalone inventory module; the full committed suite of 108 tests was exercised in a V8 Node-compatibility harness. Native GitHub Actions and real-browser deployment are not independently confirmed.
 
+## Virtual stockrooms and physical counts (v0.2.7)
+
+The **Stock** tab now groups ingredients by logical stockroom category (for example, *Communal spirits*) while showing independent counts for each actual place (Main Bar, Lily's Lounge, Cellar and Kitchen). A communal item such as vodka belongs to exactly one logical category but can have quantities counted at several locations. The count controls demonstrate how totals and availability respond to physical-location adjustments.
+
+Simulated checkout uses the existing aggregate recipe preflight and then deducts ingredient demand from the physical counts in deterministic location-ID order; the virtual room total is the sum of its physical locations. Selling from any staff area or QR affects the same logical stock pool. This **does not model physical picking or routing**: a future fulfilment adapter must choose a location based on actual service area and stock allocation. This demo does not have audit-grade stocktakes, a ledger, durable counts, concurrent reservations or production units of measure.
+
+`src/stockrooms.js` exports `createStore({rooms,locations,items})`, whose store supports `totals()`, `countSheet(roomId)`, `setCount(itemId,locationId,quantity)`, `moveRoom(itemId,roomId)`, `consume(demands)` and `snapshot()`. Reclassification preserves physical counts. All API routes in `openapi.yaml` are **proposed only**; the physical count and reclassification routes require server-side identity, permissions, revision checks and durable reconciliation when implemented. The Stock tab +/- buttons are **unsecured local demo controls**, not a real manager console.
+
+**Verification:** 125/125 committed tests passed in a V8 Node-compatibility harness; application JS parsed. Native Node CI, real browser and live Pages status remain unverified.
+
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
 - `src/basket.js` — immutable per-line price snapshots, explicit review and integer-pence subtotals.
 - `src/inventory.js` — pure aggregate recipe demand, shortage detection and all-or-none local consumption.
+- `src/stockrooms.js` — logical virtual stockroom categories, independent physical count locations, deterministic local depletion and safe reclassification.
+- `tests/stockrooms.test.cjs` — 12 unit cases for virtual pools, physical locations, category moves, defensive snapshots and no-partial-consumption.
 - `tests/inventory.test.cjs` — 10 unit tests for shared ingredient demand, validation and no-partial-deduction behaviour.
 - `tests/basket.test.cjs` — 12 price-snapshot, validation and conflict regression tests.
 - `tests/api-contract.test.cjs` — 3 proposed quote contract checks.
@@ -54,7 +66,7 @@ Test locally with `node --test tests/*.test.cjs` on Node 20+. Ten new native Nod
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
 
 ## Test locally
-Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 93 committed test cases. **93/93 passed in a V8 Node-test compatibility harness**, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 125 committed test cases. **125/125 passed in a V8 Node-test compatibility harness**, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
 
 ## Offering proposal contract
 `BintyOfferings.createStore(products)` owns in-memory published products and pending per-product proposals. An outlet manager may propose name, availability or price changes only for their outlet. Only the venue-admin role may approve/publish or reject. Published products increment versions; stale versions fail closed and events are recorded in a defensive-copy audit log. In the future API, prices are represented as integer GBP pence (`priceMinor`), whereas the browser demo currently uses pound-number prices. The conversion and rounding must occur in a validated server adapter. Proposed API endpoints are in `openapi.yaml`, not running.

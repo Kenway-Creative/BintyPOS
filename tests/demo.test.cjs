@@ -49,3 +49,11 @@ test('speed keys have explicit draft and publish controls', () => {
   assert.match(html, /function discardShortcuts\(\)/);
   assert.match(html, /shortcutStore\.publish\(area,shortcutStore\.published\(area\)\.version\)/);
 });
+
+test('offering module loads before inline app and approval handlers exist',()=>{
+  assert.match(html,/src\\/offerings\\.js/);
+  assert.match(html,/BintyOfferings\\.createStore\\(products\\)/);
+  assert.match(html,/function stageOffering\\(id\\)/);
+  assert.match(html,/function publishOffering\\(id\\)/);
+  assert.doesNotMatch(html,/function savePrice\\(id\\)/);
+});

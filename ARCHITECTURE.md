@@ -1,4 +1,4 @@
-# BintyPOS architecture | prototype v0.2.3
+# BintyPOS architecture | prototype v0.2.4
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
@@ -35,3 +35,9 @@ This is a *local prototype*, not a durable publish service. A production server 
 ## Implemented speed-key boundary (v0.2.3)
 `src/shortcuts.js` is a pure in-memory store for ordered per-area favourite product IDs (maximum eight) and category jumps (maximum six). Staged drafts never change published till buttons. Published shortcut versions increment with optimistic conflict checks; defensive snapshots prevent UI mutation of the store. `visible(products, areaMode, profile, BintyCatalog)` intersects favourite products and category jumps with the **published** area keyboard. Staff can add a favourite directly or jump to a category while preserving the shared basket. Guest QR has no staff speed keys. In the demo, direct add rechecks published visibility and the existing stock guard; neither is a secure checkout rule.
 A future server must authenticate manager changes, atomically publish revisions, reject stale edits, preserve an audit trail and distribute versions to connected devices. The shortcut API is specified in `openapi.yaml` but not implemented.
+
+
+## Implemented offering proposal boundary (v0.2.4)
+`src/offerings.js` holds versioned published product snapshots, one pending proposal per product and an append-only *in-memory* event sequence. It accepts only name, price and availability edits. Outlet managers can stage proposals only for their own outlet; venue admins approve/publish or reject. The published staff/QR catalogue updates only after approval. Approval compares the expected product version and rejects stale or missing proposals. Unavailability is revalidated during demo checkout. All UI actor claims are **untrusted**; client PINs do not enforce production access. Published price changes currently recalculate existing basket totals — production requires immutable order-line price snapshots and server-side revalidation.
+
+The proposed API uses integer `priceMinor` (GBP pence), unlike demo pound-number prices. Server adapters must perform exact conversion and apply tenant/role checks, durable revision history, immutable audit events, idempotent publication and device invalidation. The prototype does **not** implement this backend. Role boundaries and publish approval must be validated against real staff policy before rollout.

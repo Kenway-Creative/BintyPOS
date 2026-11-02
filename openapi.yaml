@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.5
+  version: 0.2.6
   description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
@@ -79,6 +79,32 @@ paths:
             application/json:
               schema: {$ref: '#/components/schemas/BasketQuote'}
         '409': {description: Stale quote, changed catalogue or unavailable item}
+  /venues/{venueId}/inventory/preflight:
+    post:
+      summary: Preview shared ingredient demand for an accepted server quote
+      operationId: preflightInventory
+      description: Planned server-only endpoint. Derive recipes, stock pool and counts from trusted inventory; never trust client-supplied stock or ingredient demand. A successful preflight is NOT a reservation and cannot guarantee stock at checkout.
+      security: [{managerAuth: []}]
+      parameters:
+        - {name: venueId, in: path, required: true, schema: {type: string}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quoteId, quoteRevision]
+              properties:
+                quoteId: {type: string}
+                quoteRevision: {type: integer, minimum: 1}
+      responses:
+        '200':
+          description: Aggregate ingredient demand and any shortages for the current inventory snapshot
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/InventoryPreflight'}
+        '403': {description: Authenticated user cannot inspect venue stock}
+        '409': {description: Quote stale or no longer accepted}
   /venues/{venueId}/orders:
     post:
       summary: Submit validated multi-vendor order once
@@ -351,6 +377,32 @@ components:
       scheme: bearer
       description: Planned server-side manager authentication, NOT implemented in prototype.
   schemas:
+    InventoryPreflight:
+      type: object
+      required: [ok, quoteId, quoteRevision, stockRevision, demands, shortages]
+      description: Advisory inventory snapshot only. Order submission must atomically recheck and reserve inventory with idempotency.
+      properties:
+        ok: {type: boolean}
+        quoteId: {type: string}
+        quoteRevision: {type: integer, minimum: 1}
+        stockRevision: {type: string, description: Opaque inventory revision for diagnostics, not a reservation}
+        demands:
+          type: array
+          items:
+            type: object
+            required: [ingredientId, required]
+            properties:
+              ingredientId: {type: string}
+              required: {type: integer, minimum: 1, description: Demo integer units; production quantities need units of measure}
+        shortages:
+          type: array
+          items:
+            type: object
+            required: [ingredientId, required, available]
+            properties:
+              ingredientId: {type: string}
+              required: {type: integer, minimum: 1}
+              available: {type: integer, minimum: 0}
     BasketQuoteRequest:
       type: object
       required: [areaId, lines]

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.9] — 2026-11-02 — SQLite transactional reservation proof-of-concept
+- Added `src/persistent_reservations.py`: SQLite file-backed, transactionally serialised stock holds, expiry, release, durable idempotency and one-time ingredient movements.
+- Added 13 Python standard-library regression tests, including two competing connections, restart/replay, venue isolation and no partial deduction.
+- Added Python 3.13 CI gate before GitHub Pages publication. Existing 146 Node tests remain unchanged.
+- Updated OpenAPI contract to 0.2.9 while explicitly keeping HTTP endpoints unimplemented.
+- Local verification: 13/13 Python tests passed with Python 3.13.5; GitHub Actions result pending independent inspection.
+- **No browser integration:** the static till/QR demo still uses in-memory reservations. This service is not authenticated, has no trusted quote binding or payment integration.
+- Rollback baseline: v0.2.8 checkpoint `2f861e4625930da917b6f111962a89c8b892810d`. Source implementation commit: `7375f8fb51e4398b021460083fce1ce46002021b`.
+
+
 ## [0.2.8] — 2026-11-02
 **Feature:** In-memory stock reservation boundary.
 - Added `src/reservations.js` with idempotent holds/commit/release, TTL expiry, conflict checks and stock adapters.

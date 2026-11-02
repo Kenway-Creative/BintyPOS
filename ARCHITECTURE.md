@@ -1,4 +1,4 @@
-# BintyPOS architecture | prototype v0.2.8
+# BintyPOS architecture | prototype v0.2.9
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
@@ -69,3 +69,9 @@ The current allocation is intentionally **not a physical picking/fulfilment stra
 `src/reservations.js` is a synchronous, in-memory hold/commit/release state machine with injected stock adapters. Active holds reduce reservable quantities; `consumeStock()` is invoked only on commit. Idempotency keys prevent duplicate holds/commits within one store. Expired, released or conflicted holds cannot commit. Staff and QR use the same checkout boundary.
 
 **Not a distributed lock, secure payment or durable transaction.** Separate browsers still oversell. Production requires authenticated venue/checkout scope, accepted quote revision checks, row locks and atomic DB transactions, durable idempotency, expiry processing, immutable movements and payment-state reconciliation. Public reserve API accepts a quote reference, not ingredient demands. Commit is internal service-only.
+
+## Durable transaction proof-of-concept (v0.2.9)
+
+`src/persistent_reservations.py` uses a local SQLite file and `BEGIN IMMEDIATE` for each operation. Each reservation is keyed by (venue, idempotency key), with durable status and canonical ingredient demands; physical stock and movement records are updated in one transaction at commit. A separate database connection is opened per call so distinct threads/processes can compete for the same file. Active holds reduce availability before physical stock is consumed; expiry and release free it. Repeated commit is a read-only replay. Conflicting demand for the same key fails closed. Physical stock shortfall marks the hold conflicted, without partial movements.
+
+This is a standalone **trusted internal adapter** used by unit tests, not a server. The existing static demo continues to use in-memory `src/reservations.js`. There is no secure quote-to-reservation binding, identity, distributed deployment, VAT, order ledger, payment coordination, stocktake reconciliation, backups or production migration system. The API spec remains proposed; do not connect a browser to `reserve(venue,key,demands)` directly. Future server must derive ingredient demand from authoritative accepted quotes and recipes. A database-backed order/stock/payment state machine needs an outbox and reconciliation strategy for external Dojo events; never assume a single SQLite transaction covers an external payment.

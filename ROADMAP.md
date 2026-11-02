@@ -13,7 +13,8 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.6 shared recipe ingredient aggregation, basket-wide preflight and all-or-none browser stock consumption.
 
 ## Prioritised releases
-- **0.2.7 next:** design and test a server-side inventory reservation boundary (adapter interface and deterministic idempotency/expiry tests), without claiming durable atomic transactions before a real database is present. Record stock pool, recipe version and reservation state explicitly.
+- **0.2.7 next:** virtual stockrooms: map each ingredient to a logical shared or outlet-specific stock pool, separately from physical count locations. Verify a sale from any till depletes the correct logical pool, with deterministic tests. This is a browser model, not concurrent inventory.
+- **0.2.8 after:** design a server-side inventory reservation boundary (adapter, idempotency and expiry tests); no claims of durable atomic transactions until backed by a real database.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
@@ -41,3 +42,6 @@ Square's Orders API uses a per-line `base_price_money` and quantity, and Toast r
 Square Inventory API models inventory changes and atomic batches, but its documented Inventory API does not directly track ingredients/subcomponents. BintyPOS's local recipe preflight aggregates ingredient requirements across a multi-vendor basket and prevents local partial deductions; it is not an equivalent production inventory service. Checked 2026-11-02:
 - https://developer.squareup.com/docs/inventory-api/how-it-works
 - https://developer.squareup.com/docs/inventory-api/what-it-does
+
+## Source-of-truth brief (reviewed 2026-11-02)
+The attached `Hot Water Comedy Club x Access: Binty's ideal world` specifies virtual stockrooms that are *not physical rooms*, shared ingredients such as vodka, Prosecco, sugar and potatoes, and product recipes that deduct stock regardless of which selling area sold them. The scoping-call transcript confirms shared communal stock can be physically distributed throughout the building. Model logical pools independently of physical count locations; do not equate business/vendor or till with stock location.

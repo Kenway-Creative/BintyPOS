@@ -2,7 +2,34 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BintyPOS — Hot Water prototype</title>
 <style>
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#f4f2ef;background:#111318}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 13px;background:#292e37;color:#fff}button:hover{filter:brightness(1.15)}button.active,.primary{background:#f04c52;color:white}button:disabled{opacity:.45;cursor:not-allowed}header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;border-bottom:1px solid #30343b;flex-wrap:wrap}.brand{font-weight:850;font-size:23px;letter-spacing:-.7px}.brand span{color:#f04c52}.tag{font-size:11px;background:#5e3f21;color:#ffe0a5;padding:5px 9px;border-radius:20px;margin-left:10px}small,.muted{color:#a1a6af}main{padding:20px;max-width:1480px;margin:auto}nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.panel{border:1px solid #303740;background:#1b1e25;border-radius:14px;padding:18px}.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.item{text-align:left;min-height:125px;background:#282d35;border:1px solid #3a404b;display:flex;flex-direction:column;justify-content:space-between}.item b{font-size:17px}.item .price{color:#85d9b7}.pill{background:#353b45;border-radius:16px;padding:4px 8px;font-size:11px;color:#c9cdd4}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}select,input{background:#252a33;color:#fff;border:1px solid #454c57;border-radius:8px;padding:9px;max-width:100%}h1,h2,h3{margin:0 0 14px}h2{font-size:22px}h3{font-size:16px}.line{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #363b43;padding:12px 0}.line:last-child{border:0}.line button{padding:5px 9px}.money{font-variant-numeric:tabular-nums;font-weight:700}.total{font-size:24px;color:#85d9b7}.bottom{border-top:1px solid #343a43;margin-top:12px;padding-top:14px}.hint{background:#273944;border-left:3px solid #74bfda;padding:12px;border-radius:7px;margin:12px 0;color:#cde9f7}.warn{background:#493431;border-left:3px solid #ef8b70;padding:12px;border-radius:7px;margin:12px 0;color:#ffdfd0}.success{color:#85d9b7}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.metric{padding:18px;background:#252a33;border-radius:10px}.metric strong{display:block;font-size:26px;margin-top:8px}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:12px 9px;text-align:left;border-bottom:1px solid #353b44}.table th{color:#aab0b9;font-size:12px}.stack{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.section{margin-bottom:15px}.badge{color:#8fd0ab;background:#234635;padding:4px 8px;border-radius:8px;font-size:12px}.right{text-align:right}.hidden{display:none}.footer{font-size:12px;color:#a2aab5;margin-top:22px} @media(max-width:850px){.grid,.two,.three{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:12px}}
-</style></head><body><header><div class="brand">Binty<span>POS</span><span class="tag">INTERACTIVE PROTOTYPE · NO REAL PAYMENTS</span></div><div class="muted">HOT WATER COMEDY CLUB · LIVERPOOL</div></header><main><nav id="tabs"></nav><div id="app"></div><div class="footer">Prototype only: in-browser state, fictional prices, simulated payments and vouchers. No Dojo, Spektrix, stock system, multi-user backend or live services connected. Reload resets demo.</div></main>
+
+:root{color:#fff;background:#090909;font-family:Arial,Helvetica,system-ui,sans-serif}
+body{background:radial-gradient(circle at 100% 0%,rgba(249,82,16,.13),transparent 35%),#0b0b0d;color:#fff}
+header{background:#050505;border-bottom:3px solid #ff4a12;padding:15px 25px}
+.brand{display:flex;align-items:center;gap:13px;font-size:24px;font-weight:900;letter-spacing:-.9px;text-transform:uppercase}
+.brand span{color:#ffca12}.brand .brand-word{color:#fff}.brand .brand-pos{color:#ff4b15}
+.brand .tag{font-size:10px;letter-spacing:.08em;background:#29221b;color:#ffcd7e;border:1px solid #674323}
+.hw-logo{width:64px;height:64px;border-radius:100%;object-fit:cover;box-shadow:0 0 0 2px #e63d1f;flex-shrink:0}
+.venue-name{font-weight:800;text-transform:uppercase;color:#eee;letter-spacing:.08em;font-size:12px}
+nav{background:#151515;border:1px solid #383838;padding:7px;border-radius:12px}
+button{background:#252525;border:1px solid #464646;font-weight:700}
+button.active,.primary{background:linear-gradient(125deg,#fb3515,#ee6500);color:white;border-color:#ff752a}
+button:hover:not(:disabled){border-color:#ff7f2a}
+.panel{background:#171719;border-color:#38383c}
+.item{background:linear-gradient(145deg,#282323,#1e1e21);border-color:#47403d;border-left:3px solid #ff631c}
+.item:hover:not(:disabled){background:#332723;transform:translateY(-1px)}
+.item .price,.total,.success{color:#ffd247}
+.pill{background:#332f2b;color:#f7dec1}
+.badge{background:#423116;color:#ffd265}
+select,input{background:#242327;border-color:#555051}
+.metric{background:#242225;border-left:3px solid #f05a1b}
+.hint{background:#302719;border-left-color:#ff9b25;color:#ffe6bb}
+.warn{background:#422522;border-left-color:#ff5541}
+.table th,.muted,small{color:#bdb8b5}
+.footer{color:#96918c}
+.bottom{border-top-color:#4a403b}
+@media(max-width:700px){.hw-logo{width:48px;height:48px}.brand{font-size:18px;gap:8px}.brand .tag{font-size:8px}header{padding:12px}.venue-name{display:none}}
+</style></head><body><header><div class="brand"><img class="hw-logo" src="https://content.airshipm2.co.uk/img/3/181223/rif.jpeg" alt="Hot Water Comedy Club logo"><div><span class="brand-word">HOT WATER</span> <span class="brand-pos">POS</span><div class="tag">BINTYPOS · CONCEPT DEMO · NO REAL PAYMENTS</div></div></div><div class="venue-name">BLACKSTOCK MARKET · LIVERPOOL</div></header><main><nav id="tabs"></nav><div id="app"></div><div class="footer">Prototype only: in-browser state, fictional prices, simulated payments and vouchers. No Dojo, Spektrix, stock system, multi-user backend or live services connected. Reload resets demo.</div></main>
 <script>
 const seed=[
 {id:'corona',name:'Corona',vendor:'Lily’s Lounge',category:'Packaged',price:5.5,recipe:{corona:1}},

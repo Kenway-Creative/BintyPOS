@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.0
-  description: Proposed open API contract, not an operational endpoint. Prototype data only.
+  version: 0.2.1
+  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions.
 servers:
   - url: /api/v1
 paths:
@@ -20,6 +20,16 @@ paths:
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
         - {name: areaId, in: query, required: true, schema: {type: string}}
+        - name: channel
+          in: query
+          required: false
+          schema: {type: string, enum: [staff, guest], default: staff}
+          description: Projection context; must be validated against server identity and published area policy.
+        - name: outletId
+          in: query
+          required: false
+          schema: {type: string}
+          description: Optional staff-only navigation filter; never an authorisation grant.
       responses:
         '200':
           description: Catalogue version and products

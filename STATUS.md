@@ -12,9 +12,9 @@ Rollback baseline (v0.2.2): `178b3a9257a50d31afb046f88bb47083185bc82d`
 - Proposed OpenAPI shortcut endpoints; **no running backend**.
 
 ## Verification evidence
-- **45/45** pure/static tests executed in a V8 Node-test compatibility harness.
-- **10/10** mocked-DOM assertions passed: direct add, basket retention, category jump, area restrictions, draft and publish.
-- **8** additional Node VM UI smoke tests authored and committed; native Node CI, live Pages and real-device checks **not independently confirmed**.
+- **53/53** committed tests passed in a V8 Node-test compatibility harness, including eight VM smoke scenarios using a lightweight VM shim.
+- **10/10** separate mocked-DOM assertions passed: direct add, basket retention, category jump, area restrictions, draft and publish.
+- Native Node CI, live Pages and real-device checks **not independently confirmed**.
 - Inline app JavaScript syntax checked.
 - Implementation commits: `461d2456eaf2574b3dbbc696db78258c8cb8b885`, `c6712e62cd132c5313dca109680a46720cb28d33`.
 - Tests: `caa01097127b01ba7a7924c1ca085a4b5bb48c8a`, `deec17cf733817331cf1c4694eb0a2bc7a70a35f`, `285366d8726a144dd8e6af9cc3935a1684b22b04`.

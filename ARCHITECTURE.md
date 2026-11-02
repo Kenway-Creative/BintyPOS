@@ -1,10 +1,10 @@
-# BintyPOS architecture | prototype v0.2.2
+# BintyPOS architecture | prototype v0.2.3
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
 
 ## Current state
-The current static browser simulation uses index.html plus a pure, tested src/catalog.js module to project a shared catalogue into selling areas, staff outlet folders and QR views. Versioned keyboard profiles and drafts now live in the pure src/keyboards.js module; other state (cart, orders, stock and PINs) remains local and illustrative. No production security or backend. The other modules below are *proposals*, not implemented yet.
+The current static browser simulation uses index.html plus a pure, tested src/catalog.js module to project a shared catalogue into selling areas, staff outlet folders and QR views. Per-area favourites and category jumps now live in `src/shortcuts.js`; versioned keyboard profiles and drafts live in the pure src/keyboards.js module; other state (cart, orders, stock and PINs) remains local and illustrative. No production security or backend. The other modules below are *proposals*, not implemented yet.
 
 ## Proposed modules
 - Catalog: stable products, versions, modifiers, prices, vendor ownership and visibility rules.
@@ -31,3 +31,7 @@ These are **presentation rules only**; they are not an authorisation implementat
 `src/keyboards.js` owns in-memory published area profiles (version starts at 1), optional drafts with baseVersion, publish/discard actions, input validation and defensive copies. Allowed vendor lists are checked against the demo vendor catalogue; publishing requires the expected version. All tills and QR projections call `liveAreaMode()`, which reads **published**, not draft, data. The back-office venue-admin demo screen can configure All, Short Menu or a subset of outlets without cloning product records. Outlet demo managers cannot edit area keyboards.
 
 This is a *local prototype*, not a durable publish service. A production server must enforce venue-wide publishing permission, persist draft and published revisions transactionally, expose ETags or equivalent optimistic locking, audit actor/time and notify devices to sync. Client-side PINs and profile filters are not security boundaries. Product-price demo edits still take effect immediately and are not covered by keyboard publishing.
+
+## Implemented speed-key boundary (v0.2.3)
+`src/shortcuts.js` is a pure in-memory store for ordered per-area favourite product IDs (maximum eight) and category jumps (maximum six). Staged drafts never change published till buttons. Published shortcut versions increment with optimistic conflict checks; defensive snapshots prevent UI mutation of the store. `visible(products, areaMode, profile, BintyCatalog)` intersects favourite products and category jumps with the **published** area keyboard. Staff can add a favourite directly or jump to a category while preserving the shared basket. Guest QR has no staff speed keys. In the demo, direct add rechecks published visibility and the existing stock guard; neither is a secure checkout rule.
+A future server must authenticate manager changes, atomically publish revisions, reject stale edits, preserve an audit trail and distribute versions to connected devices. The shortcut API is specified in `openapi.yaml` but not implemented.

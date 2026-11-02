@@ -61,6 +61,7 @@ select,input{background:#24231f;border-color:#58513d}
 <script src="./src/keyboards.js"></script>
 <script src="./src/shortcuts.js"></script>
 <script src="./src/offerings.js"></script>
+<script src="./src/basket.js"></script>
 <script>
 const seed=[
 {id:'corona',name:'Corona',vendor:'Lily’s Lounge',category:'Packaged',price:5.5,recipe:{corona:1}},
@@ -78,6 +79,7 @@ const initialStock={corona:24,vodka:32,prosecco:15,whisky:24,lager:50,cake:4};
 let products=structuredClone(seed),stock={...initialStock},cart={},orders=[],receipt='',tab='till',area='Main Bar',filter='All',role='Venue admin',voucher=50,activeVoucher=false,config={'Main Bar':'All','Lily’s Lounge':'Lily’s Lounge','Whisky & Water':'Whisky & Water','Blackstock Roof Garden':'Blackstock Roof Garden','Pattersons':'Pattersons','Cherry On Top':'Cherry On Top','Theatre 1':'Short Menu'},search='',qrv=false,outletFolder='All',backOfficeUnlocked=false,backOfficeRole='Venue admin',keyboardNotice='',offeringNotice='';
 const vendors=[...new Set(seed.map(x=>x.vendor))],areas=Object.keys(config),money=n=>'£'+n.toFixed(2),el=x=>document.getElementById(x),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const offeringStore=BintyOfferings.createStore(products);
+const basketStore=BintyBasket.createStore();
 products=offeringStore.published();
 const keyboardStore=BintyKeyboards.createStore(config,{vendors});
 const shortcutStore=BintyShortcuts.createStore({
@@ -175,7 +177,7 @@ function publishOffering(id){
     const p=offeringStore.product(id);
     offeringStore.publish(id,managerActor(),p.version);
     products=offeringStore.published();
-    offeringNotice='Published offering v'+(p.version+1)+' (demo only). Existing baskets recalculate prices in this prototype.';
+    offeringNotice='Published offering v'+(p.version+1)+' (demo only). Existing basket prices stay frozen until explicit review.';
   }catch(error){offeringNotice='Approval failed: '+error.message}
   render();
 }
@@ -195,13 +197,45 @@ function available(p){return Math.min(...Object.entries(p.recipe).map(([i,n])=>M
 function inCart(id){return cart[id]||0}
 function canAdd(p){return p.available!==false&&available(p)>inCart(p.id)}
 function visible(p){return BintyCatalog.inArea(p,liveAreaMode(area))}
-function total(){return Object.entries(cart).reduce((a,[id,q])=>a+products.find(p=>p.id===id).price*q,0)}
-function add(id){let p=products.find(x=>x.id===id);if(canAdd(p)){cart[id]=(cart[id]||0)+1;receipt=''}else receipt='Not enough stock for '+p.name;render()}
-function remove(id){cart[id]--;if(cart[id]<=0)delete cart[id];render()}
-function checkout(){if(!Object.keys(cart).length)return;for(let [id,q] of Object.entries(cart)){let p=products.find(x=>x.id===id);if(p.available===false){receipt='Checkout blocked: '+p.name+' is unavailable';render();return}if(q>available(p)){receipt='Checkout blocked: '+p.name+' stock changed';render();return}}
-let lines=Object.entries(cart).map(([id,qty])=>({p:products.find(x=>x.id===id),qty})),sum=total(),redeemed=activeVoucher?Math.min(voucher,sum):0;
-for(let {p,qty} of lines)for(let [ing,n] of Object.entries(p.recipe))stock[ing]-=n*qty;
-orders.unshift({id:orders.length+1001,time:new Date().toLocaleTimeString('en-GB'),area,lines,total:sum,redeemed,card:sum-redeemed});voucher-=redeemed;cart={};activeVoucher=false;receipt='SIMULATED PAYMENT ACCEPTED · '+money(sum)+' · Voucher '+money(redeemed)+' · Card '+money(sum-redeemed);render()}
+
+function total(){return basketStore.snapshot().subtotalMinor/100}
+function add(id){
+ const p=products.find(x=>x.id===id);
+ if(p&&canAdd(p)){try{basketStore.add(p);cart[id]=basketStore.quantity(id);receipt=''}catch(e){receipt='Cannot add: '+e.message}}
+ else receipt='Item unavailable or insufficient stock';
+ render();
+}
+function remove(id){
+ basketStore.remove(id);const q=basketStore.quantity(id);
+ if(q)cart[id]=q;else delete cart[id];
+ receipt='';render();
+}
+function acceptBasketPrices(){
+ try{basketStore.acceptPublished(products);receipt='Published prices accepted (demo only).'}
+ catch(e){receipt='Cannot update basket: '+e.message+'; remove unavailable items.'}
+ render();
+}
+function checkout(){
+ if(!Object.keys(cart).length)return;
+ let quote;
+ try{quote=basketStore.validatedOrder(products)}
+ catch(e){receipt='Checkout blocked: catalogue changed. Review and accept current prices.';render();return}
+ for(const line of quote.lines){
+   const p=products.find(x=>x.id===line.productId);
+   if(!p||p.available===false){receipt='Checkout blocked: item unavailable';render();return}
+   if(line.quantity>available(p)){receipt='Checkout blocked: '+p.name+' stock changed';render();return}
+ }
+ const lines=quote.lines.map(line=>{
+   const live=products.find(x=>x.id===line.productId);
+   return {p:{...live,name:line.name,vendor:line.vendor,price:line.unitPriceMinor/100,version:line.productVersion},qty:line.quantity};
+ });
+ const sum=quote.subtotalMinor/100,redeemed=activeVoucher?Math.min(voucher,sum):0;
+ for(const {p,qty} of lines)for(const [ing,n] of Object.entries(p.recipe))stock[ing]-=n*qty;
+ orders.unshift({id:orders.length+1001,time:new Date().toLocaleTimeString('en-GB'),area,lines,total:sum,redeemed,card:sum-redeemed});
+ voucher-=redeemed;basketStore.clear();cart={};activeVoucher=false;
+ receipt='SIMULATED PAYMENT ACCEPTED · '+money(sum)+' · Voucher '+money(redeemed)+' · Card '+money(sum-redeemed);
+ render();
+}
 function setTab(x){tab=x;receipt='';if(x==='backoffice')backOfficeUnlocked=false;filter='All';search='';render()}
 function enterFolder(v){outletFolder=v;filter='All';render()}
 function unlockDemo(){let v=el('demoPin').value;let valid={'2468':'Venue admin','1357':'Outlet: Pattersons','8642':'Outlet: Spuddy Hell','9753':'Outlet: Cherry On Top'};if(valid[v]){backOfficeRole=valid[v];backOfficeUnlocked=true;render()}else{el('pinError').textContent='Incorrect demo PIN'}}

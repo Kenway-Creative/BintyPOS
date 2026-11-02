@@ -6,9 +6,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 ## Completed
 - 0.2.0 framework architecture and proposed open API.
 - 0.2.1 reusable staff/QR catalogue projection, outlet folder filtering and automated test gate.
+- 0.2.2 versioned keyboard profiles, selected-vendor drafts, explicit publish/discard and V8 regression checks.
 
 ## Prioritised releases
-- **0.2.2 next:** editable, versioned till profiles/keyboard layouts, supporting selected vendor combinations and explicit publishing; test that changes propagate to till and QR appropriately.
+- **0.2.3 next:** configurable staff keyboard favourites and category shortcuts; measure taps to sell a product from another outlet without changing basket.
 - 0.3.x fast outlet navigation, favourites, category shortcuts and measured touch paths.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
@@ -22,4 +23,4 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 Who is merchant of record, settlements, VAT and discount allocation; exact Dojo models; server/offline architecture; outlet roles and price-change approvals; stockroom mapping; day-one Spektrix requirements; actual peak transaction profile.
 
 ## Market benchmark
-Toast's menu hierarchy and POS button names/colours show the value of configured, staff-facing menus (https://doc.toasttab.com/doc/platformguide/adminCreatingYourMenuHierarchy.html). Square's typed catalogue separates item variations and categories (https://developer.squareup.com/docs/catalog-api/design-a-catalog). BintyPOS additionally models *outlet ownership* independently from *area visibility*, so a bar till can sell a mix of vendor menus without copying their products.
+Toast separates saved edits from publishing to POS and online ordering (https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End). Square's typed catalogue separates item variations and categories (https://developer.squareup.com/docs/catalog-api/design-a-catalog). BintyPOS additionally models *outlet ownership* independently from *area visibility*, so a bar till can sell a mix of vendor menus without copying their products.

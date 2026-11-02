@@ -14,9 +14,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.7 virtual stockroom categories, independent physical count locations, category reclassification, deterministic local consumption and stock tab demonstration.
 - 0.2.8 idempotent in-memory stock holds, expiry/release, conflict detection and demo checkout integration.
 - 0.2.9 standalone SQLite transaction proof-of-concept with durable holds, idempotency, movements and competing-client tests (no HTTP API).
+- 0.2.10 trusted SQLite quote snapshots, explicit acceptance, product/recipe version invalidation, and atomic recipe-derived holds (no authenticated HTTP).
 
 ## Prioritised releases
-- **0.2.10 next:** trusted quote-derived reservation adapter and order-binding design; prevent arbitrary client-supplied ingredient demands. Add server-side integration tests before introducing a network listener.
+- **0.2.11 next:** verified checkout identity/venue scope and persistent order state machine with payment-provider adapter interface; separate payment authorisation, reservation expiry, capture/confirmation and reconciliation. No real payments or unprotected HTTP routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

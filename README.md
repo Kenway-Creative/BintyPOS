@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.4** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.5** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -12,11 +12,23 @@ Try: Main Bar → Pattersons folder → add Burger → Spuddy Hell folder → ad
 ## Outlet offerings and central approval (v0.2.4)
 Use **Back office** with an outlet demo PIN (Pattersons 1357, Spuddy Hell 8642, Cherry On Top 9753). Select one of that outlet's products, change its name, availability or price, then choose **Submit for approval**. The staff till and guest QR remain unchanged while the proposal is pending. Log out and enter venue admin demo PIN 2468 to view the **Venue approval queue**; approve and publish or reject the proposal. A successful publish increments the product version and updates the shared staff/QR catalogue. Rejection leaves the published catalogue unchanged.
 
-All role checks, proposal history and approvals here run in **browser memory only**; client-side PINs and actor claims are insecure. Real API calls must derive identity and outlet scope server-side, require central approval, store audit events durably and reject stale revisions. **Known prototype risk:** changing a published price can recalculate an existing basket; production must snapshot line prices and revalidate at checkout.
+All role checks, proposal history and approvals here run in **browser memory only**; client-side PINs and actor claims are insecure. Real API calls must derive identity and outlet scope server-side, require central approval, store audit events durably and reject stale revisions. **Prototype limitation:** basket snapshots and checkout revalidation are browser-only; real checkout must use server-issued quotes and atomic stock reservation.
+
+## Basket price snapshots and review (v0.2.5)
+When staff or a guest adds a product, BintyPOS captures the published product version, vendor, name and unit price in **integer GBP pence**. Existing basket totals are not silently recalculated when an outlet's price is approved. The basket shows a review warning when a product version, price, availability or ownership changes. A price/version conflict blocks simulated checkout until the operator deliberately clicks **Accept published prices**; an unavailable or removed product must be removed from the basket. The simulated order retains the accepted line-price snapshot for reporting.
+
+To test: add Pattersons Burger (£12.50), use the Pattersons demo manager to propose £14.00, then approve with venue admin. Return to the till: the basket still shows £12.50, checkout is blocked, and accepting the revised price changes the basket to £14.00. All behaviour is local demo state and is **not a real price guarantee**.
+
+`src/basket.js` is a pure CommonJS/browser module with immutable line snapshots, minor-unit totals, catalogue conflict detection, explicit repricing, and validated order snapshots. `tests/basket.test.cjs` contains 12 unit tests; the UI smoke tests include four basket scenarios. `tests/api-contract.test.cjs` checks the proposed quote API.
+
+**Server boundary:** Real price quotes must be calculated from the authoritative catalogue, with server-side identity, availability, VAT, promotions, atomic inventory reservation and expiry. The proposed `/api/v1/venues/{venueId}/quotes` and explicit accept-prices endpoints are **specification only**. Dojo remains the preferred future payment provider, not connected.
 
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
+- `src/basket.js` — immutable per-line price snapshots, explicit review and integer-pence subtotals.
+- `tests/basket.test.cjs` — 12 price-snapshot, validation and conflict regression tests.
+- `tests/api-contract.test.cjs` — 3 proposed quote contract checks.
 - `src/offerings.js` — pure staged offering proposals, outlet scope checks, venue-only publication, optimistic versions and in-memory audit events.
 - `tests/offerings.test.cjs` — 15 regression cases covering scope, validation, publish/reject, audit and defensive snapshots.
 - `src/shortcuts.js` — pure per-area staff speed-key store with staged/published versions, validation and visibility intersection.
@@ -30,7 +42,7 @@ All role checks, proposal history and approvals here run in **browser memory onl
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
 
 ## Test locally
-Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 73 committed test cases. **73/73 passed in a V8 Node-test compatibility harness**, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 93 committed test cases. **93/93 passed in a V8 Node-test compatibility harness**, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
 
 ## Offering proposal contract
 `BintyOfferings.createStore(products)` owns in-memory published products and pending per-product proposals. An outlet manager may propose name, availability or price changes only for their outlet. Only the venue-admin role may approve/publish or reject. Published products increment versions; stale versions fail closed and events are recorded in a defensive-copy audit log. In the future API, prices are represented as integer GBP pence (`priceMinor`), whereas the browser demo currently uses pound-number prices. The conversion and rounding must occur in a validated server adapter. Proposed API endpoints are in `openapi.yaml`, not running.

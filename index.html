@@ -60,6 +60,7 @@ select,input{background:#24231f;border-color:#58513d}
 <script src="./src/catalog.js"></script>
 <script src="./src/keyboards.js"></script>
 <script src="./src/shortcuts.js"></script>
+<script src="./src/offerings.js"></script>
 <script>
 const seed=[
 {id:'corona',name:'Corona',vendor:'Lily’s Lounge',category:'Packaged',price:5.5,recipe:{corona:1}},
@@ -74,8 +75,9 @@ const seed=[
 {id:'potato',name:'Spuddy Hell Loaded Spud',vendor:'Spuddy Hell',category:'Food',price:9,recipe:{}}
 ];
 const initialStock={corona:24,vodka:32,prosecco:15,whisky:24,lager:50,cake:4};
-let products=structuredClone(seed),stock={...initialStock},cart={},orders=[],receipt='',tab='till',area='Main Bar',filter='All',role='Venue admin',voucher=50,activeVoucher=false,config={'Main Bar':'All','Lily’s Lounge':'Lily’s Lounge','Whisky & Water':'Whisky & Water','Blackstock Roof Garden':'Blackstock Roof Garden','Pattersons':'Pattersons','Cherry On Top':'Cherry On Top','Theatre 1':'Short Menu'},search='',qrv=false,outletFolder='All',backOfficeUnlocked=false,backOfficeRole='Venue admin',keyboardNotice='';
+let products=structuredClone(seed),stock={...initialStock},cart={},orders=[],receipt='',tab='till',area='Main Bar',filter='All',role='Venue admin',voucher=50,activeVoucher=false,config={'Main Bar':'All','Lily’s Lounge':'Lily’s Lounge','Whisky & Water':'Whisky & Water','Blackstock Roof Garden':'Blackstock Roof Garden','Pattersons':'Pattersons','Cherry On Top':'Cherry On Top','Theatre 1':'Short Menu'},search='',qrv=false,outletFolder='All',backOfficeUnlocked=false,backOfficeRole='Venue admin',keyboardNotice='',offeringNotice='';
 const vendors=[...new Set(seed.map(x=>x.vendor))],areas=Object.keys(config),money=n=>'£'+n.toFixed(2),el=x=>document.getElementById(x),escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const offeringStore=BintyOfferings.createStore(products);
 const keyboardStore=BintyKeyboards.createStore(config,{vendors});
 const shortcutStore=BintyShortcuts.createStore({
   'Main Bar': {productIds:['corona','burger','potato'],categories:['Food','Packaged','Cocktails']},
@@ -144,9 +146,53 @@ function discardKeyboard(){
   keyboardNotice='Unpublished keyboard changes discarded.';
   render();
 }
+function managerActor(){
+  if(backOfficeRole==='Venue admin')return {id:'venue-demo',role:'venue_admin'};
+  const outlet=backOfficeRole.slice(8);
+  return {id:'manager-demo:'+outlet,role:'outlet_manager',outlet};
+}
+function stageOffering(id){
+  if(!backOfficeUnlocked)return;
+  try{
+    const current=offeringStore.product(id);
+    const name=el('offerName').value.trim();
+    const rawPrice=String(el('offerPrice').value).trim();
+    const price=rawPrice===''?NaN:Number(rawPrice);
+    const available=Boolean(el('offerAvailable').checked);
+    const changes={};
+    if(name!==current.name)changes.name=name;
+    if(price!==current.price)changes.price=price;
+    if(available!==current.available)changes.available=available;
+    offeringStore.stage(id,changes,managerActor());
+    offeringNotice='Draft submitted for venue approval. No live product has changed.';
+  }catch(error){offeringNotice='Draft rejected: '+error.message}
+  render();
+}
+function publishOffering(id){
+  if(!backOfficeUnlocked||backOfficeRole!=='Venue admin')return;
+  try{
+    const p=offeringStore.product(id);
+    offeringStore.publish(id,managerActor(),p.version);
+    products=offeringStore.published();
+    offeringNotice='Published offering v'+(p.version+1)+' (demo only). Existing baskets recalculate prices in this prototype.';
+  }catch(error){offeringNotice='Approval failed: '+error.message}
+  render();
+}
+function rejectOffering(id){
+  if(!backOfficeUnlocked||backOfficeRole!=='Venue admin')return;
+  try{offeringStore.reject(id,managerActor(),'Venue review declined');offeringNotice='Draft rejected; published catalogue unchanged.'}
+  catch(error){offeringNotice='Rejection failed: '+error.message}
+  render();
+}
+function discardOffering(id){
+  if(!backOfficeUnlocked)return;
+  try{offeringStore.discard(id,managerActor());offeringNotice='Own draft discarded.'}
+  catch(error){offeringNotice='Discard failed: '+error.message}
+  render();
+}
 function available(p){return Math.min(...Object.entries(p.recipe).map(([i,n])=>Math.floor((stock[i]||0)/n)).concat([999]))}
 function inCart(id){return cart[id]||0}
-function canAdd(p){return available(p)>inCart(p.id)}
+function canAdd(p){return p.available!==false&&available(p)>inCart(p.id)}
 function visible(p){return BintyCatalog.inArea(p,liveAreaMode(area))}
 function total(){return Object.entries(cart).reduce((a,[id,q])=>a+products.find(p=>p.id===id).price*q,0)}
 function add(id){let p=products.find(x=>x.id===id);if(canAdd(p)){cart[id]=(cart[id]||0)+1;receipt=''}else receipt='Not enough stock for '+p.name;render()}
@@ -216,13 +262,32 @@ if(tab==='backoffice'&&backOfficeUnlocked){
       (keyboardNotice?'<p class="muted">'+escape(keyboardNotice)+'</p>':'')+
       '<p class="muted">Demo only: changes reset on reload. A future backend must validate editor permissions and publish atomically.</p></section>';
   }
-  const allowed=products.filter(x=>backOfficeRole==='Venue admin'||x.vendor===backOfficeRole.substring(8));
+  const allowed=products.filter(x=>backOfficeRole==='Venue admin'||x.vendor===backOfficeRole.slice(8));
   const chosen=allowed.find(x=>x.name===window.editName)||allowed[0];
-  a+='<section class="panel"><h3>Outlet offering — demo prices</h3>'+
-    '<p class="muted">Outlet managers can edit only their own products in this demonstration. Product price edits still apply immediately and will require a separate approval/publish workflow.</p>'+
+  const pending=offeringStore.draft(chosen.id);
+  a+='<section class="panel section"><h3>Outlet offerings — staged changes</h3>'+
+    '<p class="muted">Outlet managers can propose name, availability and price changes for their own products. Only venue administration can publish. Staff and QR continue to use the current catalogue until approval.</p>'+
     '<div class="toolbar">'+selectHTML(allowed.map(x=>x.name),chosen.name,'window.editName=this.value;render()')+'</div>'+
-    '<label>Price (£) <input type="number" step=".10" min="0" id="newPrice" value="'+chosen.price+'"></label> '+
-    '<button class="primary" onclick="savePrice(\''+chosen.id+'\')">Apply demo price</button></section>';
+    '<div class="toolbar"><label>Product name <input id="offerName" value="'+escape(chosen.name)+'"></label>'+
+    '<label>Price (£) <input type="number" step="0.01" min="0" id="offerPrice" value="'+chosen.price+'"></label>'+
+    '<label class="stack"><input id="offerAvailable" type="checkbox" '+(chosen.available!==false?'checked':'')+'>Available</label></div>'+
+    '<div class="line"><span>Published version '+offeringStore.product(chosen.id).version+'</span><span class="badge">'+(pending?'Pending venue review':'Live')+'</span></div>'+
+    (pending?'<div class="hint">Pending: '+escape(JSON.stringify(pending.changes))+' · requested by '+escape(pending.requestedBy)+'</div>'+
+      '<button onclick="discardOffering('+JSON.stringify(chosen.id).replace(/"/g,'&quot;')+')">Discard draft</button>':
+      '<button class="primary" onclick="stageOffering('+JSON.stringify(chosen.id).replace(/"/g,'&quot;')+')">Submit for approval</button>')+
+    (offeringNotice?'<div class="hint">'+escape(offeringNotice)+'</div>':'')+
+    '</section>';
+  if(backOfficeRole==='Venue admin'){
+    const proposals=offeringStore.pending();
+    a+='<section class="panel section"><h3>Venue approval queue ('+proposals.length+')</h3>'+
+      '<p class="muted">Review outlet proposals before making any change visible on tills and guest QR. Price control remains central.</p>'+
+      (proposals.length?proposals.map(d=>'<div class="line"><div><b>'+escape(offeringStore.product(d.productId).name)+'</b> · '+escape(d.outlet)+
+        '<div class="muted">v'+d.baseVersion+' · '+escape(JSON.stringify(d.changes))+'</div></div>'+
+        '<div class="stack"><button class="primary" onclick="publishOffering('+JSON.stringify(d.productId).replace(/"/g,'&quot;')+')">Approve &amp; publish</button>'+
+        '<button onclick="rejectOffering('+JSON.stringify(d.productId).replace(/"/g,'&quot;')+')">Reject</button></div></div>').join(''):
+        '<p class="muted">No changes awaiting approval.</p>')+
+      '<p class="muted">Audit events in demo memory: '+offeringStore.audit().length+'. Production requires durable actor, time, approval and version records.</p></section>';
+  }
 }
 el('app').innerHTML=a;
 }

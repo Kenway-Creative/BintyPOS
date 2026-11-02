@@ -6,6 +6,7 @@ Canonical repository: Kenway-Creative/BintyPOS · main
 Prior rollback baseline: `dbdb298f9e833777d9fe39a6194dcb3432572c9a`
 Feature commit: `f22bf98c458a7786944b4e3474ed9497d016e54f`
 Test-gated deploy workflow commit: `3d01cacebfee14b86fada127ad72c06acf5681fb`
+Latest API/architecture checkpoint: `9c3b29ef029a2dc8b1fe3463d3c92886cdae0ec3`
 
 ## Completed
 - Pure catalogue projection module shared by staff till and QR UI, with area policies, vendor folders, categories and search.
@@ -16,7 +17,7 @@ Test-gated deploy workflow commit: `3d01cacebfee14b86fada127ad72c06acf5681fb`
 ## Verification evidence
 - 12 direct V8 assertions passed against the exact module source before committing.
 - Inline application JavaScript parsed and 5 mocked-DOM UI smoke checks passed before committing.
-- Node test files committed, but a real Node CI test run is **not yet independently confirmed**.
+- All 15 committed Node test functions were also executed successfully using a V8 test shim (12 catalogue, 3 demo). This is **not** a substitute for a real Node test runner; GitHub Actions completion is not yet independently confirmed.
 - GitHub Pages public deployment, live browser rendering and multi-device tests **not yet independently confirmed**.
 
 ## Limitations and blockers

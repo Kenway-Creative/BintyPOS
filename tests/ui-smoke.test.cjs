@@ -8,6 +8,7 @@ const catalog = require('../src/catalog.js');
 const keyboards = require('../src/keyboards.js');
 const shortcuts = require('../src/shortcuts.js');
 const offerings = require('../src/offerings.js');
+const basket = require('../src/basket.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const inline = 'const seed=' + html.split('<script>\nconst seed=')[1].split('</script>')[0];
 
@@ -20,7 +21,8 @@ function boot() {
     BintyCatalog: catalog,
     BintyKeyboards: keyboards,
     BintyShortcuts: shortcuts,
-    BintyOfferings: offerings
+    BintyOfferings: offerings,
+    BintyBasket: basket
   };
   vm.createContext(context);
   vm.runInContext(inline, context, { timeout: 1000 });
@@ -118,4 +120,46 @@ test('approved unavailability blocks till and QR additions',()=>{
  run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger")');
  assert.equal(run('canAdd(products.find(p=>p.id==="burger"))'),false);
  run('setTab("qr")');assert.match(nodes.app.innerHTML,/Pattersons Burger/);
+});
+
+test('published price change keeps original basket total until explicit acceptance',()=>{
+ const {run,nodes}=boot();
+ run('add("burger");setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'14.00'};nodes.offerAvailable={checked:true};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger");setTab("till")');
+ assert.equal(run('total()'),12.5);
+ assert.match(nodes.app.innerHTML,/Basket review required/);
+ run('checkout()');
+ assert.equal(run('orders.length'),0);
+ assert.match(nodes.app.innerHTML,/Checkout blocked/);
+});
+test('accepting changed published price allows simulated checkout with new total',()=>{
+ const {run,nodes}=boot();
+ run('add("burger");setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'14.00'};nodes.offerAvailable={checked:true};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger");setTab("till")');
+ run('acceptBasketPrices()');
+ assert.equal(run('total()'),14);
+ run('checkout()');
+ assert.equal(run('orders.length'),1);
+ assert.equal(run('orders[0].total'),14);
+});
+test('published unavailability blocks checkout and price acceptance',()=>{
+ const {run,nodes}=boot();
+ run('add("burger");setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'12.50'};nodes.offerAvailable={checked:false};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger");setTab("till")');
+ run('acceptBasketPrices();checkout()');
+ assert.equal(run('orders.length'),0);
+ assert.equal(run('total()'),12.5);
+});
+test('simulated order retains locked price and vendor after later catalogue changes',()=>{
+ const {run,nodes}=boot();
+ run('add("burger");checkout()');
+ assert.equal(run('orders[0].lines[0].p.price'),12.5);
+ run('setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
+ nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'14.00'};nodes.offerAvailable={checked:true};
+ run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger")');
+ assert.equal(run('orders[0].lines[0].p.price'),12.5);
+ assert.equal(run('orders[0].lines[0].p.vendor'),'Pattersons');
 });

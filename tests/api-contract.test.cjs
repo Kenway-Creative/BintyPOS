@@ -29,3 +29,11 @@ test('advisory shared ingredient preflight is documented, not a stock reservatio
   assert.match(spec,/stockRevision:/);
   assert.match(spec,/NOT a reservation/);
 });
+
+test('virtual stockroom API separates logical category from physical counting locations',()=>{
+ assert.match(spec,/operationId: listVirtualStockrooms/);
+ assert.match(spec,/operationId: submitPhysicalStockCount/);
+ assert.match(spec,/operationId: reassignIngredientStockroom/);
+ assert.match(spec,/PhysicalCountInput:/);
+ assert.match(spec,/locationId: \{type: string, description: Real physical counting location/);
+});

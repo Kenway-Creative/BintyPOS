@@ -6,11 +6,11 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 ## Completed
 - 0.2.0 framework architecture and proposed open API.
 - 0.2.1 reusable staff/QR catalogue projection, outlet folder filtering and automated test gate.
-- 0.2.2 versioned keyboard profiles, selected-vendor drafts, explicit publish/discard and V8 regression checks.
+- 0.2.2 versioned keyboard profiles, selected-vendor drafts, explicit publish/discard and V8 regression checks.\n- 0.2.3 per-area staff speed keys, category jumps, staged publish/discard and visibility intersection.
 
 ## Prioritised releases
-- **0.2.3 next:** configurable staff keyboard favourites and category shortcuts; measure taps to sell a product from another outlet without changing basket.
-- 0.3.x fast outlet navigation, favourites, category shortcuts and measured touch paths.
+- **0.2.4 next:** controlled outlet offering edits — scoped manager drafts, central price approval/publishing and clear audit event contract. This resolves the original scoping tension between outlet self-management and central price ownership.
+- 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
 - 0.6.x atomic multi-vendor checkout, recipe stock reservations and idempotent order ledger.
@@ -22,5 +22,5 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 ## Open decisions
 Who is merchant of record, settlements, VAT and discount allocation; exact Dojo models; server/offline architecture; outlet roles and price-change approvals; stockroom mapping; day-one Spektrix requirements; actual peak transaction profile.
 
-## Market benchmark
+## Benchmark for v0.2.3\nToast Retail recommends speed screens or manageable menu groups for fast access to non-scannable products (https://support.toasttab.com/en/article/Toast-for-Restaurant-Retail-Ordering-of-POS-Buttons). BintyPOS offers per-area speed keys that are filtered through the published multi-vendor keyboard and are not exposed to guest QR. No device timing measurements yet.\n\n## Market benchmark
 Toast separates saved edits from publishing to POS and online ordering (https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End). Square's typed catalogue separates item variations and categories (https://developer.squareup.com/docs/catalog-api/design-a-catalog). BintyPOS additionally models *outlet ownership* independently from *area visibility*, so a bar till can sell a mix of vendor menus without copying their products.

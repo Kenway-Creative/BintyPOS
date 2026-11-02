@@ -10,9 +10,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 - 0.2.4 scoped outlet offering proposals, central price approval, version checks and demo audit history.
 - 0.2.5 immutable GBP-pence basket snapshots, explicit catalogue-change review, checkout blocking and proposed server quote API.
+- 0.2.6 shared recipe ingredient aggregation, basket-wide preflight and all-or-none browser stock consumption.
 
 ## Prioritised releases
-- **0.2.6 next:** extract inventory preflight and stock-reservation intent into a pure, tested module. Validate ingredient recipe demand for a multi-vendor basket before simulated checkout, with no negative stock; clearly distinguish browser-only preflight from atomic server reservations.
+- **0.2.7 next:** design and test a server-side inventory reservation boundary (adapter interface and deterministic idempotency/expiry tests), without claiming durable atomic transactions before a real database is present. Record stock pool, recipe version and reservation state explicitly.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.
@@ -35,3 +36,8 @@ Toast separates saved edits from publishing to POS and online ordering (https://
 Square's Orders API uses a per-line `base_price_money` and quantity, and Toast recommends pricing/validating an order before submission through its `/orders/v2/prices` endpoint. BintyPOS v0.2.5 records the price shown when a line is added, blocks stale checkout and requires explicit acceptance before using a new published price. It is **not** a Square/Toast-compatible order engine and does not yet calculate VAT, discounts, stock reservations or live payment status.
 - https://developer.squareup.com/reference/square/objects/orderlineitem
 - https://doc.toasttab.com/doc/devguide/apiOrdersFirstOrder.html
+
+## Benchmark for v0.2.6
+Square Inventory API models inventory changes and atomic batches, but its documented Inventory API does not directly track ingredients/subcomponents. BintyPOS's local recipe preflight aggregates ingredient requirements across a multi-vendor basket and prevents local partial deductions; it is not an equivalent production inventory service. Checked 2026-11-02:
+- https://developer.squareup.com/docs/inventory-api/how-it-works
+- https://developer.squareup.com/docs/inventory-api/what-it-does

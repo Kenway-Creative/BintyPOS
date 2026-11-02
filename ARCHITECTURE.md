@@ -55,3 +55,6 @@ This is a **single-browser synchronous demonstration** only. It is not safe for 
 Reference: Square Inventory API tracks state transitions and batch inventory changes atomically; its public documentation also notes limitations around ingredient/subcomponent tracking. BintyPOS's differentiator is combined ingredient demand across independently owned food and drink outlets sharing a single venue stock pool, not a claim of equivalent operational guarantees.
 - https://developer.squareup.com/docs/inventory-api/how-it-works
 - https://developer.squareup.com/docs/inventory-api/what-it-does
+
+## Blackstock requirement: logical stockrooms versus physical count points
+The user's `Hot Water Comedy Club x Access: Binty's ideal world` brief (stock requirements r14–r16) and `HWCC - In depth scoping call` describe shared virtual stockrooms for communal spirits, wine/Prosecco, packaged beer, draught, shared food/dry goods and herbs; some items are outlet-specific. One ingredient may physically exist at several count points, while its *logical pool* is shared across many outlets. v0.2.6 currently uses a single demo stock map and does not yet model this distinction. Next version should introduce `stockPoolId` and `countLocationId` as independent identifiers before attempting persistent reservations or stock variance reporting.

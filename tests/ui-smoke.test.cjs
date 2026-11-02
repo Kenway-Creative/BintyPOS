@@ -10,6 +10,7 @@ const shortcuts = require('../src/shortcuts.js');
 const offerings = require('../src/offerings.js');
 const basket = require('../src/basket.js');
 const inventory = require('../src/inventory.js');
+const stockrooms = require('../src/stockrooms.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const inline = 'const seed=' + html.split('<script>\nconst seed=')[1].split('</script>')[0];
 
@@ -24,7 +25,8 @@ function boot() {
     BintyShortcuts: shortcuts,
     BintyOfferings: offerings,
     BintyBasket: basket,
-    BintyInventory: inventory
+    BintyInventory: inventory,
+    BintyStockrooms: stockrooms
   };
   vm.createContext(context);
   vm.runInContext(inline, context, { timeout: 1000 });
@@ -82,7 +84,7 @@ test('published shortcut becomes available without changing existing basket', ()
 });
 test('out-of-stock speed key is disabled and cannot add more', () => {
   const { run, nodes } = boot();
-  run('stock.corona=0; render()');
+  run('demoSetStock("corona",0); render()');
   assert.match(nodes.app.innerHTML, /class="speed-key" disabled/);
   run('quickAdd("corona")');
   assert.equal(run('cart.corona'), undefined);
@@ -168,14 +170,14 @@ test('simulated order retains locked price and vendor after later catalogue chan
 
 test('shared ingredient demand blocks second item before overselling',()=>{
  const {run}=boot();
- run('stock.corona=5;add("corona");add("bucket")');
+ run('demoSetStock("corona",5);add("corona");add("bucket")');
  assert.equal(run('cart.corona'),1);
  assert.equal(run('cart.bucket'),undefined);
  assert.equal(run('stock.corona'),5);
 });
 test('checkout refuses combined oversell after stock reduction without partial deductions',()=>{
  const {run,nodes}=boot();
- run('add("bucket");add("corona");stock.corona=5;checkout()');
+ run('add("bucket");add("corona");demoSetStock("corona",5);checkout()');
  assert.equal(run('orders.length'),0);
  assert.equal(run('stock.corona'),5);
  assert.match(nodes.app.innerHTML,/Checkout blocked/);
@@ -185,4 +187,26 @@ test('successful mixed basket consumes shared ingredient exactly once',()=>{
  run('add("bucket");add("corona");checkout()');
  assert.equal(run('orders.length'),1);
  assert.equal(run('stock.corona'),18);
+});
+
+test('virtual room combines stock counted in separate physical areas',()=>{
+ const {run,nodes}=boot();run('setTab("stock")');
+ assert.match(nodes.app.innerHTML,/Virtual stockrooms/);
+ assert.equal(run('stockroomStore.totals().vodka'),32);
+ assert.equal(run('stockroomStore.countSheet("communal-spirits")[1].total'),32);
+});
+test('simulated mixed checkout depletes physical counts but preserves one virtual pool',()=>{
+ const {run}=boot();run('add("pornstar");checkout()');
+ assert.equal(run('orders.length'),1);
+ assert.equal(run('stock.vodka'),31);
+ assert.equal(run('stockroomStore.totals().vodka'),31);
+ assert.equal(run('stockroomStore.snapshot().items.find(x=>x.id==="vodka").counts["main-bar"]'),15);
+});
+test('physical count adjustment changes availability on staff and QR',()=>{
+ const {run,nodes}=boot();
+ run('setTab("stock");adjustCount("cake","kitchen",-4)');
+ assert.equal(run('stock.cake'),0);
+ run('setTab("qr")');
+ assert.match(nodes.app.innerHTML,/Cherry On Top Cake/);
+ assert.equal(run('canAdd(products.find(p=>p.id==="cake"))'),false);
 });

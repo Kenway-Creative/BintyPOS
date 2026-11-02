@@ -1,6 +1,6 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.3** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.4** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
@@ -9,21 +9,31 @@ Open `index.html` using a local HTTP server (for example `python3 -m http.server
 
 Try: Main Bar → Pattersons folder → add Burger → Spuddy Hell folder → add Loaded Spud → one simulated checkout. Switching folders keeps the shared basket. Change the sales area to Pattersons and notice only that area's products and shortcuts appear. Guest QR reads the same catalogue but ignores staff-only folder selection. Back-office demo PINs are printed on screen and are **not secure**. On the staff till, try the **Speed keys** (Corona, Burger and Loaded Spud) for one-tap additions, or **Jump to category** (Food, Packaged, Cocktails) to navigate in one tap without losing the basket. Shortcuts are specific to the selected area and never appear on guest QR. As venue admin (demo PIN 2468), open **Back office → Published till keyboard**, choose Main Bar, select **Selected outlets**, toggle the desired vendors, and **Publish keyboard**. Draft changes remain invisible to staff and QR until publishing; the live version increments. Discard reverses an unpublished draft. In **Back office → Speed keys and category jumps**, select an area, stage up to eight favourite products and six category jumps, then publish; the till retains the old version until publication. Reload resets all profiles.
 
+## Outlet offerings and central approval (v0.2.4)
+Use **Back office** with an outlet demo PIN (Pattersons 1357, Spuddy Hell 8642, Cherry On Top 9753). Select one of that outlet's products, change its name, availability or price, then choose **Submit for approval**. The staff till and guest QR remain unchanged while the proposal is pending. Log out and enter venue admin demo PIN 2468 to view the **Venue approval queue**; approve and publish or reject the proposal. A successful publish increments the product version and updates the shared staff/QR catalogue. Rejection leaves the published catalogue unchanged.
+
+All role checks, proposal history and approvals here run in **browser memory only**; client-side PINs and actor claims are insecure. Real API calls must derive identity and outlet scope server-side, require central approval, store audit events durably and reject stale revisions. **Known prototype risk:** changing a published price can recalculate an existing basket; production must snapshot line prices and revalidate at checkout.
+
 ## Source structure
 - `index.html` — static touch demo, simulated transactions and illustrative products.
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
+- `src/offerings.js` — pure staged offering proposals, outlet scope checks, venue-only publication, optimistic versions and in-memory audit events.
+- `tests/offerings.test.cjs` — 15 regression cases covering scope, validation, publish/reject, audit and defensive snapshots.
 - `src/shortcuts.js` — pure per-area staff speed-key store with staged/published versions, validation and visibility intersection.
 - `src/keyboards.js` — pure versioned keyboard store with independent draft/published snapshots, selected-vendor profiles, validation and conflict checks. Exposes `BintyKeyboards` in browsers and CommonJS for Node.
 - `tests/catalog.test.cjs` — 12 catalogue regression tests.
 - `tests/keyboards.test.cjs` — 11 keyboard draft/publish, validation and isolation tests.
 - `tests/shortcuts.test.cjs` — 14 speed shortcut tests: versioning, validation, visibility, immutability and area isolation.
 - `tests/demo.test.cjs` — 8 static demo wiring and syntax checks.
-- `tests/ui-smoke.test.cjs` — 8 native Node VM integration scenarios (authored, CI execution not independently verified).
+- `tests/ui-smoke.test.cjs` — 12 Node VM integration scenarios (authored, CI execution not independently verified).
 - `openapi.yaml` — proposed REST v1 contract; no API server exists.
 - `ARCHITECTURE.md`, `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md` — architectural constraints, work queue and checkpoints.
 
 ## Test locally
-Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 53 committed test cases. All **53/53 passed in a V8 Node-test compatibility harness**, including the eight VM smoke cases using a lightweight VM shim; ten separate mocked-DOM assertions also passed. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+Requires Node 20 or newer. Run `node --test tests/*.test.cjs` from the repository root. The GitHub Pages workflow runs these tests **before** deploying the static demo. There are 73 committed test cases. **73/73 passed in a V8 Node-test compatibility harness**, including twelve VM smoke scenarios through a compatibility shim. Native Node CI and real browser testing have not been independently verified. This is not evidence of native Node CI or real browser/device testing. Native Node and Pages outcomes remain unconfirmed. If tests fail, deployment should stop. No package installation or external dependencies are needed.
+
+## Offering proposal contract
+`BintyOfferings.createStore(products)` owns in-memory published products and pending per-product proposals. An outlet manager may propose name, availability or price changes only for their outlet. Only the venue-admin role may approve/publish or reject. Published products increment versions; stale versions fail closed and events are recorded in a defensive-copy audit log. In the future API, prices are represented as integer GBP pence (`priceMinor`), whereas the browser demo currently uses pound-number prices. The conversion and rounding must occur in a validated server adapter. Proposed API endpoints are in `openapi.yaml`, not running.
 
 ## Catalogue contract
 `BintyCatalog.project(products, {areaMode, outlet, category, search, channel})` returns a non-mutating filtered view. `areaMode` can be `All`, `Short Menu`, a vendor name, or an array of allowed vendor names. `outlet` is a staff-only navigation filter: guest channel ignores it but still obeys the area policy. `categories` and `outlets` derive navigation from the same allowed products. These functions are **display filters**, not permissions. Server-side identity and access rules are required before real use.

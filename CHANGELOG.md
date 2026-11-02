@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.7] — 2026-11-02
+**Feature:** Virtual stockrooms (logical categories) with physical count breakdowns.
+- Implemented `src/stockrooms.js`: ingredient belongs to exactly one virtual room, with independent counts at multiple physical locations; venue totals aggregate each ingredient once. Category reassignment retains counts and item identity.
+- Stock tab now groups by virtual room and displays per-location count adjustment controls. Simulated checkout deducts the basket's aggregate recipe demand from physical counts deterministically, keeping the virtual total in sync.
+- Added 12 stockroom unit tests, three UI smoke scenarios, one static wiring check and one proposed API contract test. Updated previous UI tests to change counts through the stockroom model.
+- **125/125 committed tests passed in a V8 Node-compatibility harness**; application JavaScript parsed. Native Node CI, real browser/hardware and Pages deployment **not independently verified**.
+- OpenAPI v0.2.7 specifies virtual-room listing, physical count submission and category reassignment. **These are contracts only, not running endpoints.**
+- Benchmark: Square Inventory API physical counts and location-aware adjustments; BintyPOS models an additional venue-wide logical counting category. https://developer.squareup.com/docs/inventory-api/how-it-works
+- Rollback baseline: `a6f46b32345fd874a56442d8e2c9676b8f9c3f8c` (v0.2.6). No tag or release created.
+
+
 ## [0.2.6] — 2026-11-02
 **Feature:** Combined recipe ingredient preflight for the whole staff/QR basket.
 - Added pure `src/inventory.js` to aggregate demand across different products and vendors; missing stock is zero, invalid counts/recipes are rejected and shortages are returned with required/available quantities.

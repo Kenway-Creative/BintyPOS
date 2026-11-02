@@ -9,6 +9,7 @@ const keyboards = require('../src/keyboards.js');
 const shortcuts = require('../src/shortcuts.js');
 const offerings = require('../src/offerings.js');
 const basket = require('../src/basket.js');
+const inventory = require('../src/inventory.js');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const inline = 'const seed=' + html.split('<script>\nconst seed=')[1].split('</script>')[0];
 
@@ -22,7 +23,8 @@ function boot() {
     BintyKeyboards: keyboards,
     BintyShortcuts: shortcuts,
     BintyOfferings: offerings,
-    BintyBasket: basket
+    BintyBasket: basket,
+    BintyInventory: inventory
   };
   vm.createContext(context);
   vm.runInContext(inline, context, { timeout: 1000 });
@@ -162,4 +164,25 @@ test('simulated order retains locked price and vendor after later catalogue chan
  run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo();publishOffering("burger")');
  assert.equal(run('orders[0].lines[0].p.price'),12.5);
  assert.equal(run('orders[0].lines[0].p.vendor'),'Pattersons');
+});
+
+test('shared ingredient demand blocks second item before overselling',()=>{
+ const {run}=boot();
+ run('stock.corona=5;add("corona");add("bucket")');
+ assert.equal(run('cart.corona'),1);
+ assert.equal(run('cart.bucket'),undefined);
+ assert.equal(run('stock.corona'),5);
+});
+test('checkout refuses combined oversell after stock reduction without partial deductions',()=>{
+ const {run,nodes}=boot();
+ run('add("bucket");add("corona");stock.corona=5;checkout()');
+ assert.equal(run('orders.length'),0);
+ assert.equal(run('stock.corona'),5);
+ assert.match(nodes.app.innerHTML,/Checkout blocked/);
+});
+test('successful mixed basket consumes shared ingredient exactly once',()=>{
+ const {run}=boot();
+ run('add("bucket");add("corona");checkout()');
+ assert.equal(run('orders.length'),1);
+ assert.equal(run('stock.corona'),18);
 });

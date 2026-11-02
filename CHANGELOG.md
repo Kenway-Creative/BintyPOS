@@ -3,7 +3,7 @@
 ## [0.2.11] — 2026-11-02 — Durable mock order lifecycle and CI contract repair
 - Added SQLite-only `src/order_lifecycle.py`: accepted-quote stock hold → awaiting mock payment → mock authorisation → simulated confirmation, plus decline, cancellation, expiry and reconciliation states.
 - Confirmed simulated orders atomically persist inventory movements and order state, with idempotent replay; no real payment provider is accepted.
-- Added 12 Python lifecycle regression tests for replay, restart, scope fixture, expiration, failure, stock conflict, void uncertainty and no premature completion.
+- Added 12 Python lifecycle regression tests for replay, restart, scope fixture, expiration, failure, stock conflict, void uncertainty and no premature completion. GitHub Actions run 41549477925 **passed**: 147/147 Node tests and 39/39 Python tests; Pages deployment step succeeded (public browser not independently verified). https://github.com/Kenway-Creative/BintyPOS/actions/runs/41549477925
 - Fixed stale `tests/api-contract.test.cjs` hardcoded 0.2.8 version assertion, which caused the 0.2.10 GitHub Actions run 41541876510 to fail (145/146 Node tests passed); now tests current 0.2.11 contract version.
 - API documents proposed order lifecycle read and mock-only state boundaries, **not running endpoints**. Browser demo unchanged. No real payments, authenticated identities, HTTP service or Dojo integration.
 - Square Orders/Payments API separates payment authorisation and order completion; BintyPOS follows state separation for local simulation, not Square-equivalent settlement or real capture. https://developer.squareup.com/docs/orders-api/pay-for-orders

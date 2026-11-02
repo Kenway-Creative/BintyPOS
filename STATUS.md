@@ -12,7 +12,8 @@ Rollback baseline: `3394a2f0ad6650fa201406efd1e73faa7eee6601`
 - Fixed stale hardcoded 0.2.8 OpenAPI version assertion that blocked CI for 0.2.10 (run 41541876510 failed: 145/146 Node tests passed).
 
 ## Verification checkpoint
-- New Python source syntax and 12 new lifecycle test cases added. Complete native GitHub Actions results for this commit must be checked; no claim of successful deployment before confirmation.
+- **GitHub Actions run 41549477925 succeeded** for implementation commit `e17962af3e02f67c2d0ab6185bf5329529e2a6bc` (2026-11-02): native Node 22 **147/147 tests passed**, Python 3.13 **39/39 tests passed**, and GitHub Pages deploy workflow step succeeded. https://github.com/Kenway-Creative/BintyPOS/actions/runs/41549477925
+- No independent public browser, device, multi-host or payment verification. This is a successful workflow deployment step, not a claim that the demo works live on real tills.
 - Previous 0.2.10 CI failed in Node contract test, before running Python tests or Pages deployment.
 
 ## Limitations and blockers

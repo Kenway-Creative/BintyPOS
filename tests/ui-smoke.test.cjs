@@ -91,17 +91,17 @@ test('outlet proposal stays invisible until venue approval',()=>{
  run('stageOffering("burger")');
  assert.equal(run('offeringStore.pending().length'),1);
  assert.equal(run('products.find(p=>p.id==="burger").price'),12.5);
- run('setTab("qr")');assert.match(nodes.app.innerHTML,/£12\\.50/);
+ run('setTab("qr")');assert.match(nodes.app.innerHTML,/£12\.50/);
 });
 test('venue approval publishes to shared staff and QR catalogue',()=>{
  const {run,nodes}=boot();
  run('setTab("backoffice")');nodes.demoPin={value:'1357'};run('unlockDemo()');
  nodes.offerName={value:'Pattersons Burger'};nodes.offerPrice={value:'14.00'};nodes.offerAvailable={checked:true};
  run('stageOffering("burger");setTab("backoffice")');nodes.demoPin={value:'2468'};run('unlockDemo()');
- assert.match(nodes.app.innerHTML,/Venue approval queue \\(1\\)/);
+ assert.match(nodes.app.innerHTML,/Venue approval queue \(1\)/);
  run('publishOffering("burger");setTab("qr")');
  assert.equal(run('products.find(p=>p.id==="burger").price'),14);
- assert.match(nodes.app.innerHTML,/£14\\.00/);
+ assert.match(nodes.app.innerHTML,/£14\.00/);
 });
 test('venue rejection keeps published offering and availability',()=>{
  const {run,nodes}=boot();

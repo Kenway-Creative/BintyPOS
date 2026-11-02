@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
 test('demo loads shared catalogue before application script', () => {
-  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script>/);
+  assert.match(html, /<script src="\.\/src\/catalog\.js"><\/script>\s*<script src="\.\/src\/keyboards\.js"><\/script>\s*<script>/);
 });
 test('application JavaScript parses', () => {
   const parts = html.split('<script>\nconst seed=');

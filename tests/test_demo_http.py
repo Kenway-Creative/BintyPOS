@@ -64,6 +64,20 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(self.request(path, self.token, 'POST')[0], 405)
         self.assertEqual(self.request(path + '?token=' + self.token)[0], 404)
 
+    def test_duplicate_and_oversized_authorization_rejected(self):
+        path = '/api/v1/venues/blackstock/outlets/spuddy/staff-access'
+        for values in (['Bearer ' + self.token, 'Bearer ' + self.token],
+                       ['Bearer ' + 'x' * 200]):
+            conn = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=3)
+            conn.putrequest('GET', path)
+            for value in values:
+                conn.putheader('Authorization', value)
+            conn.endheaders()
+            response = conn.getresponse()
+            self.assertEqual(response.status, 401)
+            response.read()
+            conn.close()
+
     def test_loopback_only(self):
         with self.assertRaises(ValueError):
             create_demo_server(self.path, host='0.0.0.0')

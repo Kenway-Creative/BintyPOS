@@ -30,8 +30,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 - 0.2.18 durable trusted staff membership fixture with revocation and scoped policy projection; NOT login or enforcement on checkout mutations.
 
+- 0.2.19 atomic trusted fixture membership-and-mutation guard in one SQLite writer transaction; no verified login or HTTP.
+
 ## Prioritised releases
-- **0.2.19 next:** verified staff/device credential binding and transactional back-office mutation guard; authenticated HTTP boundary thereafter. No real payments or unprotected routes.
+- **0.2.20 next:** server-side staff credential verification and session binding, then narrowly scoped HTTP back-office API. Existing guard is trusted-fixture only. No real payments or unprotected routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

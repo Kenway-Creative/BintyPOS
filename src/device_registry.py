@@ -31,9 +31,18 @@ class DemoDeviceRegistry:
             raise AccessDenied('INVALID_DEVICE_CREDENTIAL') from exc
         return hashlib.sha256(token.encode('ascii')).hexdigest()
 
+    @staticmethod
+    def _valid_device_identifier(value):
+        # Device/venue/outlet IDs are stable machine identifiers, not display names.
+        # Disallow embedded whitespace while preserving existing namespace punctuation.
+        SQLiteStaffDirectory._valid(value)
+        if any(character.isspace() for character in value):
+            raise ValueError('INVALID_DEVICE_IDENTIFIER')
+        return value
+
     def provision_trusted(self, venue, device_id, outlet, ttl_seconds=3600):
         for value in (venue, device_id, outlet):
-            self.directory._valid(value)
+            self._valid_device_identifier(value)
         if type(ttl_seconds) is not int or not 1 <= ttl_seconds <= 86400:
             raise ValueError('INVALID_DEVICE_TTL')
         token = secrets.token_hex(32)

@@ -1,9 +1,14 @@
 # BintyPOS status
 
-Version: **0.2.19** — durable trusted staff membership fixture
+Version: **0.2.20** — durable trusted staff membership fixture
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.20 checkpoint
+- Provisioned demo staff bearer token persisted as digest, with expiry and trusted revocation. Protected callbacks atomically validate token, current staff membership and outlet policy inside a SQLite writer transaction.
+- Eight isolated tests passed locally using a compatibility copy of the existing staff directory/policy; full repository CI remains to be confirmed. No HTTP, verified human login, browser wiring or real payments.
+- Implementation rollback: `1f6a2c3888700dafbb2ab1a70b08570696196706`. Next: a narrow authenticated HTTP endpoint only after provisioning/identity and request-boundary threat model.
 
 ## 0.2.19 checkpoint
 - Added `GuardedStaffOperations.execute_trusted`: same SQLite writer transaction for membership lookup, outlet policy and trusted mutation. Five tests cover success, cross-outlet denial, revocation, rollback and competing revocation.
@@ -60,7 +65,7 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 - Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.20 — verified staff/device credential binding and authenticated endpoint**, followed by an authenticated HTTP boundary. No live gateway.
+**0.2.21 — narrow server-side HTTP boundary and trusted provisioning design**, followed by an authenticated HTTP boundary. No live gateway.
 
 ## Market comparison
 Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

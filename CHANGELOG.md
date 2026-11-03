@@ -1,3 +1,11 @@
+## [0.2.16] — 2026-11-03 — Manual mock reconciliation review audit
+- Added durable, venue-scoped append-only review notes to existing mock reconciliation entries; idempotent replay rejects conflicting payloads.
+- Allowed review decisions investigate/escalate/acknowledge deliberately cannot resolve a payment or change an order.
+- Added restart, venue isolation, conflict, unknown entry and unchanged order/stock regression coverage. Full CI pending independent confirmation.
+- Actor strings are unverified trusted fixtures, not secure staff identity or production audit. No live payments.
+- Square benchmark: https://developer.squareup.com/docs/payments-api/overview — BintyPOS has no provider status verification.
+- Implementation commit: `f2c1bdf4f3dddb3c29bff8326408a0593f225411`; rollback: `f1430fd2da176c27f34e41e0f155cb671a0b86f5`.
+
 ## [0.2.15] — 2026-11-03 — Durable mock-only reconciliation snapshot
 - Added `MockReconciliationOutbox` for venue-scoped persistent snapshots of orders with ambiguous simulated outcomes, keyed by (venue, order).
 - Repeated scans update last-observed time without duplicate rows; first-seen timestamp survives reopening the SQLite file.

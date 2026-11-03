@@ -1,3 +1,10 @@
+## [0.2.13] — 2026-11-03
+**Feature:** Trusted-only mock checkout recovery inspection.
+- Added `MockOrderRecovery.inspect_recovery(venue)`: one SQLite write transaction expires elapsed holds, marks affected active orders expired, lists orphan quote-linked holds, and flags ambiguous simulated capture/void for human reconciliation.
+- Never auto-confirms or refunds a payment, never releases active holds early; no HTTP, Dojo or background worker.
+- Four new Python tests cover restart/idempotent expiry, linked order expiry, unknown mock capture and venue isolation.
+- CI status pending independent confirmation at commit time. Rollback: `72314760e585fe2f873439baca80cff3833fa342`.
+
 # Changelog
 
 ## [0.2.12] — 2026-11-03 — Scoped demo checkout capabilities

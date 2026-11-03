@@ -1,9 +1,14 @@
 # BintyPOS status
 
-Version: **0.2.16** — durable mock reconciliation snapshot
+Version: **0.2.17** — durable mock reconciliation snapshot
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.17 checkpoint
+- Added pure fail-closed venue/outlet authorisation policy in `src/outlet_permissions.py` and 12 regression cases; separate trusted policy fixture, NOT verified login or integrated checkout enforcement.
+- Local isolated policy tests passed 12/12 on Python; repository-wide CI pending verification. Source commit `6e32b76d09d8d724df0a16c5f94e825055f8bfca`, tests commit `fb1395a3e0b7e543e470db0250e8f4130e2b7e31`. Rollback baseline `9e33cf1331c3cd73b6bb48bbc90145001fd5d147`.
+- Next: trusted principal resolution backed by durable staff/outlet memberships, then enforce policy within existing SQLite transaction boundary; no public HTTP or live payments.
 
 ## 0.2.16 checkpoint
 - Added append-only mock reconciliation review decisions with venue-scoped lookup, durable SQLite history and idempotent request keys.
@@ -46,7 +51,7 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 - Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.17 — verified staff/device identity and outlet role enforcement**, followed by an authenticated HTTP boundary. No live gateway.
+**0.2.18 — durable verified staff/device identity and transactional outlet enforcement**, followed by an authenticated HTTP boundary. No live gateway.
 
 ## Market comparison
 Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

@@ -1,3 +1,8 @@
+## [0.2.22] — 2026-11-03 — Fail-closed HTTP bearer header parsing
+- Reject duplicate Authorization headers and header values longer than 128 characters on the loopback-only staff probe; add HTTP negative regression tests.
+- This does not implement human authentication, TLS, a public API or payment processing. Benchmark: Square OAuth security best practices (https://developer.squareup.com/docs/oauth-api/best-practices); local parser checks are not equivalent.
+- Rollback: `d7a4dfa75f7a05a45ff53ff1783cc30c5a858c04`. CI pending until workflow completes.
+
 ## [0.2.21] — 2026-11-03 — Loopback-only staff HTTP scope probe
 - Added opt-in localhost-only GET route for venue/outlet staff access, checking demo bearer, active membership and outlet read permission within one SQLite transaction.
 - No credential provisioning, mutable route, public listener, payment code or browser wiring. Five HTTP tests added; full CI verification pending.

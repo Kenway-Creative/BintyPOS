@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.21** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.22** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.22 — reject ambiguous HTTP credentials (2026-11-03)
+
+The loopback staff-access probe now rejects requests containing multiple Authorization headers or an oversized credential header (128-character maximum), rather than accepting the first value. This is a narrow HTTP request-boundary hardening step, **not** verified login or TLS. Test: `python3 -m unittest discover -s tests -p 'test_*.py' -v`. Benchmark: Square OAuth security best practices require safeguarding bearer credentials (https://developer.squareup.com/docs/oauth-api/best-practices); this local-only header validation is not OAuth or production-grade gateway security. No payment routes.
 
 ## v0.2.21 — loopback-only read-only staff access probe (2026-11-03)
 

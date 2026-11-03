@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.25** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.26** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.26 — atomic demo staff + device scope read (2026-11-03)
+
+`src/dual_access.py` exposes trusted Python-only `DemoDualAccess(db_path).read_trusted(venue, outlet, staff_token, device_token)`. Both separately provisioned capabilities must be active, venue-matched and outlet-scoped; staff membership/permission and device revocation/rotation/expiry are evaluated inside one SQLite `BEGIN IMMEDIATE` transaction. Returns only scoped identity/device metadata, **not stock records**. Five new tests: `python3 -m unittest discover -s tests -p 'test_*.py' -v`. No HTTP route, browser pairing, human login, TLS, attestation, payment or stock write. All device and staff records must share the same database. Square's documented OAuth least-privilege pattern (https://developer.squareup.com/docs/oauth-api/best-practices) is a comparison, not a claim of equivalent identity or security.
 
 ## v0.2.25 — trusted demo device enrolment (2026-11-03)
 

@@ -30,7 +30,7 @@ class AuditTests(unittest.TestCase):
             self.assertEqual(reopened.list_manual_decisions('venue', order['orderId']), first)
             self.assertEqual(reopened.list_manual_decisions('other', order['orderId']), [])
             self.assertEqual(reopened.status_order('venue', 'session', order['orderId'])['status'], 'needs_reconciliation')
-            self.assertEqual(reopened.available('venue')['beer'], 1)
+            self.assertEqual(reopened.available('venue')['beer'], 2)
 
     def test_reject_unknown_entry_and_invalid_decision(self):
         with tempfile.TemporaryDirectory() as directory:

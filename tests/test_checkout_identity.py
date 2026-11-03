@@ -51,6 +51,55 @@ class CheckoutIdentityTests(unittest.TestCase):
             return db.execute('SELECT session_id FROM demo_checkout_capabilities WHERE token_digest=?',
                               (hashlib.sha256(token.encode()).hexdigest(),)).fetchone()[0]
 
+    def test_revocation_cannot_interleave_with_protected_write(self):
+        # A separate SQLite connection cannot revoke during the writer lock.
+        import threading
+        entered = threading.Event()
+        release = threading.Event()
+        original = self.api._orders.create_quote
+        def blocked(*args):
+            entered.set()
+            self.assertTrue(release.wait(5))
+            return original(*args)
+        self.api._orders.create_quote = blocked
+        outcomes = []
+        def quote_worker():
+            try:
+                outcomes.append(self.api.create_quote('blackstock', self.staff,
+                                [{'productId':'beer','quantity':1}]))
+            except Exception as exc:
+                outcomes.append(exc)
+        worker = threading.Thread(target=quote_worker)
+        worker.start()
+        self.assertTrue(entered.wait(5))
+        revoked = threading.Event()
+        def revoke_worker():
+            self.api.revoke_demo_identity('blackstock', self.staff)
+            revoked.set()
+        revoker = threading.Thread(target=revoke_worker)
+        revoker.start()
+        self.assertFalse(revoked.wait(0.1), 'revocation interleaved with write')
+        release.set()
+        worker.join(5)
+        revoker.join(5)
+        self.assertFalse(worker.is_alive())
+        self.assertFalse(revoker.is_alive())
+        self.assertEqual(len(outcomes), 1)
+        self.assertIsInstance(outcomes[0], dict)
+        self.assertTrue(revoked.is_set())
+        self.fails('CHECKOUT_UNAUTHENTICATED', lambda:self.api.create_quote(
+            'blackstock', self.staff, [{'productId':'beer','quantity':1}]))
+
+    def test_nested_savepoint_rolls_back_failed_inner_operation(self):
+        with self.api._orders._transaction() as db:
+            with self.assertRaises(RuntimeError):
+                with self.api._orders._transaction() as inner:
+                    self.assertIs(db, inner)
+                    inner.execute("INSERT INTO stock VALUES('blackstock','temporary',3)")
+                    raise RuntimeError('rollback inner')
+            self.assertIsNone(db.execute("SELECT qty FROM stock WHERE ingredient='temporary'").fetchone())
+        self.assertNotIn('temporary', self.api._orders.available('blackstock'))
+
     def test_token_not_stored_in_plaintext(self):
         with sqlite3.connect(self.path) as db:
             digest, session = db.execute('SELECT token_digest,session_id FROM demo_checkout_capabilities WHERE channel="staff"').fetchone()

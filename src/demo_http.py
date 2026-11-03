@@ -31,6 +31,11 @@ def make_handler(database_path):
             match = ROUTE.fullmatch(parsed.path)
             if not match or parsed.query or parsed.fragment:
                 return self._reply(404, {'error': 'NOT_FOUND'})
+            # Fail closed on Host ambiguity and DNS-rebinding-style requests.
+            hosts = self.headers.get_all('Host', [])
+            expected = {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}
+            if len(hosts) != 1 or hosts[0] not in expected:
+                return self._reply(400, {'error': 'INVALID_HOST'})
             headers = self.headers.get_all('Authorization', [])
             if len(headers) != 1 or len(headers[0]) > 128:
                 return self._reply(401, {'error': 'UNAUTHORISED'})

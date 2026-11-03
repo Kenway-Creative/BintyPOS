@@ -1,3 +1,10 @@
+## [0.2.17] — 2026-11-03 — Fail-closed outlet permission policy
+- Added pure trusted-server policy module with explicit venue and outlet scope, role/action allowlists and denial of unknown operations.
+- 12 isolated Python policy tests passed locally; full repository Python/Node suites and CI pending independent verification.
+- This is NOT verified staff identity, login, middleware or integrated enforcement of checkout/back-office mutations. Never trust browser role claims. No real payments.
+- Square least-privilege benchmark: https://developer.squareup.com/docs/oauth-api/best-practices .
+- Implementation: `6e32b76d09d8d724df0a16c5f94e825055f8bfca`; tests: `fb1395a3e0b7e543e470db0250e8f4130e2b7e31`; rollback `9e33cf1331c3cd73b6bb48bbc90145001fd5d147`.
+
 ## [0.2.16] — 2026-11-03 — Manual mock reconciliation review audit
 - Added durable, venue-scoped append-only review notes to existing mock reconciliation entries; idempotent replay rejects conflicting payloads.
 - Allowed review decisions investigate/escalate/acknowledge deliberately cannot resolve a payment or change an order.

@@ -5,6 +5,13 @@ Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 
+## 0.2.27 deployment hotfix — 2026-11-03
+- Actual GitHub Actions run 41669040598 **failed**: Node tests passed, Python ran 112 tests with 1 failure in `test_device_registry.DeviceRegistryTests.test_invalid_inputs`; upload and Pages deployment were skipped.
+- Root cause: `SQLiteStaffDirectory._valid` permits internal spaces, while device identifiers must reject `bad venue`. Fix `296373c2344a589585115350a21776ecfc8aca4f` adds stricter device-only validation without changing shared staff identifier rules.
+- Latest Pages release is **not** 0.2.27 until the new CI run passes and Pages deploys. Full CI and live browser verification remain pending after hotfix.
+- Last independently inspected successful workflow: 41641340611 (0.2.24), including Pages deployment.
+- Next: confirm new Python and Node CI pass; do not resume feature releases until clean deployment.
+
 ## 0.2.27 checkpoint
 - Identified concrete failing GitHub Actions run 41660300070: 146/148 Node tests passed; two stale v0.2.24 OpenAPI assertions failed against v0.2.26. Updated both tests to assert v0.2.27 while preserving functional contract checks. Python tests did not run because the Node gate failed. Await fresh CI; no local suite executed in this connector-only run.
 - Rollback baseline: `eec0f503ad1fd131efc1c21bb5e5e7462619da9f`. Next: confirm Node and Python CI green; then secure staff/device provisioning and TLS threat model before browser or writable endpoints. No real payments.

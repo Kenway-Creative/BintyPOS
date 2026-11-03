@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.23** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.24** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.24 — browser-origin denial on loopback probe (2026-11-03)
+
+The read-only local staff probe now rejects any `Origin` header (including `null`) and rejects `Sec-Fetch-Site` other than `none` or `same-origin`, before bearer verification. This is deliberately **not a browser API**: no CORS, login or payment routes. Two new HTTP regression cases cover hostile browser-origin headers and legitimate non-browser local access. Future browser integration requires a separate explicit origin policy, CSRF design and TLS/verified identities. Benchmark: Square OAuth best practices (https://developer.squareup.com/docs/oauth-api/best-practices); this narrow browser boundary is not OAuth or production browser security. Test: `python3 -m unittest discover -s tests -p 'test_*.py' -v`.
 
 ## v0.2.23 — loopback Host validation (2026-11-03)
 

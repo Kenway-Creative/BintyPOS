@@ -1,3 +1,8 @@
+## [0.2.26] — 2026-11-03 — Atomic dual-capability staff/device read guard
+- Added `DemoDualAccess.read_trusted` requiring current staff permission AND venue/outlet-matched, unexpired, unrevoked device capability in the same SQLite writer transaction. Five regression tests added.
+- Internal read-only Python fixture; no HTTP route, human authentication, secure pairing, TLS, payment, stock mutation or production readiness. Benchmark: https://developer.squareup.com/docs/oauth-api/best-practices .
+- Rollback: `b2173f9cbc0d601aad07d4fd868dc34026377310`. CI pending; no tag.
+
 ## [0.2.25] — 2026-11-03 — Trusted-only device credential registry
 - Added SQLite demo device registry with venue/outlet scope, random bearer capabilities stored as SHA-256 digests, expiry, revocation and rotation. Five regression tests.
 - No HTTP provisioning or device-auth route, verified hardware attestation, staff login, browser integration or real payments. Device token alone grants no staff/checkout permissions.

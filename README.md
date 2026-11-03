@@ -95,6 +95,8 @@ Run `node --test tests/reservations.test.cjs` (16 native Node tests) or `node --
 - `src/catalog.js` — pure, reusable catalogue projection for sales areas, outlet folders, category tabs and text search.
 - `src/basket.js` — immutable per-line price snapshots, explicit review and integer-pence subtotals.
 - `src/inventory.js` — pure aggregate recipe demand, shortage detection and all-or-none local consumption.
+- `src/checkout_identity.py` — scoped, hashed and revocable demo checkout bearer capability facade; not staff login or an HTTP API.
+- `tests/test_checkout_identity.py` — 13 capability, expiry, scope and mock-only checkout regression tests.
 - `src/trusted_checkout.py` — internal SQLite versioned product/quote snapshots, explicit acceptance and atomic recipe-derived holds (no HTTP/auth/payment).
 - `tests/test_trusted_checkout.py` — 14 trusted quote/stock contention regression cases.
 - `src/reservations.js` — temporary idempotent holds, expiry, conflicts and injected commit adapter; demo-only.
@@ -139,3 +141,6 @@ Toast separates saved menu edits from publishing to POS and online channels, and
 - https://support.toasttab.com/en/article/Global-Publishing-Experience-in-Toast-Back-End
 - https://support.toasttab.com/en/article/Toast-for-Restaurant-Retail-Ordering-of-POS-Buttons (Toast recommends a speed screen or manageable category for non-scannable items)
 - https://developer.squareup.com/docs/catalog-api/design-a-catalog
+
+
+**v0.2.12 CI evidence (2026-11-03):** GitHub Actions run [41556538336](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41556538336) passed **148/148 native Node 22 tests** and **52/52 Python 3.13 tests**; the GitHub Pages deployment workflow step succeeded. Public-browser behaviour remains unverified. The first implementation run 41556510708 failed on a stale/mis-escaped OpenAPI contract assertion, repaired in commit `7f2068c95e1283946c1b1c5dc4793d630a974b73`.

@@ -3,7 +3,8 @@
 ## [0.2.12] — 2026-11-03 — Scoped demo checkout capabilities
 - Added `src/checkout_identity.py`: SQLite-persisted, random bearer capabilities stored only as SHA-256 digests; short expiry, durable revocation, venue/channel binding and internal server-derived checkout sessions.
 - Checkout-facing facade allows server-priced quote, acceptance, order creation and status; staff-only mock cancellation. It deliberately excludes payment authorisation, completion and direct inventory commit.
-- Added 13 Python regression tests for malformed/forged credentials, venue and session isolation, QR restrictions, expiry, revocation, restart and a mock-only checkout.
+- Added 13 Python regression tests for malformed/forged credentials, venue and session isolation, QR restrictions, expiry, revocation, restart and a mock-only checkout. GitHub Actions run [41556538336](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41556538336) **passed**: Node 148/148, Python 52/52, Pages workflow deployment step successful; no independent public-browser check.
+- Initial run 41556510708 failed on a stale/mis-escaped OpenAPI regex assertion; repaired by `7f2068c95e1283946c1b1c5dc4793d630a974b73`.
 - Updated proposed OpenAPI checkoutAuth semantics, README, architecture, roadmap and status. This is not staff login, OAuth, an HTTP server, a real payment flow or production-secure authentication.
 - Square benchmark: scoped/short-lived/revocable OAuth credentials and least-privilege guidance (https://developer.squareup.com/docs/auth). BintyPOS is only a local capability proof-of-concept.
 - Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`. No release tag unless independently verified.

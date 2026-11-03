@@ -12,7 +12,8 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 
 ## Verification checkpoint
 - Baseline GitHub Actions run 41549592450 succeeded on 2026-11-03 for v0.2.11: Node 147/147, Python 39/39 and Pages workflow step succeeded.
-- v0.2.12 verification: see latest GitHub Actions run for the implementation commit; do not assume success from source publication. Local new-file Python compilation succeeded; complete suite must run on GitHub Actions.
+- **v0.2.12 GitHub Actions run 41556538336 succeeded** (2026-11-03): native Node 22 **148/148 tests**, Python 3.13 **52/52 tests**, and GitHub Pages deployment step succeeded. https://github.com/Kenway-Creative/BintyPOS/actions/runs/41556538336
+- Initial run 41556510708 failed at the Node contract assertion; corrected escaped version/security regex in `7f2068c95e1283946c1b1c5dc4793d630a974b73`. The successful run verifies that repair.
 - No independently verified public browser/device or operational API.
 
 ## Limitations and blockers

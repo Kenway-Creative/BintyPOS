@@ -15,8 +15,8 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.8 idempotent in-memory stock holds, expiry/release, conflict detection and demo checkout integration.
 - 0.2.9 standalone SQLite transaction proof-of-concept with durable holds, idempotency, movements and competing-client tests (no HTTP API).
 - 0.2.10 trusted SQLite quote snapshots, explicit acceptance, product/recipe version invalidation, and atomic recipe-derived holds (no authenticated HTTP).
-- 0.2.12 scoped demo checkout capability facade: server-generated token digests, venue/session binding, expiry/revocation, staff-only mock cancellation and no checkout payment authority.
 - 0.2.11 SQLite mock-only order state machine with persistent state, simulated authorisation/confirmation/cancellation, stock movements and reconciliation hold states; repaired stale OpenAPI CI assertion.
+- 0.2.12 scoped demo checkout capability facade: server-generated token digests, venue/session binding, expiry/revocation, staff-only mock cancellation and no checkout payment authority (CI 148 Node + 52 Python passed).
 
 ## Prioritised releases
 - **0.2.13 next:** recover orphan holds and ambiguous mock payment outcomes with a transactional recovery/outbox scaffold and deterministic replay tests. Then verified human/device identity, outlet/area permissions and authenticated HTTP boundary; no real payments or unprotected routes.

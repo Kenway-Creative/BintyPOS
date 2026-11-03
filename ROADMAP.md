@@ -34,12 +34,16 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 - 0.2.20 provisioned demo staff bearer sessions: digest storage, TTL, revocation, atomic membership/outlet checks. NOT verified human authentication or HTTP.
 
+## v0.2.26 checkpoint
+- Implemented same-transaction staff+device read-only capability guard (trusted Python, no HTTP). Next: authenticated human/device provisioning and TLS threat model; only then narrowly scoped read HTTP, eventually guarded writes. No live payments.
+- Benchmark: Square OAuth best practices https://developer.squareup.com/docs/oauth-api/best-practices ; BintyPOS has no OAuth or hardware attestation.
+
 ## Prioritised releases
 - **0.2.21 implemented:** opt-in loopback-only read-only staff scope probe using existing demo bearer capability; no human login, writes or public listener.
 - **0.2.23 implemented:** strict loopback Host header allowlist with hostile/duplicate Host regressions; no public listener.
 - **0.2.24 implemented:** fail-closed browser-origin boundary on loopback staff probe; deliberately no browser API.
 - **0.2.25 implemented:** trusted-only device registry with venue/outlet scope, credential rotation, expiry and revocation. No human verification or device attestation.
-- **0.2.26 next:** require both independently provisioned staff and device capability in a guarded read-only transaction; plan verified human login, secure device pairing and TLS before writable endpoints. No real payments.
+- **0.2.26 implemented:** require both independently provisioned staff and device capability in a guarded read-only transaction; plan verified human login, secure device pairing and TLS before writable endpoints. No real payments.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

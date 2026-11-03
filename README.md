@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.22** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.23** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.23 — loopback Host validation (2026-11-03)
+
+The read-only staff probe requires exactly one Host header matching 127.0.0.1:<bound-port> or localhost:<bound-port>. Missing, duplicate, attacker-controlled or wrong-port Host values fail closed. HTTP tests cover rejection and accepted localhost. This is a narrow DNS-rebinding mitigation, not complete protection or verified identity, TLS or public HTTP. No payments. Benchmark: Square OAuth security best practices protect bearer credentials (https://developer.squareup.com/docs/oauth-api/best-practices); this local check is not equivalent. Run python3 -m unittest discover -s tests -p 'test_*.py' -v.
 
 ## v0.2.22 — reject ambiguous HTTP credentials (2026-11-03)
 

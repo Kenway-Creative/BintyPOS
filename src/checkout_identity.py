@@ -1,4 +1,4 @@
-"""BintyPOS v0.2.12: SQLite-scoped demo checkout capabilities, NOT staff login.
+"""BintyPOS v0.2.14: SQLite-scoped demo checkout capabilities, NOT staff login.
 
 Only a trusted server/test fixture may call bootstrap_demo_identity or revoke_demo_identity.
 No HTTP listener, real authentication, Dojo adapter, or client-side payment authority.
@@ -66,31 +66,39 @@ class ScopedDemoCheckout:
             db.execute('UPDATE demo_checkout_capabilities SET revoked=1 WHERE token_digest=?',
                        (digest,))
 
-    def _session(self, venue, token, action):
+    def _session_in_transaction(self, db, venue, token, action):
+        """Validate inside the same BEGIN IMMEDIATE as the protected operation."""
         self._orders._venue(venue)
         digest = self._digest(token)
-        with self._orders._transaction() as db:
-            row = db.execute('SELECT * FROM demo_checkout_capabilities WHERE token_digest=?',
-                             (digest,)).fetchone()
-            if not row or row['venue'] != venue or row['revoked'] or row['expires_ms'] <= self._orders._time():
-                raise ReservationError('CHECKOUT_UNAUTHENTICATED')
-            if action == 'cancel' and row['channel'] != 'staff':
-                raise ReservationError('CHECKOUT_FORBIDDEN')
-            return row['session_id']
+        row = db.execute('SELECT * FROM demo_checkout_capabilities WHERE token_digest=?',
+                         (digest,)).fetchone()
+        if not row or row['venue'] != venue or row['revoked'] or row['expires_ms'] <= self._orders._time():
+            raise ReservationError('CHECKOUT_UNAUTHENTICATED')
+        if action == 'cancel' and row['channel'] != 'staff':
+            raise ReservationError('CHECKOUT_FORBIDDEN')
+        return row['session_id']
 
     def create_quote(self, venue, token, lines):
-        return self._orders.create_quote(venue, self._session(venue, token, 'quote'), lines)
+        with self._orders._transaction() as db:
+            session = self._session_in_transaction(db, venue, token, 'quote')
+            return self._orders.create_quote(venue, session, lines)
 
     def accept_quote(self, venue, token, quote_id, expected_total_minor):
-        return self._orders.accept_quote(venue, self._session(venue, token, 'accept'),
-                                         quote_id, expected_total_minor)
+        with self._orders._transaction() as db:
+            session = self._session_in_transaction(db, venue, token, 'accept')
+            return self._orders.accept_quote(venue, session, quote_id, expected_total_minor)
 
     def create_order(self, venue, token, quote_id, key):
-        return self._orders.create_order(venue, self._session(venue, token, 'order'),
-                                         quote_id, key)
+        with self._orders._transaction() as db:
+            session = self._session_in_transaction(db, venue, token, 'order')
+            return self._orders.create_order(venue, session, quote_id, key)
 
     def status_order(self, venue, token, order_id):
-        return self._orders.status_order(venue, self._session(venue, token, 'status'), order_id)
+        with self._orders._transaction() as db:
+            session = self._session_in_transaction(db, venue, token, 'status')
+            return self._orders.status_order(venue, session, order_id)
 
     def cancel_mock(self, venue, token, order_id):
-        return self._orders.cancel_mock(venue, self._session(venue, token, 'cancel'), order_id)
+        with self._orders._transaction() as db:
+            session = self._session_in_transaction(db, venue, token, 'cancel')
+            return self._orders.cancel_mock(venue, session, order_id)

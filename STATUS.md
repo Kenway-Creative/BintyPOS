@@ -5,6 +5,14 @@ Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 
+## 0.2.27 patch checkpoint — 2026-11-03 16:59 UTC
+- Canonical main advanced with device identifier regression cases `5c3132939969ecfa205b1cd26f16804091ae50a5` and documentation through `9139616fadd4ccbe979f1b6f8f8290cb12a52d0b`. No force push.
+- Failed run 41669040598: Node tests successful; Python 111/112 successful, failure in `test_device_registry.test_invalid_inputs`; Pages steps skipped. Root cause fixed in `296373c2344a589585115350a21776ecfc8aca4f`: device identifiers now reject whitespace, leaving shared staff-directory validation intact.
+- Added regression tests for whitespace in venue, device and outlet IDs. Full tests NOT executed locally (GitHub clone DNS unavailable); latest post-fix CI and Pages outcome NOT independently available. Do not claim 0.2.27 deployed or browser-verified.
+- Version remains **0.2.27** for patch-level CI repair; do not increment or add features until a green CI + Pages workflow is observed for current commit.
+- Last confirmed successful Pages workflow: 41641340611 (v0.2.24). Rollback baseline for this patch: `1a9b4888af2e3ef9ab9980a10f17d74c656c1db1` (not green); known working deploy workflow 41641340611.
+- Next: inspect latest run on `main`, fix any remaining failed test, verify Pages deploy and public browser. Then return to secure staff/device provisioning. No real payments.
+
 ## 0.2.27 deployment hotfix — 2026-11-03
 - Actual GitHub Actions run 41669040598 **failed**: Node tests passed, Python ran 112 tests with 1 failure in `test_device_registry.DeviceRegistryTests.test_invalid_inputs`; upload and Pages deployment were skipped.
 - Root cause: `SQLiteStaffDirectory._valid` permits internal spaces, while device identifiers must reject `bad venue`. Fix `296373c2344a589585115350a21776ecfc8aca4f` adds stricter device-only validation without changing shared staff identifier rules.

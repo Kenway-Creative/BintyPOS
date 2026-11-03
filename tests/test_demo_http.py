@@ -105,6 +105,30 @@ class HttpTests(unittest.TestCase):
         response.read()
         conn.close()
 
+    def test_browser_origin_and_cross_site_fetch_denied(self):
+        path = '/api/v1/venues/blackstock/outlets/spuddy/staff-access'
+        for headers in ({'Origin': 'https://attacker.example'},
+                        {'Origin': 'http://localhost:9999'},
+                        {'Sec-Fetch-Site': 'cross-site'},
+                        {'Sec-Fetch-Site': 'same-site'},
+                        {'Origin': 'null'}):
+            conn = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=3)
+            conn.request('GET', path, headers={**headers, 'Authorization': 'Bearer ' + self.token})
+            response = conn.getresponse()
+            self.assertEqual(response.status, 403)
+            self.assertIn('BROWSER_ORIGIN_DENIED', response.read().decode())
+            conn.close()
+
+    def test_non_browser_loopback_probe_still_allowed(self):
+        path = '/api/v1/venues/blackstock/outlets/spuddy/staff-access'
+        conn = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=3)
+        conn.request('GET', path, headers={'Authorization': 'Bearer ' + self.token,
+                                           'Sec-Fetch-Site': 'none'})
+        response = conn.getresponse()
+        self.assertEqual(response.status, 200)
+        response.read()
+        conn.close()
+
     def test_loopback_only(self):
         with self.assertRaises(ValueError):
             create_demo_server(self.path, host='0.0.0.0')

@@ -1,9 +1,13 @@
 # BintyPOS status
 
-Version: **0.2.22** — durable trusted staff membership fixture
+Version: **0.2.23** — loopback HTTP Host allowlist
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.23 checkpoint
+- Strict single Host header matching loopback hostname and actual bound port; hostile and duplicate Host requests rejected before bearer verification. Two new HTTP regression tests. CI pending.
+- Rollback baseline: 7bedbd6f902afc7b05c159e124d87fc6fd302498. Next: staff/device provisioning and TLS threat model; no public listener or real payments.
 
 ## 0.2.22 checkpoint
 - Reject duplicate and oversized Authorization headers in loopback staff probe; add negative HTTP regressions. Full CI must be verified after commit. No login/TLS/payment changes.
@@ -73,7 +77,7 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 - Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.23 — trusted provisioning and transport security design**, followed by an authenticated HTTP boundary. No live gateway.
+**0.2.24 — trusted provisioning and transport security design**, followed by an authenticated HTTP boundary. No live gateway.
 
 ## Market comparison
 Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

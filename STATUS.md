@@ -1,9 +1,14 @@
 # BintyPOS status
 
-Version: **0.2.18** — durable trusted staff membership fixture
+Version: **0.2.19** — durable trusted staff membership fixture
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.19 checkpoint
+- Added `GuardedStaffOperations.execute_trusted`: same SQLite writer transaction for membership lookup, outlet policy and trusted mutation. Five tests cover success, cross-outlet denial, revocation, rollback and competing revocation.
+- This is NOT verified staff/device authentication; no HTTP, browser integration or live payments. All guarded writes must use the same database connection. CI result must be independently checked.
+- Next: server-issued verified staff sessions bound to membership, then a deliberately narrow authenticated HTTP endpoint.
 
 ## 0.2.18 checkpoint
 - Durable SQLite staff/outlet membership resolver, trusted-only enrol/revoke, fail-closed role projection and five regression tests. NOT verified staff authentication or atomic enforcement of business writes.
@@ -55,7 +60,7 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 - Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.18 — durable verified staff/device identity and transactional outlet enforcement**, followed by an authenticated HTTP boundary. No live gateway.
+**0.2.20 — verified staff/device credential binding and authenticated endpoint**, followed by an authenticated HTTP boundary. No live gateway.
 
 ## Market comparison
 Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

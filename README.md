@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.20** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.21** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.21 — loopback-only read-only staff access probe (2026-11-03)
+
+`src/demo_http.py` adds an **opt-in loopback-only** Python HTTP server exposing exactly `GET /api/v1/venues/{venueId}/outlets/{outletId}/staff-access`. It validates the existing trusted-provisioned demo bearer token, current staff membership and `stock.count.read` outlet permission transactionally; returns only scoped subject/role/allowed, never stock or mutations. No token issuance, login, CORS or payment routes. Example trusted Python fixture: `server = create_demo_server(db_path); server.serve_forever()` (binds 127.0.0.1, ephemeral port). Do not expose this demo server to the internet, proxy it publicly, or use a real merchant database. Test with `python3 -m unittest discover -s tests -p 'test_*.py' -v`. **This is NOT human authentication, TLS, production HTTP hardening or browser till integration.** Benchmark: Square OAuth recommends scoped least privilege (https://developer.squareup.com/docs/oauth-api/best-practices); this is only a locally provisioned capability probe. Dojo remains disconnected.
 
 ## v0.2.20 — provisioned staff capabilities (2026-11-03)
 

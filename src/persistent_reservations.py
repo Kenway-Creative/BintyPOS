@@ -4,6 +4,7 @@ Only trusted server code may call this adapter. Demand is passed directly for te
 production must derive it from a server-authorised, accepted quote and recipes.
 """
 from contextlib import contextmanager
+from contextvars import ContextVar
 import json
 import re
 import sqlite3
@@ -45,6 +46,7 @@ class SQLiteReservations:
         if not isinstance(path, str) or not path or path == ":memory:":
             raise ValueError("A real SQLite file path is required")
         self.path = path
+        self._active_db = ContextVar('bintypos_active_sqlite_transaction', default=None)
         self.now = now or (lambda: int(time.time() * 1000))
         with self._transaction() as db:
             db.execute("CREATE TABLE IF NOT EXISTS stock (venue TEXT NOT NULL, ingredient TEXT NOT NULL, qty INTEGER NOT NULL CHECK(qty >= 0), PRIMARY KEY(venue,ingredient))")
@@ -53,12 +55,28 @@ class SQLiteReservations:
 
     @contextmanager
     def _transaction(self):
+        # Nested service operations share the same writer lock. SAVEPOINT protects
+        # inner failures even if a trusted caller catches an exception.
+        active = self._active_db.get()
+        if active is not None:
+            name = 'nested_' + __import__('uuid').uuid4().hex
+            active.execute('SAVEPOINT ' + name)
+            try:
+                yield active
+            except BaseException:
+                active.execute('ROLLBACK TO SAVEPOINT ' + name)
+                active.execute('RELEASE SAVEPOINT ' + name)
+                raise
+            else:
+                active.execute('RELEASE SAVEPOINT ' + name)
+            return
         db = sqlite3.connect(self.path, timeout=10, isolation_level=None)
         db.row_factory = sqlite3.Row
         try:
             db.execute("PRAGMA busy_timeout=10000")
             db.execute("PRAGMA foreign_keys=ON")
             db.execute("BEGIN IMMEDIATE")
+            token = self._active_db.set(db)
             try:
                 yield db
             except BaseException:
@@ -67,6 +85,8 @@ class SQLiteReservations:
             else:
                 db.commit()
         finally:
+            if 'token' in locals():
+                self._active_db.reset(token)
             db.close()
 
     def _time(self):

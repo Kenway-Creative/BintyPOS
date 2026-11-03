@@ -1,3 +1,10 @@
+## [0.2.19] — 2026-11-03 — Atomic trusted outlet mutation guard
+- Added `GuardedStaffOperations.execute_trusted` to resolve current staff membership, enforce venue/outlet policy and execute trusted same-database SQLite mutations under one `BEGIN IMMEDIATE` transaction.
+- Five regression tests cover success, cross-outlet denial, revoked staff, callback rollback and concurrent revocation.
+- Trust boundary: trusted fixture subject only, no verified human login, no browser/HTTP exposure, no real payment. Callback must not perform external side effects.
+- Benchmark: Square OAuth least-privilege documentation (https://developer.squareup.com/docs/oauth-api/best-practices); BintyPOS does not implement OAuth or comparable external identity verification.
+- Rollback baseline: `2fdb993ed60ca4bff6b4ea26818b0b7135d58b6b`. CI pending independent confirmation.
+
 ## [0.2.18] — 2026-11-03 — Durable trusted staff membership fixtures
 - Added SQLite venue/subject roles, outlet membership replacement, revocation, persistent principal resolution and five regression tests.
 - Trust boundary: bootstrap and subject input are trusted Python fixtures, NOT verified human/device identity, HTTP auth or protected mutation enforcement. No real payments.

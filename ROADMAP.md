@@ -26,8 +26,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 - 0.2.16 append-only, idempotent manual mock reconciliation notes; no status resolution, verified actors or payment processing.
 
+- 0.2.17 pure server-side venue/outlet policy allowlist with fail-closed scope checks and 12 regression tests; NOT verified identities or integrated API enforcement.
+
 ## Prioritised releases
-- **0.2.17 next:** verified human/device identity and outlet/area permissions; authenticated HTTP boundary thereafter. No real payments or unprotected routes.
+- **0.2.18 next:** verified human/device identity and outlet/area permissions; authenticated HTTP boundary thereafter. No real payments or unprotected routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

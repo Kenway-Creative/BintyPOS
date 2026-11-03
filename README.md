@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.18** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.19** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.19 — atomic trusted back-office mutation guard (2026-11-03)
+
+`src/guarded_staff_operations.py` provides `GuardedStaffOperations(path).execute_trusted(venue, subject, operation, outlet, mutation)`. The trusted server callback receives the same SQLite connection and resolved Principal after active membership and outlet permission checks inside `BEGIN IMMEDIATE`. Failed callbacks roll back; competing role revocation waits for the write lock. **All protected tables must share the membership database**; never perform network calls or external side effects in the callback. This is a trusted fixture API, **not credential verification, an HTTP endpoint, or integration into the browser till**. Tests: `python3 -m unittest discover -s tests -p 'test_*.py' -v`. The previous unguarded `require_trusted` remains read-only and unsafe as a standalone preflight for writes. Dojo is not connected. Benchmark: Square's documented least-privilege OAuth model (https://developer.squareup.com/docs/oauth-api/best-practices) authenticates external applications; this guard only serialises local fixture membership checks and database writes.
 
 ## v0.2.18 — durable trusted staff membership fixtures (2026-11-03)
 

@@ -31,7 +31,10 @@ def make_handler(database_path):
             match = ROUTE.fullmatch(parsed.path)
             if not match or parsed.query or parsed.fragment:
                 return self._reply(404, {'error': 'NOT_FOUND'})
-            header = self.headers.get('Authorization', '')
+            headers = self.headers.get_all('Authorization', [])
+            if len(headers) != 1 or len(headers[0]) > 128:
+                return self._reply(401, {'error': 'UNAUTHORISED'})
+            header = headers[0]
             parts = header.split(' ')
             if len(parts) != 2 or parts[0] != 'Bearer' or not parts[1]:
                 return self._reply(401, {'error': 'UNAUTHORISED'})

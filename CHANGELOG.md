@@ -1,3 +1,9 @@
+## [0.2.25] — 2026-11-03 — Trusted-only device credential registry
+- Added SQLite demo device registry with venue/outlet scope, random bearer capabilities stored as SHA-256 digests, expiry, revocation and rotation. Five regression tests.
+- No HTTP provisioning or device-auth route, verified hardware attestation, staff login, browser integration or real payments. Device token alone grants no staff/checkout permissions.
+- Square OAuth least-privilege benchmark: https://developer.squareup.com/docs/oauth-api/best-practices . This internal demo fixture is not OAuth.
+- Rollback: `79e8fa10fc78b31478c0e9bf578a5bc85b346407`. Full CI pending, no tag.
+
 ## [0.2.24] — 2026-11-03 — Reject browser-origin access to local staff probe
 - Reject all Origin-bearing requests and Sec-Fetch-Site values other than none/same-origin before bearer validation; two HTTP regression tests. No CORS or browser API introduced.
 - Not a substitute for verified identity, TLS, CSRF controls, full DNS rebinding mitigation or production authentication. Square benchmark: https://developer.squareup.com/docs/oauth-api/best-practices .

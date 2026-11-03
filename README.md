@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.15** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.16** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## Mock-only manual reconciliation audit (v0.2.16)
+
+`MockReconciliationOutbox.record_manual_decision(venue, order_id, actor, decision, reason, request_key)` appends durable human-review notes to an existing mock reconciliation entry. Allowed decisions are `investigate`, `escalate` and `acknowledge` (none resolves an order). Replaying an identical request key returns the existing record; conflicting reuse fails. `list_manual_decisions` reads venue-scoped history. Actor labels are **unverified fixture strings**; this is trusted maintenance Python, not an HTTP route or a production audit trail. No payment, inventory or order mutation occurs. Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`. See `tests/test_reconciliation_audit.py`.
 
 ## Durable mock reconciliation snapshot (v0.2.15)
 

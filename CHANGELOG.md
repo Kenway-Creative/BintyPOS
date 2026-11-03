@@ -1,3 +1,9 @@
+## [0.2.21] — 2026-11-03 — Loopback-only staff HTTP scope probe
+- Added opt-in localhost-only GET route for venue/outlet staff access, checking demo bearer, active membership and outlet read permission within one SQLite transaction.
+- No credential provisioning, mutable route, public listener, payment code or browser wiring. Five HTTP tests added; full CI verification pending.
+- Benchmark: Square OAuth least-privilege access (https://developer.squareup.com/docs/oauth-api/best-practices); BintyPOS does not implement OAuth or verified staff login.
+- Rollback baseline: `436f2b2db19837410f98f2284e5d51dd56c5d9fd`. No tag.
+
 ## [0.2.20] — 2026-11-03 — Provisioned staff capability boundary
 - Added trusted-only 256-bit demo bearer token provisioning, hashed-at-rest session records, expiry, revocation and venue binding.
 - Protected same-database mutations validate token, active membership, outlet permission and current role under one SQLite writer transaction; denied or failed operations roll back.

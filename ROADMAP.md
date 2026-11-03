@@ -32,8 +32,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 - 0.2.19 atomic trusted fixture membership-and-mutation guard in one SQLite writer transaction; no verified login or HTTP.
 
+- 0.2.20 provisioned demo staff bearer sessions: digest storage, TTL, revocation, atomic membership/outlet checks. NOT verified human authentication or HTTP.
+
 ## Prioritised releases
-- **0.2.20 next:** server-side staff credential verification and session binding, then narrowly scoped HTTP back-office API. Existing guard is trusted-fixture only. No real payments or unprotected routes.
+- **0.2.21 next:** define trusted human/device provisioning and implement a narrow authenticated HTTP back-office route with server-side validation; no fixture provisioning exposed. Existing guard is trusted-fixture only. No real payments or unprotected routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

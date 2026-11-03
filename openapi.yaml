@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.12
-  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. SQLite v0.2.12 adds an internal, hashed bearer-capability facade for venue-scoped staff/QR mock checkout. It is NOT human/device authentication, OAuth, an HTTP listener, or live payment integration.
+  version: 0.2.13
+  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. SQLite v0.2.13 adds mock-only trusted recovery inspection and v0.2.12 adds an internal, hashed bearer-capability facade for venue-scoped staff/QR mock checkout. It is NOT human/device authentication, OAuth, an HTTP listener, or live payment integration.
 servers:
   - url: /api/v1
 paths:

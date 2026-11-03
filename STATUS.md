@@ -1,9 +1,13 @@
 # BintyPOS status
 
-Version: **0.2.26** — atomic demo staff/device read guard
+Version: **0.2.27** — CI contract assertion repair
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.27 checkpoint
+- Identified concrete failing GitHub Actions run 41660300070: 146/148 Node tests passed; two stale v0.2.24 OpenAPI assertions failed against v0.2.26. Updated both tests to assert v0.2.27 while preserving functional contract checks. Python tests did not run because the Node gate failed. Await fresh CI; no local suite executed in this connector-only run.
+- Rollback baseline: `eec0f503ad1fd131efc1c21bb5e5e7462619da9f`. Next: confirm Node and Python CI green; then secure staff/device provisioning and TLS threat model before browser or writable endpoints. No real payments.
 
 ## 0.2.26 checkpoint
 - Added trusted Python-only atomic dual-capability read guard, requiring staff and registered device scopes for the same venue/outlet. Five regressions cover persistence, forgery/isolation, rotation/revocation, staff revocation and expiry. No HTTP/device pairing, real login or payments. CI verification pending.

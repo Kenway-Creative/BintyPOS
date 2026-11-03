@@ -1,3 +1,9 @@
+## [0.2.27] — 2026-11-03 — Repair stale OpenAPI contract assertions blocking CI
+- Inspected failed GitHub Actions run 41660300070: Node 146/148 passed; two `api-contract.test.cjs` checks incorrectly expected `0.2.24` while API spec was `0.2.26`. Both now require `0.2.27` and retain the substantive API/security assertions.
+- CI result for this commit pending. No local suite executed, Python gate previously skipped after Node failure. No production auth, live payment, or deployment assertion.
+- Square least-privilege comparison: https://developer.squareup.com/docs/oauth-api/best-practices ; no parity claimed.
+- Rollback baseline: `eec0f503ad1fd131efc1c21bb5e5e7462619da9f`; no tag.
+
 ## [0.2.26] — 2026-11-03 — Atomic dual-capability staff/device read guard
 - Added `DemoDualAccess.read_trusted` requiring current staff permission AND venue/outlet-matched, unexpired, unrevoked device capability in the same SQLite writer transaction. Five regression tests added.
 - Internal read-only Python fixture; no HTTP route, human authentication, secure pairing, TLS, payment, stock mutation or production readiness. Benchmark: https://developer.squareup.com/docs/oauth-api/best-practices .

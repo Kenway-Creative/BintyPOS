@@ -38,6 +38,9 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - Implemented same-transaction staff+device read-only capability guard (trusted Python, no HTTP). Next: authenticated human/device provisioning and TLS threat model; only then narrowly scoped read HTTP, eventually guarded writes. No live payments.
 - Benchmark: Square OAuth best practices https://developer.squareup.com/docs/oauth-api/best-practices ; BintyPOS has no OAuth or hardware attestation.
 
+## v0.2.27 checkpoint
+- Correct stale OpenAPI version assertions blocking the Pages workflow; verify complete Node and Python gates before further feature development. Next priority: secure staff/device provisioning and TLS threat model. No payment implementation.
+
 ## Prioritised releases
 - **0.2.21 implemented:** opt-in loopback-only read-only staff scope probe using existing demo bearer capability; no human login, writes or public listener.
 - **0.2.23 implemented:** strict loopback Host header allowlist with hostile/duplicate Host regressions; no public listener.

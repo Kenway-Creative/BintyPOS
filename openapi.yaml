@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.26
+  version: 0.2.27
   description: Mostly proposed open API contract; v0.2.26 adds INTERNAL trusted Python-only dual staff/device read guard (no HTTP endpoint or verified identity); v0.2.25 adds an INTERNAL trusted-only device registry (no HTTP device endpoint, attestation, staff authentication or payments); ONLY the localhost read-only staff-access probe is implemented; v0.2.24 rejects browser Origin and cross-site Fetch Metadata headers; v0.2.23 requires a single loopback Host header matching the bound port. Prototype data only. Query filters do not grant permissions. SQLite v0.2.20 adds trusted-only provisioned staff capability digests, TTL/revocation and atomic outlet permission checks (NO human login or HTTP endpoints); v0.2.19 adds a trusted-only same-database membership/permission/write transaction guard, NOT credential verification or HTTP enforcement; v0.2.18 adds durable staff membership projection; v0.2.17 adds a pure trusted-server outlet permission policy (no verified principal or HTTP enforcement); v0.2.16 adds trusted mock-only manual review notes (no HTTP endpoint, verified actor or order/payment mutation); v0.2.15 adds an internal mock-only reconciliation snapshot (no HTTP endpoint, dispatcher, gateway or automatic payment decision); v0.2.14 serialises internal capability validation and checkout mutation in one SQLite writer transaction; v0.2.13 adds mock-only trusted recovery inspection and v0.2.12 adds an internal, hashed bearer-capability facade for venue-scoped staff/QR mock checkout. It is NOT human/device authentication, OAuth, an HTTP listener, or live payment integration.
 servers:
   - url: /api/v1

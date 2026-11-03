@@ -1,9 +1,13 @@
 # BintyPOS status
 
-Version: **0.2.24** — reject browser-origin requests to loopback probe
+Version: **0.2.25** — trusted-only demo device registry
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.25 checkpoint
+- Added trusted-only persistent venue/outlet device capability registry, hashed tokens, expiry, rotation and revocation; five tests added. Device token does NOT authenticate a human or authorise an HTTP/checkout operation. Full CI verification pending.
+- Rollback baseline: `79e8fa10fc78b31478c0e9bf578a5bc85b346407`. Next: combine verified staff and device binding in a guarded read-only operation; define secure pairing and TLS requirements before browser or writable routes.
 
 ## 0.2.24 checkpoint
 - Read-only loopback HTTP staff probe now rejects Origin-bearing and cross-site/same-site Fetch Metadata requests before credential checks. Two new regressions; CI verification pending. This intentionally blocks browser integration, not a general CSRF or DNS rebinding solution.

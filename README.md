@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.24** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.25** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.25 — trusted demo device enrolment (2026-11-03)
+
+`src/device_registry.py` adds an internal SQLite device registry. Trusted Python provisioning `DemoDeviceRegistry(path).provision_trusted(venue, device_id, outlet, ttl_seconds=3600)` returns a random 256-bit token; only its SHA-256 digest is stored. `resolve_trusted(venue, token)` verifies venue, expiry and revocation; re-provisioning a device rotates and invalidates its previous token. `revoke_trusted(venue, device_id)` disables it. Five tests cover persistence, isolation, rotation, expiry and invalid inputs. Device credentials **do not grant staff permissions or checkout authority** and are not accepted by the HTTP probe. No browser pairing, device attestation, real login, TLS or payment processing. This is only a foundation for a later two-factor staff+device request boundary. Benchmark: Square OAuth credential security guidance (https://developer.squareup.com/docs/oauth-api/best-practices); BintyPOS has no OAuth or comparable verified device identity. Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`.
 
 ## v0.2.24 — browser-origin denial on loopback probe (2026-11-03)
 

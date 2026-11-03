@@ -78,6 +78,33 @@ class HttpTests(unittest.TestCase):
             response.read()
             conn.close()
 
+    def test_host_header_rejects_hostile_and_duplicate_values(self):
+        path = '/api/v1/venues/blackstock/outlets/spuddy/staff-access'
+        for hosts in (['attacker.example'], ['127.0.0.1'],
+                      [f'127.0.0.1:{self.server.server_port}', 'attacker.example']):
+            conn = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=3)
+            conn.putrequest('GET', path, skip_host=True)
+            for host in hosts:
+                conn.putheader('Host', host)
+            conn.putheader('Authorization', 'Bearer ' + self.token)
+            conn.endheaders()
+            response = conn.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
+            conn.close()
+
+    def test_host_header_accepts_localhost(self):
+        path = '/api/v1/venues/blackstock/outlets/spuddy/staff-access'
+        conn = http.client.HTTPConnection('127.0.0.1', self.server.server_port, timeout=3)
+        conn.putrequest('GET', path, skip_host=True)
+        conn.putheader('Host', f'localhost:{self.server.server_port}')
+        conn.putheader('Authorization', 'Bearer ' + self.token)
+        conn.endheaders()
+        response = conn.getresponse()
+        self.assertEqual(response.status, 200)
+        response.read()
+        conn.close()
+
     def test_loopback_only(self):
         with self.assertRaises(ValueError):
             create_demo_server(self.path, host='0.0.0.0')

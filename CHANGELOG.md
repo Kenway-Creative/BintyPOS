@@ -1,3 +1,8 @@
+## [0.2.24] — 2026-11-03 — Reject browser-origin access to local staff probe
+- Reject all Origin-bearing requests and Sec-Fetch-Site values other than none/same-origin before bearer validation; two HTTP regression tests. No CORS or browser API introduced.
+- Not a substitute for verified identity, TLS, CSRF controls, full DNS rebinding mitigation or production authentication. Square benchmark: https://developer.squareup.com/docs/oauth-api/best-practices .
+- Rollback: `91b7498f46fd3d7eb20a2f7472fa31298dec793e`. CI pending; no tag, no payments.
+
 ## [0.2.23] — 2026-11-03 — Loopback Host allowlist
 - Reject missing, duplicate, hostile or wrong-port Host headers on the read-only staff-access endpoint. Accept exact loopback hostname and bound port only. Two new HTTP tests.
 - Not complete DNS-rebinding protection, human authentication, TLS or public API. No real payments. Square comparison: https://developer.squareup.com/docs/oauth-api/best-practices .

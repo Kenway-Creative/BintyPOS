@@ -1,8 +1,14 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.19** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.20** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## v0.2.20 — provisioned staff capabilities (2026-11-03)
+
+`src/staff_sessions.py` introduces `DemoStaffSessions` with trusted-only `provision_trusted(venue, subject, ttl_seconds=900)`, `revoke_trusted(token)`, and `execute(venue, token, operation, outlet, mutation)`. The 256-bit random bearer token is returned only on provisioning; SQLite stores a SHA-256 digest, expiry, venue and subject. Each operation checks token validity, current active membership and outlet scope in one `BEGIN IMMEDIATE` transaction with the trusted mutation. Revocation and role changes are checked at operation time. All guarded tables must share the same SQLite database. Tests: `python3 -m unittest discover -s tests -p 'test_*.py' -v` (8 new cases).
+
+**Security:** Provisioning is a trusted fixture, NOT proof of human identity, PIN/password verification, MFA, TLS, rate limiting or an HTTP login. Do not expose provisioning, callbacks or token contents to a browser. This is not operational payment authorisation. Square OAuth's scoped access tokens are a market pattern (https://developer.squareup.com/docs/oauth-api/best-practices), but BintyPOS does not implement OAuth. Dojo remains planned, never connected.
 
 ## v0.2.19 — atomic trusted back-office mutation guard (2026-11-03)
 

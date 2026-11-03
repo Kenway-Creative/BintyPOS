@@ -1,3 +1,10 @@
+## [0.2.20] — 2026-11-03 — Provisioned staff capability boundary
+- Added trusted-only 256-bit demo bearer token provisioning, hashed-at-rest session records, expiry, revocation and venue binding.
+- Protected same-database mutations validate token, active membership, outlet permission and current role under one SQLite writer transaction; denied or failed operations roll back.
+- Eight isolated Python regression tests passed locally; full repository CI remains pending. No human verification, HTTP login, live payment, browser integration or provider call.
+- Square OAuth least-privilege benchmark: https://developer.squareup.com/docs/oauth-api/best-practices . Unlike Square, these are manually provisioned local demo capabilities, not OAuth.
+- Rollback baseline: `1f6a2c3888700dafbb2ab1a70b08570696196706`. No tag.
+
 ## [0.2.19] — 2026-11-03 — Atomic trusted outlet mutation guard
 - Added `GuardedStaffOperations.execute_trusted` to resolve current staff membership, enforce venue/outlet policy and execute trusted same-database SQLite mutations under one `BEGIN IMMEDIATE` transaction.
 - Five regression tests cover success, cross-outlet denial, revoked staff, callback rollback and concurrent revocation.

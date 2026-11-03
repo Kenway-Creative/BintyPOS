@@ -1,9 +1,13 @@
 # BintyPOS status
 
-Version: **0.2.23** — loopback HTTP Host allowlist
+Version: **0.2.24** — reject browser-origin requests to loopback probe
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.24 checkpoint
+- Read-only loopback HTTP staff probe now rejects Origin-bearing and cross-site/same-site Fetch Metadata requests before credential checks. Two new regressions; CI verification pending. This intentionally blocks browser integration, not a general CSRF or DNS rebinding solution.
+- Rollback baseline: `91b7498f46fd3d7eb20a2f7472fa31298dec793e`. Next: verified staff/device provisioning and TLS threat model; no real payments.
 
 ## 0.2.23 checkpoint
 - Strict single Host header matching loopback hostname and actual bound port; hostile and duplicate Host requests rejected before bearer verification. Two new HTTP regression tests. CI pending.

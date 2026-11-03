@@ -1,3 +1,9 @@
+## [0.2.18] — 2026-11-03 — Durable trusted staff membership fixtures
+- Added SQLite venue/subject roles, outlet membership replacement, revocation, persistent principal resolution and five regression tests.
+- Trust boundary: bootstrap and subject input are trusted Python fixtures, NOT verified human/device identity, HTTP auth or protected mutation enforcement. No real payments.
+- Benchmark: Square OAuth scopes and token management (https://developer.squareup.com/docs/oauth-api/best-practices); BintyPOS does not implement OAuth.
+- Rollback baseline: `a397d0b7a62de435a5334019e593a4052b51942a`. CI pending until workflow completes.
+
 ## [0.2.17] — 2026-11-03 — Fail-closed outlet permission policy
 - Added pure trusted-server policy module with explicit venue and outlet scope, role/action allowlists and denial of unknown operations.
 - 12 isolated Python policy tests passed locally; full repository Python/Node suites and CI pending independent verification.

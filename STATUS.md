@@ -1,9 +1,13 @@
 # BintyPOS status
 
-Version: **0.2.17** — durable mock reconciliation snapshot
+Version: **0.2.18** — durable trusted staff membership fixture
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.18 checkpoint
+- Durable SQLite staff/outlet membership resolver, trusted-only enrol/revoke, fail-closed role projection and five regression tests. NOT verified staff authentication or atomic enforcement of business writes.
+- Next: verify actual credentials server-side and enforce membership in the same writer transaction as back-office mutations. No public HTTP or live payments.
 
 ## 0.2.17 checkpoint
 - Added pure fail-closed venue/outlet authorisation policy in `src/outlet_permissions.py` and 12 regression cases; separate trusted policy fixture, NOT verified login or integrated checkout enforcement.

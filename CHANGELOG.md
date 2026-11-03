@@ -1,3 +1,11 @@
+## [0.2.14] — 2026-11-03 — Atomic demo checkout capability boundary
+- All `ScopedDemoCheckout` quote, acceptance, order creation/status and cancellation operations now validate bearer capabilities inside the same SQLite `BEGIN IMMEDIATE` transaction as their underlying service operations.
+- Nested service transactions use SQLite savepoints; revocation on another connection waits until the protected operation commits or rolls back.
+- Added concurrency and nested-rollback regression tests. Full CI verification pending; no live browser or payment validation.
+- This is NOT verified staff authentication, outlet RBAC or an HTTP API. Trusted internal methods still bypass the facade.
+- Benchmark: Square OAuth scoped/revocable credentials (https://developer.squareup.com/docs/oauth-api/best-practices); BintyPOS provides local transaction serialisation only.
+- Rollback baseline: `249d7d07746c4501229ed5a03a363509a9aadb9e`. No release tag.
+
 ## [0.2.13] — 2026-11-03
 **Feature:** Trusted-only mock checkout recovery inspection.
 - Added `MockOrderRecovery.inspect_recovery(venue)`: one SQLite write transaction expires elapsed holds, marks affected active orders expired, lists orphan quote-linked holds, and flags ambiguous simulated capture/void for human reconciliation.

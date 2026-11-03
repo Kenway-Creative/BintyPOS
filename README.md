@@ -1,8 +1,14 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.16** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.17** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## Outlet permission policy foundation (v0.2.17)
+
+`src/outlet_permissions.py` defines a **pure, fail-closed server-side policy** for venue administrator, outlet manager and staff roles. A venue admin can approve catalogue changes and publish keyboards; outlet managers may propose offerings and submit counts only for explicitly assigned outlets; staff may read their own outlet counts. Unknown operations, cross-venue/outlet requests, missing outlet scope and untrusted dictionaries are denied. Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`; 12 new cases in `tests/test_outlet_permissions.py`.
+
+**Security boundary:** `Principal` is a trusted server-resolved input, NOT a verified identity. No credential issuer, password/MFA, database membership store, HTTP middleware or integration into existing checkout mutations is implemented. Never instantiate it from user-supplied role/outlet claims or client-side PINs. This release does not authorise payment or deploy a live endpoint. Square's documented least-privilege permissions provide a comparison: https://developer.squareup.com/docs/oauth-api/best-practices .
 
 ## Mock-only manual reconciliation audit (v0.2.16)
 

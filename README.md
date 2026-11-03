@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.12** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.13** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## Mock-only recovery inspection (v0.2.13)
+
+`src/order_recovery.py` adds `MockOrderRecovery.inspect_recovery(venue)`, a trusted maintenance-only SQLite transaction that expires elapsed holds, marks orders whose holds are no longer active as expired, lists quote-linked holds without orders, and reports ambiguous mock payment states for **manual reconciliation**. Repeated calls and reopened connections are deterministic; active orphan holds are not released early. No payment outcome is inferred and no automatic refund, capture, or void occurs. Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`; `tests/test_order_recovery.py` covers orphan expiry/restart, linked orders, unknown mock capture and venue isolation. This is not a background worker, authenticated API, durable outbox or live payment recovery. A real gateway must reconcile externally verified payment status before inventory/order settlement.
 
 ## Scoped demo checkout identity (v0.2.12)
 

@@ -4,6 +4,10 @@
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
 
+## v0.2.27 patch — device identifier regression (2026-11-03)
+
+GitHub Actions run 41669040598 passed the Node tests but failed one of 112 Python tests because device provisioning accepted a whitespace-containing venue identifier. Device-only identifier validation was tightened, and explicit whitespace regression cases were added for venue/device/outlet identifiers. Reproduce: `python3 -m unittest discover -s tests -p 'test_*.py' -v` and `node --test tests/*.test.cjs`. The corrected commit has **not** yet been verified by CI or Pages deployment; no claim of a live update. Square's OAuth least-privilege guidance (https://developer.squareup.com/docs/oauth-api/best-practices) is a design comparison only; this demo is not production authentication.
+
 ## v0.2.27 — CI contract/version alignment (2026-11-03)
 
 GitHub Actions run 41660300070 failed 2 of 148 Node tests because `tests/api-contract.test.cjs` asserted the obsolete `0.2.24` OpenAPI version while the specification was `0.2.26`. The contract assertions now require the current `0.2.27` version; functional quote and checkout-security assertions are retained. This is a CI reliability repair, not a new authentication or payment feature. Reproduce with `node --test tests/*.test.cjs` and `python3 -m unittest discover -s tests -p 'test_*.py' -v`. Benchmark: Square's documented OAuth least-privilege practices (https://developer.squareup.com/docs/oauth-api/best-practices) remain substantially beyond this demo; the version-check repair changes no access-control semantics. No real payments or deployment claims.

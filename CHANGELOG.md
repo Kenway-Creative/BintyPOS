@@ -1,3 +1,8 @@
+## [0.2.23] — 2026-11-03 — Loopback Host allowlist
+- Reject missing, duplicate, hostile or wrong-port Host headers on the read-only staff-access endpoint. Accept exact loopback hostname and bound port only. Two new HTTP tests.
+- Not complete DNS-rebinding protection, human authentication, TLS or public API. No real payments. Square comparison: https://developer.squareup.com/docs/oauth-api/best-practices .
+- Rollback: 7bedbd6f902afc7b05c159e124d87fc6fd302498. CI pending; no tag.
+
 ## [0.2.22] — 2026-11-03 — Fail-closed HTTP bearer header parsing
 - Reject duplicate Authorization headers and header values longer than 128 characters on the loopback-only staff probe; add HTTP negative regression tests.
 - This does not implement human authentication, TLS, a public API or payment processing. Benchmark: Square OAuth security best practices (https://developer.squareup.com/docs/oauth-api/best-practices); local parser checks are not equivalent.

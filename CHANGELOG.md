@@ -96,6 +96,12 @@
 
 # Changelog
 
+## [0.2.27 hotfix] — 2026-11-03
+- Fix device-registry invalid identifier regression that blocked Python test gate and GitHub Pages deployment.
+- Preserve general staff identifier rules; device provisioning now rejects whitespace in venue, device and outlet identifiers.
+- GitHub CI and Pages deployment **pending verification** after hotfix. No new product feature.
+
+
 ## [0.2.12] — 2026-11-03 — Scoped demo checkout capabilities
 - Added `src/checkout_identity.py`: SQLite-persisted, random bearer capabilities stored only as SHA-256 digests; short expiry, durable revocation, venue/channel binding and internal server-derived checkout sessions.
 - Checkout-facing facade allows server-priced quote, acceptance, order creation and status; staff-only mock cancellation. It deliberately excludes payment authorisation, completion and direct inventory commit.

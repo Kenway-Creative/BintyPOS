@@ -1,3 +1,10 @@
+## [0.2.27 hotfix] — 2026-11-03 — Device identifier CI regression
+- GitHub Actions run 41669040598: Node suite passed, Python 111/112 passed; `test_device_registry.test_invalid_inputs` failed. Pages upload/deploy skipped.
+- Device registry now rejects whitespace in machine identifiers without changing shared staff identifier validation. Added regression cases for venue, device and outlet whitespace in commit `5c3132939969ecfa205b1cd26f16804091ae50a5`.
+- This is a patch-level repair to 0.2.27, not a new product release. Full CI, latest Pages deployment and browser runtime are **UNVERIFIED**; no payment code enabled.
+- Rollback: `1a9b4888af2e3ef9ab9980a10f17d74c656c1db1` (known failing Python test), or previously confirmed Pages workflow 41641340611 for v0.2.24.
+- Square least-privilege guidance: https://developer.squareup.com/docs/oauth-api/best-practices ; local demo device credential validation is not equivalent to production authentication.
+
 ## [0.2.27] — 2026-11-03 — Repair stale OpenAPI contract assertions blocking CI
 - Inspected failed GitHub Actions run 41660300070: Node 146/148 passed; two `api-contract.test.cjs` checks incorrectly expected `0.2.24` while API spec was `0.2.26`. Both now require `0.2.27` and retain the substantive API/security assertions.
 - CI result for this commit pending. No local suite executed, Python gate previously skipped after Node failure. No production auth, live payment, or deployment assertion.

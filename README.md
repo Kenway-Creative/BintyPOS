@@ -1,8 +1,12 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.14** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.15** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## Durable mock reconciliation snapshot (v0.2.15)
+
+`src/reconciliation_outbox.py` adds a **trusted maintenance-only**, SQLite-persisted snapshot of orders in `needs_reconciliation`. `MockReconciliationOutbox.snapshot_pending(venue)` uses the existing transaction boundary and a unique (venue, order) key; repeat scans and process restarts do not duplicate entries. The queue records first/last observation timestamps and reason, but **never resolves or dispatches** a payment, releases a hold, or changes order state. It is not an actual external-payment outbox or worker; existing mock order transitions still happen separately. Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`. New tests cover persistence, repeated scans, venue isolation and unchanged ambiguous outcomes.
 
 ## Atomic demo checkout capability boundary (v0.2.14)
 

@@ -22,8 +22,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 
 - 0.2.14 SQLite capability validation and quote/order operations under one writer transaction, with nested savepoints and revocation concurrency tests.
 
+- 0.2.15 durable venue-scoped mock reconciliation snapshot table with idempotent repeat scans and restart persistence; no dispatcher or gateway.
+
 ## Prioritised releases
-- **0.2.15 next:** durable mock-only outbox and reconciliation inspection, then verified human/device identity, outlet/area permissions and authenticated HTTP boundary; no real payments or unprotected routes.
+- **0.2.16 next:** explicit manual mock reconciliation decision audit, then verified human/device identity, outlet/area permissions and authenticated HTTP boundary; no real payments or unprotected routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

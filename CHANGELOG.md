@@ -1,3 +1,11 @@
+## [0.2.15] — 2026-11-03 — Durable mock-only reconciliation snapshot
+- Added `MockReconciliationOutbox` for venue-scoped persistent snapshots of orders with ambiguous simulated outcomes, keyed by (venue, order).
+- Repeated scans update last-observed time without duplicate rows; first-seen timestamp survives reopening the SQLite file.
+- Added regression tests for mock capture uncertainty, replay, restart, venue isolation and no automatic stock/order mutation.
+- No dispatcher, external payment calls, refund, capture, void, or live payment integration. CI verification pending.
+- Square Payments API benchmark: persistent payment lookup and idempotent operations; this is only a local mock audit queue, not equivalent payment reconciliation. https://developer.squareup.com/docs/payments-api/overview
+- Implementation commit: `d170e41832d5183556bcabda279a15a41c820fc6`. Rollback: `c3fa0a6f76b9f10fff828f77b635a5b69e4694f1`.
+
 ## [0.2.14] — 2026-11-03 — Atomic demo checkout capability boundary
 - All `ScopedDemoCheckout` quote, acceptance, order creation/status and cancellation operations now validate bearer capabilities inside the same SQLite `BEGIN IMMEDIATE` transaction as their underlying service operations.
 - Nested service transactions use SQLite savepoints; revocation on another connection waits until the protected operation commits or rolls back.

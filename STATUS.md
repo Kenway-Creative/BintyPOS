@@ -1,9 +1,15 @@
 # BintyPOS status
 
-Version: **0.2.14** — atomic demo checkout capability boundary
+Version: **0.2.15** — durable mock reconciliation snapshot
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.15 checkpoint
+- Added trusted-only `MockReconciliationOutbox.snapshot_pending(venue)`: persistent, idempotent, venue-scoped snapshots of ambiguous mock orders. No dispatch, gateway calls, automatic resolution or payment movement.
+- Added regression tests for restart, replay, isolation and unchanged stock/order status.
+- Implementation commit: `d170e41832d5183556bcabda279a15a41c820fc6`; CI for this version pending independent verification. Rollback: `c3fa0a6f76b9f10fff828f77b635a5b69e4694f1`.
+- Benchmark: Square Payments API supports querying payment state and idempotent payment operations; this prototype only retains unresolved mock records. https://developer.squareup.com/docs/payments-api/overview
 
 ## 0.2.14 checkpoint
 - `ScopedDemoCheckout` validates capabilities and performs each protected operation within one SQLite writer transaction. Nested service calls use savepoints on the same connection.
@@ -34,7 +40,7 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 - Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.15 — durable mock outbox/reconciliation worker**, then verified human/device identity and outlet role enforcement. No live gateway.
+**0.2.16 — explicit manual reconciliation audit decisions (mock-only)**, then verified human/device identity and outlet role enforcement. No live gateway.
 
 ## Market comparison
 Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

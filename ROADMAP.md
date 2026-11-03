@@ -18,8 +18,10 @@ Blackstock Market: one transaction across many businesses, each outlet managed w
 - 0.2.11 SQLite mock-only order state machine with persistent state, simulated authorisation/confirmation/cancellation, stock movements and reconciliation hold states; repaired stale OpenAPI CI assertion.
 - 0.2.12 scoped demo checkout capability facade: server-generated token digests, venue/session binding, expiry/revocation, staff-only mock cancellation and no checkout payment authority (CI 148 Node + 52 Python passed).
 
+- 0.2.13 mock-only transactional orphan-hold inspection, expiry and explicit ambiguous-outcome review; no automatic payment settlement.
+
 ## Prioritised releases
-- **0.2.13 next:** recover orphan holds and ambiguous mock payment outcomes with a transactional recovery/outbox scaffold and deterministic replay tests. Then verified human/device identity, outlet/area permissions and authenticated HTTP boundary; no real payments or unprotected routes.
+- **0.2.14 next:** close capability-validation/mutation race with a single transaction boundary. Follow with a durable outbox, verified human/device identity, outlet/area permissions and authenticated HTTP boundary; no real payments or unprotected routes.
 - 0.3.x complete fast outlet navigation, reorderable shortcuts, accessibility and real device touch-path measurements.
 - 0.4.x authenticated server scaffold, scoped outlet management and venue-level permissions.
 - 0.5.x published menu catalogue via running API with change history.

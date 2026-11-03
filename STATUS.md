@@ -1,29 +1,28 @@
 # BintyPOS status
 
-Version: **0.2.11** — durable mock-only order/payment state lifecycle
-Date: 2026-11-02
+Version: **0.2.12** — scoped, revocable demo checkout identity facade
+Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
-Rollback baseline: `3394a2f0ad6650fa201406efd1e73faa7eee6601`
+Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 
 ## Implemented
-- SQLite mock order state: awaiting_payment, authorised, confirmed, failed, released, expired and needs_reconciliation. No real card authorisation or capture.
-- Simulated confirmed order, ingredient movements and reservation commit in one SQLite transaction; idempotent replay and durable order history.
-- Mock declines and cancellations release stock; unknown mock capture/void and stock conflicts require reconciliation.
-- Fixed stale hardcoded 0.2.8 OpenAPI version assertion that blocked CI for 0.2.10 (run 41541876510 failed: 145/146 Node tests passed).
+- Added `src/checkout_identity.py`: SQLite-persisted random checkout capabilities, SHA-256 digest storage, expiry/revocation, venue binding and server-derived session IDs for staff and QR mock checkout.
+- Narrow facade for quote, acceptance, order creation and status; staff-only mock cancellation. Checkout capability cannot authorise or confirm payment or directly commit inventory.
+- Added 13 Python security/behaviour regression tests and proposed OpenAPI checkoutAuth boundary.
 
 ## Verification checkpoint
-- **GitHub Actions run 41549477925 succeeded** for implementation commit `e17962af3e02f67c2d0ab6185bf5329529e2a6bc` (2026-11-02): native Node 22 **147/147 tests passed**, Python 3.13 **39/39 tests passed**, and GitHub Pages deploy workflow step succeeded. https://github.com/Kenway-Creative/BintyPOS/actions/runs/41549477925
-- No independent public browser, device, multi-host or payment verification. This is a successful workflow deployment step, not a claim that the demo works live on real tills.
-- Previous 0.2.10 CI failed in Node contract test, before running Python tests or Pages deployment.
+- Baseline GitHub Actions run 41549592450 succeeded on 2026-11-03 for v0.2.11: Node 147/147, Python 39/39 and Pages workflow step succeeded.
+- v0.2.12 verification: see latest GitHub Actions run for the implementation commit; do not assume success from source publication. Local new-file Python compilation succeeded; complete suite must run on GitHub Actions.
+- No independently verified public browser/device or operational API.
 
 ## Limitations and blockers
-- Session IDs are caller-provided fixtures, **not verified identity**; no authenticated server, HTTP routes or real payment provider. Only MockPaymentAdapter accepted; it cannot move money.
-- The original browser demo is separate. The inherited `commit` method bypasses payment verification and is trusted-internal only.
-- Crash between stock hold and order creation can leave a TTL-bounded orphan hold; a real payment provider needs an outbox and reconciliation instead of inline SQLite mock callbacks.
-- Dojo preferred and required for planned payments, pending sandbox feasibility validation. No Spektrix payment claims.
+- Demo capability issuance is a **trusted fixture hook**, not staff login; it must not be exposed over HTTP. Possession of a token is sufficient for this prototype; no staff verification, device attestation, MFA, TLS or rate limiting.
+- Token validation and mutation are separate transactions; revocation may race an already authorised operation. Underlying internal service methods remain accessible to trusted Python code and bypass this facade.
+- Browser demo remains separate from SQLite. Orphan holds and ambiguous mock outcomes still need transactional recovery/outbox.
+- Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.12 — verified checkout identity and transactional order/outbox recovery scaffold.** Add server-issued identity/venue scope, safe retry/reconciliation of orphan holds and ambiguous mock outcomes before any HTTP or payment work.
+**0.2.13 — transactional recovery for orphaned order holds and ambiguous mock outcomes**, with deterministic retry, safe reconciliation and concurrency tests. No live gateway.
 
 ## Market comparison
-Square distinguishes authorised payments from completed/captured payments and prevents completing order fulfilments before payment. BintyPOS implements analogous state boundaries only in local mock simulation: https://developer.squareup.com/docs/orders-api/pay-for-orders
+Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

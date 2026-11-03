@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: BintyPOS API
-  version: 0.2.11
-  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. The SQLite v0.2.11 mock order lifecycle extends the trusted quote adapter and derives prices and recipe stock demand from persisted published-product snapshots, validates explicit acceptance and atomically holds stock; it has NO HTTP listener, verified identity, tax/payment logic or live integration.
+  version: 0.2.12
+  description: Proposed open API contract, not an operational endpoint. Prototype data only. Query filters do not grant permissions. SQLite v0.2.12 adds an internal, hashed bearer-capability facade for venue-scoped staff/QR mock checkout. It is NOT human/device authentication, OAuth, an HTTP listener, or live payment integration.
 servers:
   - url: /api/v1
 paths:
@@ -48,6 +48,7 @@ paths:
     post:
       summary: Validate a basket against the published catalogue and issue a server-priced quote
       operationId: createBasketQuote
+      security: [{checkoutAuth: []}]
       description: Planned server endpoint. v0.2.10 internal Python create_quote() accepts ONLY productId and quantity, calculates GBP-pence subtotal and ingredient demand from persisted product versions and recipes; taxes, area permissions, authenticated sessions and HTTP endpoint are NOT implemented. Browser quote fields remain advisory only.
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
@@ -67,6 +68,7 @@ paths:
     post:
       summary: Explicitly accept a revised server-priced quote
       operationId: acceptBasketQuotePrices
+      security: [{checkoutAuth: []}]
       description: Planned endpoint. v0.2.10 internal accept_quote() checks checkout session fixture, expected server total, expiry and published product versions, and persists accepted state. No HTTP endpoint, verified identity, revision increment, VAT or payment processing yet.
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
@@ -239,6 +241,7 @@ paths:
       summary: Submit validated multi-vendor order once
       description: Planned transactional endpoint. Server must verify an accepted, unexpired authoritative quote, atomically reserve stock, enforce Idempotency-Key and confirm payment through a separate trusted adapter. No live payment integration exists.
       operationId: submitOrder
+      security: [{checkoutAuth: []}]
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
         - {name: Idempotency-Key, in: header, required: true, schema: {type: string}}
@@ -503,7 +506,7 @@ paths:
     get:
       summary: Proposed server-authorised order lifecycle view (not implemented)
       operationId: getOrderLifecycle
-      description: Python v0.2.11 is SQLite internal mock-only. Future server MUST derive session identity and venue scope from verified credentials; no mock payment methods are HTTP endpoints.
+      description: Python v0.2.12 demo facade derives session and venue from a hashed bearer capability; real HTTP must verify staff/device identity and enforce auth atomically with writes. No mock payment methods are HTTP endpoints.
       security: [{checkoutAuth: []}]
       parameters:
         - {name: venueId, in: path, required: true, schema: {type: string}}
@@ -526,7 +529,7 @@ components:
     checkoutAuth:
       type: http
       scheme: bearer
-      description: Proposed server-issued checkout session. Not implemented in demo.
+      description: Proposed bearer checkout credential. v0.2.12 Python SQLite fixture facade uses random hashed, expiring, revocable venue-bound tokens; NO HTTP authentication, verified human/device identity, TLS or login endpoint exists.
     serviceAuth:
       type: http
       scheme: bearer

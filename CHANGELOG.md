@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.12] — 2026-11-03 — Scoped demo checkout capabilities
+- Added `src/checkout_identity.py`: SQLite-persisted, random bearer capabilities stored only as SHA-256 digests; short expiry, durable revocation, venue/channel binding and internal server-derived checkout sessions.
+- Checkout-facing facade allows server-priced quote, acceptance, order creation and status; staff-only mock cancellation. It deliberately excludes payment authorisation, completion and direct inventory commit.
+- Added 13 Python regression tests for malformed/forged credentials, venue and session isolation, QR restrictions, expiry, revocation, restart and a mock-only checkout.
+- Updated proposed OpenAPI checkoutAuth semantics, README, architecture, roadmap and status. This is not staff login, OAuth, an HTTP server, a real payment flow or production-secure authentication.
+- Square benchmark: scoped/short-lived/revocable OAuth credentials and least-privilege guidance (https://developer.squareup.com/docs/auth). BintyPOS is only a local capability proof-of-concept.
+- Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`. No release tag unless independently verified.
+
+
 ## [0.2.11] — 2026-11-02 — Durable mock order lifecycle and CI contract repair
 - Added SQLite-only `src/order_lifecycle.py`: accepted-quote stock hold → awaiting mock payment → mock authorisation → simulated confirmation, plus decline, cancellation, expiry and reconciliation states.
 - Confirmed simulated orders atomically persist inventory movements and order state, with idempotent replay; no real payment provider is accepted.

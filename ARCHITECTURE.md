@@ -1,4 +1,4 @@
-# BintyPOS architecture | prototype v0.2.11
+# BintyPOS architecture | prototype v0.2.12
 
 ## Principle
 One venue, many businesses, unlimited configurable selling areas. Businesses, tills, menus, stock pools and fulfilment stations are independent dimensions, linked by explicit identifiers. Never infer merchant ownership or stock source solely from a UI folder/category.
@@ -84,3 +84,9 @@ This is a standalone **trusted internal adapter** used by unit tests, not a serv
 
 ## Mock order state boundary (0.2.11)
 The SQLite-only `SQLiteMockOrders` extends `TrustedQuoteReservations`, stores one order per accepted quote, and uses `MockPaymentAdapter` for simulated authorise/complete/cancel decisions. Local completion atomically commits order status, stock movement and reservation. External payment operations must NEVER run inside the SQLite transaction: real integration needs an outbox, webhook idempotency, compensation and reconciliation. This module has no HTTP/authentication and is not connected to the browser demo. Session IDs are untrusted fixtures.
+
+
+## Scoped demo checkout identity boundary (v0.2.12)
+`src/checkout_identity.py` is a narrow wrapper around `SQLiteMockOrders`. Trusted bootstrap creates cryptographically random bearer capabilities; SQLite stores only their SHA-256 digests, venue, channel, internal session ID, expiry and revocation. All caller-facing quote/order operations resolve the session from the capability rather than trusting a caller-supplied session string. QR capabilities cannot invoke staff-only mock cancellation; no checkout capability may authorise/confirm payment or commit inventory. `tests/test_checkout_identity.py` verifies isolation, replay and revocation.
+
+**Not a real identity provider:** trusted bootstrap/revocation are NOT public endpoints; channel labels are assigned by fixtures rather than verified people or hardware. Bearer possession is sufficient, so credentials must never appear in source, logs or URLs. `_orders` is a trusted internal object and remains bypassable by trusted Python code. Validation and order mutation are separate transactions; a revoked capability may race an already validated operation. Future HTTP must verify staff/device login and outlet/area policy, enforce auth in the same transaction as writes, use TLS, secure cookie/session handling, rate limits, auditing, token rotation and reconciliation. Dojo remains the required planned payment provider, not integrated.

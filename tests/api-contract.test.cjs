@@ -52,3 +52,10 @@ test('proposed order lifecycle is explicitly read-only and mock payment remains 
  assert.match(spec,/OrderLifecycle:/);
  assert.match(spec,/MOCK authorisation only/);
 });
+
+test('v0.2.12 proposed checkout auth requires bearer scope without exposing mock payment',()=>{
+ assert.match(spec,/version: 0\\.2\\.12/);
+ assert.match(spec,/operationId: createBasketQuote\\n      security: \\[\\{checkoutAuth: \\[\\]\\}\\]/);
+ assert.match(spec,/operationId: submitOrder\\n      security: \\[\\{checkoutAuth: \\[\\]\\}\\]/);
+ assert.match(spec,/NO HTTP authentication/);
+});

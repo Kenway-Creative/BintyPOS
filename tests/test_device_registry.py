@@ -54,6 +54,11 @@ class DeviceRegistryTests(unittest.TestCase):
                 self.devices.provision_trusted('blackstock', 'till', 'bar', ttl)
         with self.assertRaises(ValueError):
             self.devices.provision_trusted('bad venue', 'till', 'bar')
+        for args in (('blackstock', 'bad device', 'bar'),
+                     ('blackstock', 'till', 'bad outlet'),
+                     ('bad\tvenue', 'till', 'bar')):
+            with self.assertRaises(ValueError):
+                self.devices.provision_trusted(*args)
         with self.assertRaises(AccessDenied):
             self.devices.resolve_trusted('blackstock', 'not-a-token')
 

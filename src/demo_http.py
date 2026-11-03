@@ -36,6 +36,12 @@ def make_handler(database_path):
             expected = {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}
             if len(hosts) != 1 or hosts[0] not in expected:
                 return self._reply(400, {'error': 'INVALID_HOST'})
+            # No browser clients are authorised: reject Origin even for loopback requests.
+            # A future browser integration needs explicit origin policy and CSRF review.
+            if self.headers.get_all('Origin', []):
+                return self._reply(403, {'error': 'BROWSER_ORIGIN_DENIED'})
+            if any(v.lower() not in ('none', 'same-origin') for v in self.headers.get_all('Sec-Fetch-Site', [])):
+                return self._reply(403, {'error': 'BROWSER_ORIGIN_DENIED'})
             headers = self.headers.get_all('Authorization', [])
             if len(headers) != 1 or len(headers[0]) > 128:
                 return self._reply(401, {'error': 'UNAUTHORISED'})

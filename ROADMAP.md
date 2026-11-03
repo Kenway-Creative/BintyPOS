@@ -3,6 +3,10 @@
 ## Product north star
 Blackstock Market: one transaction across many businesses, each outlet managed within appropriate permissions, shared recipe stock and accurate vendor settlement, with minimal peak-time taps.
 
+## Immediate release gate (blocking new features)
+- Validate v0.2.27 device-identifier hotfix and new regression cases in Node + Python CI; confirm GitHub Pages deploy step on the same commit, then verify the served browser artefact. Current latest workflow evidence is run 41669040598 (failed Python; Pages skipped); no verified post-fix run yet.
+- Next product slice after a green release: trusted staff/device provisioning and TLS threat model before writable HTTP operations. Dojo sandbox validation remains blocked; no live payment calls.
+
 ## Completed
 - 0.2.0 framework architecture and proposed open API.
 - 0.2.1 reusable staff/QR catalogue projection, outlet folder filtering and automated test gate.

@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const spec=fs.readFileSync(path.join(__dirname,'..','openapi.yaml'),'utf8');
 test('quote API documents server-priced validation and explicit acceptance',()=>{
-  assert.match(spec,/version: 0\.2\.16/);
+  assert.match(spec,/version: 0\.2\.18/);
   assert.match(spec,/\/venues\/\{venueId\}\/quotes:/);
   assert.match(spec,/operationId: createBasketQuote/);
   assert.match(spec,/\/venues\/\{venueId\}\/quotes\/\{quoteId\}\/accept-prices:/);
@@ -54,7 +54,7 @@ test('proposed order lifecycle is explicitly read-only and mock payment remains 
 });
 
 test('v0.2.18 proposed checkout auth requires bearer scope without exposing mock payment',()=>{
- assert.match(spec,/version: 0\.2\.16/);
+ assert.match(spec,/version: 0\.2\.18/);
  assert.match(spec,/operationId: createBasketQuote\n      security: \[\{checkoutAuth: \[\]\}\]/);
  assert.match(spec,/operationId: submitOrder\n      security: \[\{checkoutAuth: \[\]\}\]/);
  assert.match(spec,/NO HTTP authentication/);

@@ -1,9 +1,13 @@
 # BintyPOS status
 
-Version: **0.2.25** — trusted-only demo device registry
+Version: **0.2.26** — atomic demo staff/device read guard
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.26 checkpoint
+- Added trusted Python-only atomic dual-capability read guard, requiring staff and registered device scopes for the same venue/outlet. Five regressions cover persistence, forgery/isolation, rotation/revocation, staff revocation and expiry. No HTTP/device pairing, real login or payments. CI verification pending.
+- Rollback: `b2173f9cbc0d601aad07d4fd868dc34026377310`. Next: verify CI and define secure staff/device provisioning and TLS before any browser or write API.
 
 ## 0.2.25 checkpoint
 - Added trusted-only persistent venue/outlet device capability registry, hashed tokens, expiry, rotation and revocation; five tests added. Device token does NOT authenticate a human or authorise an HTTP/checkout operation. Full CI verification pending.

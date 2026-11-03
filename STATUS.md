@@ -1,9 +1,15 @@
 # BintyPOS status
 
-Version: **0.2.13** — deterministic mock order recovery inspection
+Version: **0.2.14** — atomic demo checkout capability boundary
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main
 Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
+
+## 0.2.14 checkpoint
+- `ScopedDemoCheckout` validates capabilities and performs each protected operation within one SQLite writer transaction. Nested service calls use savepoints on the same connection.
+- Added revocation concurrency and nested-savepoint rollback tests; CI verification pending.
+- Rollback baseline: `249d7d07746c4501229ed5a03a363509a9aadb9e`. No release tag.
+- Square benchmark: scoped credential revocation and least privilege; BintyPOS only serialises local demo token checks, without OAuth or human login.
 
 ## 0.2.13 checkpoint
 - Added `src/order_recovery.py` trusted-only atomic expiry/inspection of orphan holds and ambiguous simulated outcomes, plus four regression tests.
@@ -23,12 +29,12 @@ Rollback baseline: `4c1fed0f9d175e56b7207dc5571e6573fd1c2832`
 
 ## Limitations and blockers
 - Demo capability issuance is a **trusted fixture hook**, not staff login; it must not be exposed over HTTP. Possession of a token is sufficient for this prototype; no staff verification, device attestation, MFA, TLS or rate limiting.
-- Token validation and mutation are separate transactions; revocation may race an already authorised operation. Underlying internal service methods remain accessible to trusted Python code and bypass this facade.
+- Facade validation and mutation are serialised in one SQLite writer transaction; internal trusted service methods still bypass the facade. Underlying internal service methods remain accessible to trusted Python code and bypass this facade.
 - Browser demo remains separate from SQLite. Orphan holds and ambiguous mock outcomes still need transactional recovery/outbox.
 - Dojo remains mandatory for planned initial payments pending sandbox validation; no real payment or Spektrix payment integration.
 
 ## Next bounded feature
-**0.2.14 — atomic checkout capability validation and mutation**, then durable outbox/reconciliation worker and verified human/device identity. No live gateway.
+**0.2.15 — durable mock outbox/reconciliation worker**, then verified human/device identity and outlet role enforcement. No live gateway.
 
 ## Market comparison
 Square's OAuth model supports scoped, short-lived/revocable access tokens and recommends least privilege. BintyPOS only demonstrates local hashed bearer capabilities for venue-bound checkout fixtures, not OAuth, staff login or equivalent security: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices

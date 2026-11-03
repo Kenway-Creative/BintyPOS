@@ -1,8 +1,14 @@
 # BintyPOS — Blackstock Market EPOS prototype
 
-**Prototype v0.2.13** · public demonstration only · no live payments or merchant data.
+**Prototype v0.2.14** · public demonstration only · no live payments or merchant data.
 
 BintyPOS is a modular, API-first concept for one venue containing many independently managed businesses. The goal is a fast bar till, flexible outlet keyboards, a shared basket and catalogue for staff and QR, reliable inventory, and auditable vendor reporting. It is **not** ready for trading.
+
+## Atomic demo checkout capability boundary (v0.2.14)
+
+The SQLite checkout facade now validates each bearer capability **inside the same `BEGIN IMMEDIATE` writer transaction** as the quote/order operation. Nested service transactions reuse that connection with SQLite savepoints, so revocation cannot interleave between validation and mutation. An already-started operation can finish before a competing revocation obtains the writer lock; subsequent operations reject the revoked token. Added concurrency and savepoint rollback regression tests. Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`.
+
+This protects only calls made through `ScopedDemoCheckout` in one SQLite file. Trusted internal service methods remain callable without this facade; no human identity verification, outlet RBAC, HTTP endpoint, distributed locking, real payment adapter or public browser integration exists. Do not expose bootstrap hooks or internal order/stock methods.
 
 ## Mock-only recovery inspection (v0.2.13)
 
@@ -14,7 +20,7 @@ The standalone SQLite facade `src/checkout_identity.py` provides **server-genera
 
 Example **trusted fixture only**: `api = ScopedDemoCheckout(db_path)` → `api._orders.bootstrap_stock(...)` / `api._orders.publish_product(...)` → `identity = api.bootstrap_demo_identity("blackstock","staff")` → `api.create_quote("blackstock", identity["token"], [{"productId":"beer","quantity":1}])` → `api.accept_quote(...)` → `api.create_order(...)` → `api.status_order(...)`. The `bootstrap_demo_identity` and `revoke_demo_identity` methods are **trusted test/bootstrap hooks, not login endpoints**; never expose them publicly. The `_orders` attribute gives trusted Python callers access to the underlying mock service and must never be returned to clients.
 
-**Security limitations:** This is not verified human/staff authentication, hardware pairing or a production session service. Whoever possesses a demo bearer capability can use it. No TLS, login/MFA, token refresh, rate limits, audit log, staff role/outlet mapping, or running HTTP API exists. Capability validation and subsequent order mutation use separate SQLite transactions, so revocation can race an in-flight call; an operational implementation must enforce auth and mutation atomically. The existing `SQLiteMockOrders` and `SQLiteReservations.commit` methods remain callable by trusted Python code only and must never be exposed to a browser. Browser PINs are unchanged and insecure; no Dojo or real payments.
+**Security limitations:** This is not verified human/staff authentication, hardware pairing or a production session service. Whoever possesses a demo bearer capability can use it. No TLS, login/MFA, token refresh, rate limits, audit log, staff role/outlet mapping, or running HTTP API exists. Capability validation and order mutation now share one SQLite writer transaction in the facade; this does not provide verified staff authentication or protect direct internal service calls. The existing `SQLiteMockOrders` and `SQLiteReservations.commit` methods remain callable by trusted Python code only and must never be exposed to a browser. Browser PINs are unchanged and insecure; no Dojo or real payments.
 
 Run `python3 -m unittest discover -s tests -p 'test_*.py' -v`. The new `tests/test_checkout_identity.py` covers token hashing, venue/session isolation, expiry, revocation, restart persistence, channel permissions and a mock-only order flow. OpenAPI v0.2.12 describes proposed bearer-authenticated checkout routes, **not running endpoints**.
 

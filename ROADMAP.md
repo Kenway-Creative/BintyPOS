@@ -85,3 +85,8 @@ Production auth/permissions, accepted server quote, recipe version binding, orde
 
 ## Benchmark for v0.2.12 (checked 2026-11-03)
 Square documents OAuth scopes, short-lived tokens, least privilege, revocation and protected credentials: https://developer.squareup.com/docs/auth and https://developer.squareup.com/docs/oauth-api/best-practices . BintyPOS v0.2.12 uses only locally issued, hashed demo bearer capabilities for checkout fixtures, scoped to venue and channel; it does **not** implement Square OAuth, staff login, true identity verification, or production transport security.
+
+## 0.2.22 — HTTP bearer header ambiguity hardening
+- Reject repeated Authorization headers and overlong values on the loopback-only staff probe, with HTTP negative tests.
+- Next: trusted identity/device provisioning and TLS threat model, then writable guarded API. Dojo sandbox validation remains blocked; no real payments.
+- Comparison: Square OAuth security best practices protect bearer tokens; this demo only rejects ambiguous local HTTP header inputs (https://developer.squareup.com/docs/oauth-api/best-practices).

@@ -1,5 +1,13 @@
 # BintyPOS status
 
+## Verified v0.2.27 workflow checkpoint — 2026-11-04 10:56 UTC
+- Source commit `7236f546f1e8816b4d6626fb37e0bc271c471232`; GitHub Actions push run `41679810934`, job `126070209359`: Node regression step SUCCESS; Python regression step SUCCESS; Configure Pages, Upload site and Deploy Pages all SUCCESS (13/13 job steps). https://github.com/Kenway-Creative/BintyPOS/actions/runs/41679810934
+- **Source commit: COMMITTED, CI PASSED, DEPLOYED. Runtime: UNVERIFIED.** No independent browser functionality check; this is not production readiness. Prior claims of post-fix CI being unknown below are historical and superseded by this checkpoint.
+- This documentation checkpoint is a **new commit**, and its own CI/Pages evidence must be checked independently before calling the new HEAD deployed. No feature or version bump in this evidence-only update.
+- Next: inspect the deployed browser artefact and verify staff/QR navigation; then plan trusted staff/device provisioning and TLS before writable HTTP. Dojo remains preferred, sandbox validation pending; no live payments.
+- Rollback/source baseline: `7236f546f1e8816b4d6626fb37e0bc271c471232`.
+
+
 Version: **0.2.27** — CI contract assertion repair
 Date: 2026-11-03
 Canonical: Kenway-Creative/BintyPOS · main

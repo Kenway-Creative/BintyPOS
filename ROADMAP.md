@@ -4,8 +4,9 @@
 Blackstock Market: one transaction across many businesses, each outlet managed within appropriate permissions, shared recipe stock and accurate vendor settlement, with minimal peak-time taps.
 
 ## Immediate release gate (blocking new features)
-- Validate v0.2.27 device-identifier hotfix and new regression cases in Node + Python CI; confirm GitHub Pages deploy step on the same commit, then verify the served browser artefact. Current latest workflow evidence is run 41669040598 (failed Python; Pages skipped); no verified post-fix run yet.
-- Next product slice after a green release: trusted staff/device provisioning and TLS threat model before writable HTTP operations. Dojo sandbox validation remains blocked; no live payment calls.
+- v0.2.27 source commit `7236f546f1e8816b4d6626fb37e0bc271c471232`: push workflow [41679810934](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41679810934), job `126070209359`, verified Node and Python tests and GitHub Pages deploy succeeded (13/13 steps). This supersedes older failed run `41669040598`; do not treat the old failure as current.
+- Latest documentation-only HEAD `ae84d419692ec1846039e7bd8b8e2e03d7b79d8c` has **no independently verified CI/deployment result**. The successful earlier source run is not proof for this HEAD. Published browser behaviour is also **UNVERIFIED**: runtime access unavailable from the execution environment.
+- Next: obtain current HEAD push-run jobs and browser runtime evidence; fix any actual failure before expanding product scope. Then implement trusted staff/device provisioning and TLS threat model before writable HTTP. Dojo sandbox validation remains pending; never enable real payments in the demo.
 
 ## Completed
 - 0.2.0 framework architecture and proposed open API.

@@ -1,5 +1,12 @@
 # BintyPOS status
 
+## Current-HEAD release evidence — 2026-11-05 01:03 UTC
+- Canonical main at inspection: `3c3efac78851226841a324cb1fc1c981a4b9d5f4`. GitHub Actions **push** run [41825012326](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41825012326), job `126557400193`, has completed **success** against this exact SHA. All 13 job steps succeeded, including Node regression tests, Python tests, Pages configuration, site upload and Pages deployment. This resolves the prior false 'no push-run evidence' blocker for that SHA.
+- **That inspected SHA: COMMITTED, CI PASSED, DEPLOYED. Browser runtime: UNVERIFIED.** Public Pages URL could not be accessed by independent browser checker. No claim of production readiness or payment integration. Test counts were not available from job-step metadata (do not infer counts).
+- This documentation-only update creates a later HEAD; its CI and Pages results must be verified separately before assigning those labels to the new SHA. Previous green run cannot certify this documentation commit.
+- Next: independently exercise published staff and QR pages; then implement a bounded, tested secure staff/device provisioning design (no public login or live payments). Rollback known green baseline: `3c3efac78851226841a324cb1fc1c981a4b9d5f4`.
+
+
 ## Verified v0.2.27 workflow checkpoint — 2026-11-04 10:56 UTC
 - Source commit `7236f546f1e8816b4d6626fb37e0bc271c471232`; GitHub Actions push run `41679810934`, job `126070209359`: Node regression step SUCCESS; Python regression step SUCCESS; Configure Pages, Upload site and Deploy Pages all SUCCESS (13/13 job steps). https://github.com/Kenway-Creative/BintyPOS/actions/runs/41679810934
 - **Source commit: COMMITTED, CI PASSED, DEPLOYED. Runtime: UNVERIFIED.** No independent browser functionality check; this is not production readiness. Prior claims of post-fix CI being unknown below are historical and superseded by this checkpoint.

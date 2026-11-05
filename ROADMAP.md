@@ -3,10 +3,10 @@
 ## Product north star
 Blackstock Market: one transaction across many businesses, each outlet managed within appropriate permissions, shared recipe stock and accurate vendor settlement, with minimal peak-time taps.
 
-## Immediate release gate (blocking new features)
-- v0.2.27 source commit `7236f546f1e8816b4d6626fb37e0bc271c471232`: push workflow [41679810934](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41679810934), job `126070209359`, verified Node and Python tests and GitHub Pages deploy succeeded (13/13 steps). This supersedes older failed run `41669040598`; do not treat the old failure as current.
-- Latest documentation-only HEAD `ae84d419692ec1846039e7bd8b8e2e03d7b79d8c` has **no independently verified CI/deployment result**. The successful earlier source run is not proof for this HEAD. Published browser behaviour is also **UNVERIFIED**: runtime access unavailable from the execution environment.
-- Next: obtain current HEAD push-run jobs and browser runtime evidence; fix any actual failure before expanding product scope. Then implement trusted staff/device provisioning and TLS threat model before writable HTTP. Dojo sandbox validation remains pending; never enable real payments in the demo.
+## Immediate release gate (commit-specific)
+- Verified canonical source/documentation SHA `3c3efac78851226841a324cb1fc1c981a4b9d5f4`: push workflow [41825012326](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41825012326), job `126557400193`, completed successfully with 13/13 steps including Node/Python test steps and GitHub Pages deployment. This removes the earlier inability to inspect push-triggered runs. Test counts not independently retrieved.
+- A later documentation checkpoint `14372603a96b364cfac66820142aa087e2022216` records that evidence; **its own CI and Pages must be inspected separately**. Browser staff/QR runtime remains **UNVERIFIED** (independent access unavailable), and the application is not production-ready.
+- Priority: verify public staff/QR navigation and review any current-HEAD workflow failure; then proceed with verified human/device provisioning and TLS threat modelling before writable HTTP. Dojo sandbox validation pending, no real payments.
 
 ## Completed
 - 0.2.0 framework architecture and proposed open API.

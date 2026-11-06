@@ -1,3 +1,9 @@
+## [0.2.28] — 2026-11-06 — Clarify browser demo versus framework version
+- Corrected the visible header/footer: the overall framework is v0.2.28 while the standalone in-browser demonstration remains v0.2.8. This avoids falsely implying the browser has the later SQLite/security capabilities.
+- Added Node regression tests for both visible labels and the simulated-payment warning. No API behaviour, stock processing or payments changed; OpenAPI remains v0.2.27 because its contract did not change.
+- Baseline: 42fe693734a9961f4d826a6b33be200ed556083d (CI/Pages run 41964790621, job 127039189694, 13/13 steps). New HEAD requires independent CI/Pages/runtime verification; no release claimed.
+- Benchmark: Square documents distinct POS and API surfaces (https://developer.squareup.com/docs/catalog-api/overview); BintyPOS explicitly labels its browser-only mock rather than claiming the browser demonstrates backend capabilities.
+
 ## [0.2.27 hotfix] — 2026-11-03 — Device identifier CI regression
 - GitHub Actions run 41669040598: Node suite passed, Python 111/112 passed; `test_device_registry.test_invalid_inputs` failed. Pages upload/deploy skipped.
 - Device registry now rejects whitespace in machine identifiers without changing shared staff identifier validation. Added regression cases for venue, device and outlet whitespace in commit `5c3132939969ecfa205b1cd26f16804091ae50a5`.

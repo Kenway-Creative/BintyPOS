@@ -1,3 +1,9 @@
+## Current checkpoint — 2026-11-06 18:00 UTC
+- v0.2.28 corrects misleading v0.2.8 header/footer by showing framework and browser-demo versions separately. Regression test: tests/version-label.test.cjs. The OpenAPI contract remains 0.2.27 (unchanged).
+- Prior verified baseline: 42fe693734a9961f4d826a6b33be200ed556083d; push run 41964790621, job 127039189694, 13/13 steps successful including Node, Python and Pages deployment. This does NOT certify subsequent commits.
+- New commits: index 093260257998d4bfa255e991d4e82e19b2dff2b3; regression a86dcd1cd435d7c023c8a69030b82dae1bd97b95. Current HEAD CI/Pages/runtime UNVERIFIED until exact run inspected. No new backend functionality or live payments.
+- Next: verify exact latest HEAD workflow and browser staff/QR behaviour, then verified staff/device provisioning and TLS design. Rollback: 42fe693734a9961f4d826a6b33be200ed556083d.
+
 # BintyPOS status
 
 ## Current-HEAD release evidence — 2026-11-05 01:03 UTC

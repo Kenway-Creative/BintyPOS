@@ -1,3 +1,7 @@
+## Framework and browser demo versioning (2026-11-06)
+
+The Python/SQLite and API-first framework checkpoint is **v0.2.28**. The static browser-only demonstration is still **v0.2.8** in functionality; its header/footer now distinguish these versions. The OpenAPI contract stays **0.2.27** until an API contract changes. Browser interactions do **not** exercise the newer SQLite staff/device guards, durable transaction service, real payments or production authentication. Run `node --test tests/*.test.cjs` and `python3 -m unittest discover -s tests -p 'test_*.py' -v`. GitHub Pages publication must be checked against the exact latest commit; browser runtime remains unverified. No Dojo integration or live payment.
+
 # BintyPOS — Blackstock Market EPOS prototype
 
 **Prototype v0.2.27** · public demonstration only · no live payments or merchant data.

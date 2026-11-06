@@ -3,6 +3,10 @@
 ## Product north star
 Blackstock Market: one transaction across many businesses, each outlet managed within appropriate permissions, shared recipe stock and accurate vendor settlement, with minimal peak-time taps.
 
+## Current priority — 2026-11-06
+- v0.2.28 fixes misleading UI version labels; browser demo remains at its own v0.2.8 functionality. New HEAD needs fresh CI and Pages evidence. Verify actual staff/QR navigation before further feature expansion.
+- Then secure human/device provisioning, TLS threat model and outlet-scoped authorisation before any writable HTTP; Dojo sandbox validation remains blocked, no real payments.
+
 ## Immediate release gate (commit-specific)
 - Verified canonical source/documentation SHA `3c3efac78851226841a324cb1fc1c981a4b9d5f4`: push workflow [41825012326](https://github.com/Kenway-Creative/BintyPOS/actions/runs/41825012326), job `126557400193`, completed successfully with 13/13 steps including Node/Python test steps and GitHub Pages deployment. This removes the earlier inability to inspect push-triggered runs. Test counts not independently retrieved.
 - A later documentation checkpoint `14372603a96b364cfac66820142aa087e2022216` records that evidence; **its own CI and Pages must be inspected separately**. Browser staff/QR runtime remains **UNVERIFIED** (independent access unavailable), and the application is not production-ready.
